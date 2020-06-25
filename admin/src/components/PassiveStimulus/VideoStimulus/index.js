@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+ import React, { Component } from 'react';
 import { Row, Col, Form, Button } from 'react-bootstrap';
 import Question from '../../Responses/Question'
 
@@ -25,7 +25,10 @@ export default class VideoStimulus extends Component {
         this.handleChange = this.handleChange.bind(this)
     }
 
-    onSubmit(e) {
+    /**
+     * Handles submission of VideoStimulus form data.
+     */
+    onSubmit() {
         var req = {
             numQuestions: this.state.numQs,
             videoLink: this.state.link,
@@ -35,6 +38,10 @@ export default class VideoStimulus extends Component {
         console.log(req)
     }
 
+    /**
+     * Handles changes inside of form.  Updates state based on the "name" attribute from the JSX.
+     * @param {event} e 
+     */
     handleChange(e) {
         this.setState({
             [e.target.name]: e.target.value
@@ -42,6 +49,11 @@ export default class VideoStimulus extends Component {
     }
 
 
+    /**
+     * Handles changes for the numQs form field.  If the user is increasing the value, then we must add to the questions array in state.  If the user is decreasing the value, we must remove elements.
+     * One possible change is that we could initially make the questions array of max size, and then the user's questions will not get "deleted" if they remove a question.
+     * @param {event} e 
+     */
     handleNumQsChange(e) {
         var copy = this.state.questions
         if (e.target.value > this.state.numQs) {
@@ -57,6 +69,11 @@ export default class VideoStimulus extends Component {
     }
 
 
+    /**
+     * Handles changes to the question text for individual questions.  Passed to the Question component.
+     * @param {event} e 
+     * @param {int} i 
+     */
     handleQuestionTextChange(e, i) {
         var copy = this.state.questions
         copy[i].text = e.target.value
@@ -65,6 +82,11 @@ export default class VideoStimulus extends Component {
         })
     }
 
+    /**
+     * Handles changes to the response type for individual questions.  Passed to the Question component.
+     * @param {event} e 
+     * @param {int} i 
+     */
     handleResponseTypeChange(e, i) {
         var copy = this.state.questions
         copy[i].type = e.target.value

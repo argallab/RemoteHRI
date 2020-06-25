@@ -33,11 +33,19 @@ export default class DiscreteGridWorld extends React.Component {
         this.onSubmit = this.onSubmit.bind(this)
     }
 
+    /**
+     * Handles submission of DiscreteGridWorld form data.
+     */
     onSubmit() {
         var req = this.state
         console.log(req)
     }
 
+    /**
+     * Handles changes to the form fields using the "name" attribute in the JSX.  If the user is increasing the value of numObstacles, then we must add to the obstacles array in state.  If the user is decreasing the value, we must remove elements.
+     * One possible change is that we could initially make the obstacles array of max size, and then the user's obstacles will not get "deleted" if they remove an obstacle.
+     * @param {event} e 
+     */
     handleChange(e) {
         if (e.target.name == "numObstacles") {
             var copy = this.state.obstacles
@@ -61,6 +69,11 @@ export default class DiscreteGridWorld extends React.Component {
         }
     }
 
+    /**
+     * Handles changes to label or location information for individual obstacles.
+     * @param {event} e 
+     * @param {int}} i 
+     */
     handleObstacleChange(e, i) {
         console.log(e.target.name)
         console.log(e.target.value)
