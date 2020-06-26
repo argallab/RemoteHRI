@@ -1,15 +1,16 @@
 {
     "numQuestions": "2",
-    "videoLink": "https://www.youtube.com/watch?v=Tkeos9AYoqo",
+    "videoLink": "https://www.youtube.com/watch?v=TXdKrtmexWU",
     "instructions": "Watch the video and answer the following questions.",
     "questions": [
         {
-            "text": "Who won the game?",
+            "text": "What was your favorite part of the video?",
             "type": "0"
         },
         {
-            "text": "Who lost the game?",
+            "text": "What was your least favorite part of the video?",
             "type": "0"
         }
-    ]
+    ],
+    "trialIndex": 1
 }

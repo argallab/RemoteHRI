@@ -1,0 +1,13 @@
+body {
+    padding: 3%;
+}
+
+.centered-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader {
+    font-size: 36px;
+}
