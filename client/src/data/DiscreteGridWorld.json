@@ -15,9 +15,11 @@
             "locationY": "1"
         }
     ],
-    "robotLocationX": "0",
-    "robotLocationY": "0",
+    "robotLocationX": "1",
+    "robotLocationY": "1",
     "visualizeGridLines": true,
-    "instructions": "Move the robot to the goal using the arrow keys.",
-    "numObstacles": "2"
+    "instructions": "Move the robot to the goal using the arrow keys or WASD.",
+    "numObstacles": "2",
+    "trialIndex": 3,
+    "postText": "Good job!"
 }

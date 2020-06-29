@@ -10,22 +10,23 @@ export default class DiscreteGridWorld extends React.Component {
         super(props);
 
         this.state = {
-            width: 1,
-            height: 1,
-            goalLocationX: 0,
-            goalLocationY: 0,
+            width: 5,
+            height: 5,
+            goalLocationX: 4,
+            goalLocationY: 4,
             obstacles: [
                 {
                     label: "",
-                    locationX: 0,
-                    locationY: 0
+                    locationX: 2,
+                    locationY: 2
                 }
             ],
             robotLocationX: 0,
             robotLocationY: 0,
             visualizeGridLines: true,
             instructions: "",
-            numObstacles: 1
+            numObstacles: 1,
+            postText: ""
         };
 
         this.handleChange = this.handleChange.bind(this)
@@ -154,6 +155,20 @@ export default class DiscreteGridWorld extends React.Component {
                                             value={this.state.instructions}
                                             onChange={this.handleChange}
                                             placeholder="Instructions for trial..." />
+                                    </Form.Group>
+                                </Col>
+                            </Form.Row>
+                            <Form.Row>
+                                <Col xs={12}>
+                                    <Form.Group controlId="postText">
+                                        <Form.Label>Text to display after winning</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            type="text"
+                                            name="postText"
+                                            value={this.state.postText}
+                                            onChange={this.handleChange}
+                                            placeholder="Great job, moving on to the next trial..." />
                                     </Form.Group>
                                 </Col>
                             </Form.Row>
