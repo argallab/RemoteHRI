@@ -10,22 +10,23 @@ export default class DiscreteGridWorld extends React.Component {
         super(props);
 
         this.state = {
-            width: 1,
-            height: 1,
-            goalLocationX: 0,
-            goalLocationY: 0,
+            width: 5,
+            height: 5,
+            goalLocationX: 4,
+            goalLocationY: 4,
             obstacles: [
                 {
                     label: "",
-                    locationX: 0,
-                    locationY: 0
+                    locationX: 2,
+                    locationY: 2
                 }
             ],
             robotLocationX: 0,
             robotLocationY: 0,
             visualizeGridLines: true,
             instructions: "",
-            numObstacles: 1
+            numObstacles: 1,
+            postText: ""
         };
 
         this.handleChange = this.handleChange.bind(this)
@@ -75,9 +76,6 @@ export default class DiscreteGridWorld extends React.Component {
      * @param {int}} i 
      */
     handleObstacleChange(e, i) {
-        console.log(e.target.name)
-        console.log(e.target.value)
-        console.log(i)
         var copy = this.state.obstacles
         copy[i][e.target.name] = e.target.value
 
@@ -158,6 +156,20 @@ export default class DiscreteGridWorld extends React.Component {
                                 </Col>
                             </Form.Row>
                             <Form.Row>
+                                <Col xs={12}>
+                                    <Form.Group controlId="postText">
+                                        <Form.Label>Text to display after winning</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            type="text"
+                                            name="postText"
+                                            value={this.state.postText}
+                                            onChange={this.handleChange}
+                                            placeholder="Great job, moving on to the next trial..." />
+                                    </Form.Group>
+                                </Col>
+                            </Form.Row>
+                            <Form.Row>
                                 <Col xs={2}>
                                     <Form.Group controlId="width">
                                         <Form.Label>World Width</Form.Label>
@@ -189,7 +201,7 @@ export default class DiscreteGridWorld extends React.Component {
                                             onChange={this.handleChange}
                                             name="robotLocationX"
                                             placeholder="0" />
-                                        <Form.Text className="text-muted">Using 0 indexing</Form.Text>
+                                        <Form.Text className="text-muted">Using 0 indexing, (0,0) is top-left</Form.Text>
                                     </Form.Group>
                                 </Col>
                                 <Col xs={2}>
@@ -201,7 +213,7 @@ export default class DiscreteGridWorld extends React.Component {
                                             name="robotLocationY"
                                             onChange={this.handleChange}
                                             placeholder="0" />
-                                        <Form.Text className="text-muted">Using 0 indexing</Form.Text>
+                                        <Form.Text className="text-muted">Using 0 indexing, (0,0) is top-left</Form.Text>
                                     </Form.Group>
                                 </Col>
                                 <Col xs={2}>
@@ -213,7 +225,7 @@ export default class DiscreteGridWorld extends React.Component {
                                             onChange={this.handleChange}
                                             name="goalLocationX"
                                             placeholder="0" />
-                                        <Form.Text className="text-muted">Using 0 indexing</Form.Text>
+                                        <Form.Text className="text-muted">Using 0 indexing, (0,0) is top-left</Form.Text>
                                     </Form.Group>
                                 </Col>
                                 <Col xs={2}>
@@ -225,7 +237,7 @@ export default class DiscreteGridWorld extends React.Component {
                                             name="goalLocationY"
                                             onChange={this.handleChange}
                                             placeholder="0" />
-                                        <Form.Text className="text-muted">Using 0 indexing</Form.Text>
+                                        <Form.Text className="text-muted">Using 0 indexing, (0,0) is top-left</Form.Text>
                                     </Form.Group>
                                 </Col>
                             </Form.Row>

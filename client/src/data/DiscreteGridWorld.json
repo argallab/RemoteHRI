@@ -1,0 +1,25 @@
+{
+    "width": "5",
+    "height": "5",
+    "goalLocationX": "4",
+    "goalLocationY": "4",
+    "obstacles": [
+        {
+            "label": "Obstacle 1",
+            "locationX": "2",
+            "locationY": "2"
+        },
+        {
+            "label": "Obstacle 2",
+            "locationX": "0",
+            "locationY": "1"
+        }
+    ],
+    "robotLocationX": "1",
+    "robotLocationY": "1",
+    "visualizeGridLines": true,
+    "instructions": "Move the robot to the goal using the arrow keys or WASD.",
+    "numObstacles": "2",
+    "trialIndex": 3,
+    "postText": "Good job!"
+}
