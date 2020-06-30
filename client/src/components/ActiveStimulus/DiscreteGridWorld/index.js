@@ -73,12 +73,17 @@ export default class DiscreteGridWorld extends Component {
         document.removeEventListener("keydown", this.handleKeyPress, false);
     }
 
+    /**
+     * Note that (0,0) is location of top left corner.
+     * @param {event} event 
+     */
     handleKeyPress(event) {
         if (this.state.didWin) {
             return;
         }
 
         if (event.key == "w" || event.key == "ArrowUp") {
+            // if the robot is in top row or cell above the robot is an obstacle - invalid move
             if (this.state.robotLocationY == 0 || this.state.grid[this.state.robotLocationY - 1][this.state.robotLocationX] == "O") {
                 return;
             }
@@ -86,6 +91,7 @@ export default class DiscreteGridWorld extends Component {
                 robotLocationY: this.state.robotLocationY - 1
             }, this.computeGrid)
         } else if (event.key == "s" || event.key == "ArrowDown") {
+            // if the robot is in bottom row or cell below the robot is an obstacle - invalid move
             if (this.state.robotLocationY == this.state.numRows - 1 || this.state.grid[this.state.robotLocationY + 1][this.state.robotLocationX] == "O") {
                 return;
             }
@@ -93,6 +99,7 @@ export default class DiscreteGridWorld extends Component {
                 robotLocationY: this.state.robotLocationY + 1
             }, this.computeGrid)
         } else if (event.key == "a" || event.key == "ArrowLeft") {
+            // if the robot is in left column or cell left of the robot is an obstacle - invalid move
             if (this.state.robotLocationX == 0 || this.state.grid[this.state.robotLocationY][this.state.robotLocationX - 1] == "O") {
                 return;
             }
@@ -100,6 +107,7 @@ export default class DiscreteGridWorld extends Component {
                 robotLocationX: this.state.robotLocationX - 1
             }, this.computeGrid)
         } else if (event.key == "d" || event.key == "ArrowRight") {
+            // if the robot is in right column or cell right of the robot is an obstacle - invalid move
             if (this.state.robotLocationX == this.state.numCols - 1 || this.state.grid[this.state.robotLocationY][this.state.robotLocationX + 1] == "O") {
                 return;
             }
