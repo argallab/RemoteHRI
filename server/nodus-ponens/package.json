@@ -1,0 +1,55 @@
+{
+  "_from": "nodus-ponens",
+  "_id": "nodus-ponens@1.3.5",
+  "_inBundle": false,
+  "_integrity": "sha512-9Nhb0iUWWoBPx4eqQqgBQRx41fuv4XqL/9s9swVBNRQM3u+F3zZ3EWGyR5U0WE63DFsAEOG2nxuxd4NlFn+5qw==",
+  "_location": "/nodus-ponens",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "nodus-ponens",
+    "name": "nodus-ponens",
+    "escapedName": "nodus-ponens",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/nodus-ponens/-/nodus-ponens-1.3.5.tgz",
+  "_shasum": "6248bf821809125d3e2c5a4755edf3ef56caeb66",
+  "_spec": "nodus-ponens",
+  "_where": "C:\\Users\\finle\\Documents\\jshai\\remoteHAI\\server",
+  "author": {
+    "name": "Sangeet Khemlani"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "dateformat": "^1.0.12",
+    "errorhandler": "^1.5.0",
+    "express": "^4.14.0",
+    "express-session": "^1.14.2",
+    "fast-csv": "^2.3.0",
+    "json2csv": "^3.7.2",
+    "save": "^2.3.0",
+    "shelljs": "^0.7.5"
+  },
+  "deprecated": false,
+  "description": "A light, full-stack framework for running high-level reasoning and cognitive science experiments in Node.js.",
+  "devDependencies": {},
+  "license": "ISC",
+  "main": "index.js",
+  "name": "nodus-ponens",
+  "repository": {
+    "type": "git",
+    "url": "http://svn.princeton.edu/mentalmodels/"
+  },
+  "scripts": {
+    "create-template": "shjs createTemplate.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.3.5"
+}

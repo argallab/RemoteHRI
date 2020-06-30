@@ -1,0 +1,96 @@
+<!--
+=====================================================================================================
+II. Present paginated instructions
+=====================================================================================================
+-->
+
+<html>
+<head>
+<title>Instructions</title>
+<link rel="stylesheet" href="./css/jquery-ui.css" type="text/css">
+<link rel="stylesheet" href="./css/nodus-ponens.css" type="text/css" />
+<script src="./js/jquery-1.10.2.js"></script>
+<script src="./js/jquery-ui.js"></script>
+
+<script language="javascript">
+
+var currentPage = 1;                    // Global variable that tracks which page is displayed
+var numPages = 0;
+
+$(document).ready(function(){
+   numPages = $('.page').length;            // Overrides default functionality of jQuery button
+   $("#nextButton").button().click(function( event ) { event.preventDefault(); }); });
+
+function nextPage()
+{
+	if (currentPage == (numPages - 1)) $("#nextButton").html("Begin Study");
+	if (currentPage < numPages)
+	{
+		$('#page' + currentPage).hide();
+		$('#page' + (currentPage + 1)).show();
+		currentPage++;
+	}
+	else if (currentPage == numPages) window.location = "showStimuli.html";
+}
+
+</script>
+
+</head>
+
+<body>
+
+<div id="container">
+
+<h1>Instructions</h1>
+
+<div id="page1" class="page" style="display:inline;">
+
+   <p><b>[Instructions page 1]</b></p>
+
+   <p>Click "Next" when you are ready.</p>
+
+</div>
+
+<div id="page2" class="page" style="display:none;">
+
+   <p><b>[Instructions page 2A]</b></p>
+
+   <p>Click "Next" for an example question.</p>
+
+</div>
+
+<div id="page3" class="page" style="display:none;">
+
+   <font color="#BBB">
+   <p><b>[Instructions page 2A]</b></p>
+
+   </font>
+
+   <p><b>[Instructions page 2B]</b></p>
+
+   <p>Click "Next" to continue.</p>
+
+</div>
+
+<div id="page4" class="page" style="display:none;">
+
+   <p><b>[Instructions page 3]</b></p>
+
+   <p>Click "Next" to continue.</p>
+
+</div>
+
+<div id="page5" class="page" style="display:none;">
+
+   <p><b>[Instructions page 4]</b></p>
+	
+   <p>Please click "Begin Study" to begin.</p>
+
+</div>
+
+<center><button id="nextButton" value="Next" onclick="nextPage();">Next</button></center>
+	
+</div>
+
+</body>
+</html>
