@@ -21,6 +21,7 @@ var session = require('express-session');
 var errorHandler = require('errorhandler')();
 var json2csv = require('json2csv');      // This library will turn the JSON stimuli object into a CSV
 var fs = require('fs');
+var bodyParser = require('body-parser');
 
 function shuffle(array) {
    // Shuffle fn for Javascript
@@ -42,31 +43,12 @@ function shuffle(array) {
 
 function logData(dataDirectory, sessionData) {
    var experimentData = JSON.parse(JSON.stringify(sessionData));
-   var stimuliData = experimentData.Stimuli;
-   delete experimentData.Stimuli;
 
    var fileName = dataDirectory + "/data-" + experimentData.ExperimentName + "-" + experimentData.ParticipantID
-      + "-" + new Date().toISOString().slice(0, 10) + ".csv";
+      + "-" + new Date().toISOString().slice(0, 10) + ".json";
 
-   var experimentCSV = json2csv({
-      data: experimentData,
-      fields: Object.keys(experimentData),
-      eol: "\n"
-   });
    // Write out experiment header information
-   fs.writeFileSync(fileName, experimentCSV);
-
-   var header = true;                                           // Write out trial information (only
-   stimuliData.forEach(function (stimData)                        //    one header for all the trials)
-   {
-      var stimulusCSV = json2csv({
-         data: stimData,
-         fields: Object.keys(stimData),
-         hasCSVColumnTitle: header, eol: "\n"
-      });
-      if (header) header = false;
-      fs.appendFileSync(fileName, stimulusCSV);
-   });
+   fs.writeFileSync(fileName, JSON.stringify(experimentData, null, 2));
 }
 
 
@@ -100,6 +82,9 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       if (app.get('env') === 'development') { return errorHandler(err, req, res, next); }
       else { res.sendStatus(401); }
    });
+   np.app.use(bodyParser.urlencoded({ extended: false }));
+   np.app.use(bodyParser.json());
+   
    np.participantID = startingParticipantID;
    np["updateParticipantID"] = function () { var pID = np.participantID; return np.participantID + 1; };
    np["loadStimuli"] = function () {
@@ -113,8 +98,6 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
    // --------------------------------------------------------------------------------------------------
 
    np.app.get("/startExperiment", function (req, res) {
-      res.header('Access-Control-Allow-Origin', '*')
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       req.session.sessdata = {};
       Object.keys(require.cache).forEach(function (key) { delete require.cache[key] })
       var sess = req.session;
@@ -131,7 +114,7 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       var today = new Date();
       sess.sessdata.StartTime = today.toISOString();
       sess.sessdata.CurrentStimulus = 0;
-      //sess.sessdata.Stimuli           = np.loadStimuli(np.participantID);
+      sess.sessdata.Stimuli           = np.loadStimuli(np.participantID);
 
       req.session = sess;
       console.log(dateFormat(today) + "   Set up experiment for " + sess.sessdata.ParticipantID + "...");
@@ -142,41 +125,49 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
    // 2. Monitoring data
    // --------------------------------------------------------------------------------------------------
 
-   np.app.get("/showSessionData", function (req, res) { res.json(req.session.sessdata); });
+   np.app.get("/showSessionData", function (req, res) {
+      res.json(req.session.sessdata);
+   });
 
    // --------------------------------------------------------------------------------------------------
    // 3. Returning stimulus information
    // --------------------------------------------------------------------------------------------------
 
-   np.app.get("/getNextStimulus", function (req, res) {
+   np.app.post("/getNextStimulus", function (req, res) {
       var sess = req.session;
       var nextStimulus = {};
-      if (req.query.dumpQuery || !req.query.answer)        // If received signal to dump info or no info,
-      {                                                                       // don't increment problem
-         if (sess.sessdata.CurrentStimulus >= sess.sessdata.Stimuli.length)
-            nextStimulus = { "Data": "Done" };
-         else
-            nextStimulus = sess.sessdata.Stimuli[sess.sessdata.CurrentStimulus];
-      }
-      else                                           // Else, if participant provided answer to problem, 
-      {                                                  // log, then increment and provide next problem
-         var currentStimulus = sess.sessdata.CurrentStimulus;
-         if (currentStimulus >= 0 && currentStimulus < sess.sessdata.Stimuli.length
-            && req.query.clockTime && req.query.answer && req.query.latency) {
-            sess.sessdata.Stimuli[currentStimulus]["ClockTime"] = req.query.clockTime;
-            sess.sessdata.Stimuli[currentStimulus]["Answer"] = req.query.answer;
-            sess.sessdata.Stimuli[currentStimulus]["Latency"] = req.query.latency;
-            sess.sessdata.Stimuli[currentStimulus]["TrialNumber"] = currentStimulus + 1;
-            logData(np.dataDirectory + "/incomplete", sess.sessdata);
+   
+      if (req.body === undefined)
+      {
+         res.status(400).json({"message": "Invalid request - no body."})
+      } else {
+         if (req.body.dumpQuery || !req.body.answer)     // If received signal to dump info or no info,
+         {          
+            if (sess.sessdata.CurrentStimulus >= sess.sessdata.Stimuli.length)
+               nextStimulus = { "Data": "Done" };
+            else
+               nextStimulus = sess.sessdata.Stimuli[sess.sessdata.CurrentStimulus];
          }
-         sess.sessdata.CurrentStimulus++;
-         if (currentStimulus + 1 >= sess.sessdata.Stimuli.length)
-            nextStimulus = { "Data": "Done" };
-         else
-            nextStimulus = sess.sessdata.Stimuli[currentStimulus + 1];
+         else                                           // Else, if participant provided answer to problem, 
+         {                                                  // log, then increment and provide next problem
+            var currentStimulus = sess.sessdata.CurrentStimulus;
+            if (currentStimulus >= 0 && currentStimulus < sess.sessdata.Stimuli.length
+               && req.body.clockTime !== undefined && req.body.answer !== undefined && req.body.latency !== undefined) {
+               sess.sessdata.Stimuli[currentStimulus]["ClockTime"] = req.body.clockTime;
+               sess.sessdata.Stimuli[currentStimulus]["Answer"] = req.body.answer;
+               sess.sessdata.Stimuli[currentStimulus]["Latency"] = req.body.latency;
+               sess.sessdata.Stimuli[currentStimulus]["TrialNumber"] = currentStimulus + 1;
+               logData(np.dataDirectory + "/incomplete", sess.sessdata);
+            }
+            sess.sessdata.CurrentStimulus++;
+            if (currentStimulus + 1 >= sess.sessdata.Stimuli.length)
+               nextStimulus = { "Data": "Done" };
+            else
+               nextStimulus = sess.sessdata.Stimuli[currentStimulus + 1];
+         }
+         req.session = sess;
+         res.json(nextStimulus);
       }
-      req.session = sess;
-      res.json(nextStimulus);
    });
 
    // --------------------------------------------------------------------------------------------------

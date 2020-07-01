@@ -10,20 +10,31 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
-      data: {},
       experimentLoaded: false,
       experimentStarted: false,
       // note: can eventually experiment with preloading
       trialLoaded: false,
-      startExperimentResponse: {}
+      startExperimentResponse: {},
+      trialData: {},
+      experimentDone: false
     }
 
     this.startExperiment = this.startExperiment.bind(this)
+    this.getNextStimulus = this.getNextStimulus.bind(this)
+    this.getNextTrial = this.getNextTrial.bind(this)
+
+    this.fetchConfig = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      mode: "cors",
+      credentials: "include"
+    }
   }
 
   componentDidMount() {
-    console.log(process.env.REACT_APP_SERVERURL)
-    if (process.env.REACT_APP_SERVERURL != null && process.env.REACT_APP_SERVERURL != "") {
+    if (process.env.REACT_APP_SERVERURL !== null && process.env.REACT_APP_SERVERURL !== "") {
       this.setState({
         experimentLoaded: true
       })
@@ -31,18 +42,12 @@ export default class App extends React.Component {
   }
 
   startExperiment() {
-    fetch(process.env.REACT_APP_SERVERURL + "/startExperiment", {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      mode: "cors"
-    })
+    fetch("/startExperiment", this.fetchConfig)
       .then((response) => {
         if (response.status === 200) {
           return response.json()
         } else {
-          throw "/startExperiment failed with error code: " + response.status
+          throw new Error("/startExperiment failed with error code: " + response.status)
         }
       })
       .then((data) => {
@@ -52,21 +57,83 @@ export default class App extends React.Component {
           startExperimentResponse: data,
           experimentStarted: true
         })
+        this.getNextStimulus()
       })
       .catch((err) => console.error(err))
   }
 
-  getNextStimuli() {
-    fetch()
+  checkSessionData() {
+    fetch("/showSessionData", this.fetchConfig)
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json()
+      } else {
+        throw new Error("/showSessionData failed with error code: " + response.status)
+      }
+    })
+    .then((data) => {
+      console.log("/showSessionData response:")
+      console.log(data)
+    })
+  }
+
+  getNextStimulus(body = {}) {
+    var params = {...this.fetchConfig}
+    params["method"] = "POST"
+    params["body"] = JSON.stringify(body)
+    fetch("/getNextStimulus", params)
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json()
+      } else {
+        throw new Error("/getNextStimulus failed with error code: " + response.status)
+      }
+    })
+    .then((data) => {
+      console.log("/getNextStimulus response:")
+      console.log(data)
+      if (data.Data === "Done")
+      {
+        this.setState({
+          trialData: {},
+          trialLoaded: false,
+          experimentDone: true
+        })
+
+      } else {
+        this.setState({
+          trialData: data,
+          trialLoaded: true
+        })
+      }
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  }
+
+  getNextTrial(answer) {
+    console.log("Called getNextTrial with object ", answer)
+    // clockTime, answer, latency
+    var toSend = {...answer}
+    toSend["clockTime"] = 0
+    toSend["latency"] = 0
+    this.getNextStimulus(toSend)
   }
 
   render() {
+    if (this.state.experimentDone) {
+      return (
+        <LoadingScreen hideLoader={true} text={"Experiment done!"} />
+      )
+    }
+
     if (this.state.experimentLoaded) {
       if (this.state.experimentStarted) {
         if (this.state.trialLoaded) {
           return (
             <div className="App">
-              <DiscreteGridWorld />
+              <DiscreteGridWorld key={this.state.trialData.trialIndex} data={this.state.trialData} submit={this.getNextTrial} />
             </div>
           )
         } else {

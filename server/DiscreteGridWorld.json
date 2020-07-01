@@ -8,8 +8,8 @@
         "obstacles": [
             {
                 "label": "Obstacle 1",
-                "locationX": "2",
-                "locationY": "2"
+                "locationX": "3",
+                "locationY": "3"
             },
             {
                 "label": "Obstacle 2",
@@ -20,9 +20,24 @@
         "robotLocationX": "1",
         "robotLocationY": "1",
         "visualizeGridLines": true,
-        "instructions": "Move the robot to the goal using the arrow keys or WASD.",
+        "instructions": "Move the grey circle robot to the green square goal using the arrow keys or WASD.",
         "numObstacles": "2",
         "trialIndex": 3,
+        "postText": "Good job!"
+    },
+    {
+        "stimulusType": "grid-world",
+        "width": "2",
+        "height": "2",
+        "goalLocationX": "1",
+        "goalLocationY": "1",
+        "obstacles": [],
+        "robotLocationX": "0",
+        "robotLocationY": "0",
+        "visualizeGridLines": true,
+        "instructions": "Hello, good job!  You've made it to the next grid world.",
+        "numObstacles": "0",
+        "trialIndex": 4,
         "postText": "Good job!"
     }
 ]

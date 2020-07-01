@@ -81,7 +81,11 @@ function assignContents(design)            // This assigns contents to schematic
 // --------------------------------------------------------------------------------------------------
 // 3. Extra routes
 // --------------------------------------------------------------------------------------------------
-np.app.use(cors())
+
+var corsOptions = {
+   origin: "http://localhost:3001"
+}
+np.app.use(cors(corsOptions))
 
 np.app.get("/hello", (req, res) => {
    res.json({"message": "hello"})
