@@ -20,8 +20,7 @@ export default class DiscreteGridWorld extends Component {
             grid: [],
             numRows: 0,
             numCols: 0,
-            didWin: false,
-            answer: {}
+            didWin: false
         }
 
         this.onSubmit = this.onSubmit.bind(this)
@@ -36,7 +35,7 @@ export default class DiscreteGridWorld extends Component {
      */
     componentDidMount() {
         var json = this.props.data
-        
+
         json.height = parseInt(json.height);
         json.width = parseInt(json.width)
         json.goalLocationX = parseInt(json.goalLocationX);
@@ -49,6 +48,8 @@ export default class DiscreteGridWorld extends Component {
         json.robotLocationY = parseInt(json.robotLocationY)
 
         this.setState({
+            start: Date.now(),
+            keypresses: [],
             width: json.width,
             height: json.height,
             goalLocationX: json.goalLocationX,
@@ -84,36 +85,82 @@ export default class DiscreteGridWorld extends Component {
             return;
         }
 
+        var copy = this.state.keypresses
+        copy.push({
+            keyPress: event.key,
+            timestamp: Date.now(),
+            state: {
+                robotLocation: {
+                    x: this.state.robotLocationX,
+                    y: this.state.robotLocationY
+                }
+            }
+        })
+
+
+
         if (event.key === "w" || event.key === "ArrowUp") {
             // if the robot is in top row or cell above the robot is an obstacle - invalid move
             if (this.state.robotLocationY === 0 || this.state.grid[this.state.robotLocationY - 1][this.state.robotLocationX] === "O") {
+                this.setState({
+                    answer: {
+                        keypresses: copy
+                    }
+                })
                 return;
             }
             this.setState({
+                answer: {
+                    keypresses: copy
+                },
                 robotLocationY: this.state.robotLocationY - 1
             }, this.computeGrid)
         } else if (event.key === "s" || event.key === "ArrowDown") {
             // if the robot is in bottom row or cell below the robot is an obstacle - invalid move
             if (this.state.robotLocationY === this.state.numRows - 1 || this.state.grid[this.state.robotLocationY + 1][this.state.robotLocationX] === "O") {
+                this.setState({
+                    answer: {
+                        keypresses: copy
+                    },
+                })
                 return;
             }
             this.setState({
+                answer: {
+                    keypresses: copy
+                },
                 robotLocationY: this.state.robotLocationY + 1
             }, this.computeGrid)
         } else if (event.key === "a" || event.key === "ArrowLeft") {
             // if the robot is in left column or cell left of the robot is an obstacle - invalid move
             if (this.state.robotLocationX === 0 || this.state.grid[this.state.robotLocationY][this.state.robotLocationX - 1] === "O") {
+                this.setState({
+                    answer: {
+                        keypresses: copy
+                    }
+                })
                 return;
             }
             this.setState({
+                answer: {
+                    keypresses: copy
+                },
                 robotLocationX: this.state.robotLocationX - 1
             }, this.computeGrid)
         } else if (event.key === "d" || event.key === "ArrowRight") {
             // if the robot is in right column or cell right of the robot is an obstacle - invalid move
             if (this.state.robotLocationX === this.state.numCols - 1 || this.state.grid[this.state.robotLocationY][this.state.robotLocationX + 1] === "O") {
+                this.setState({
+                    answer: {
+                        keypresses: copy
+                    }
+                })
                 return;
             }
             this.setState({
+                answer: {
+                    keypresses: copy
+                },
                 robotLocationX: this.state.robotLocationX + 1
             }, this.computeGrid)
         }
@@ -162,7 +209,12 @@ export default class DiscreteGridWorld extends Component {
 
     onSubmit() {
         console.log("onSubmit called from DiscreteGridWorld")
-        this.props.submit({answer: this.state.answer})
+        var answer = {
+            start: this.state.start,
+            keypresses: this.state.keypresses,
+            end: Date.now()
+        }
+        this.props.submit(answer)
     }
 
     /**
@@ -202,8 +254,8 @@ export default class DiscreteGridWorld extends Component {
                     <hr />
                     {
                         this.state.didWin ?
-                        <div className="centered-content">{this.state.postText}</div> :
-                        <div></div>
+                            <div className="centered-content">{this.state.postText}</div> :
+                            <div></div>
                     }
                 </div>
             )

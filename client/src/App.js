@@ -22,6 +22,7 @@ export default class App extends React.Component {
     this.startExperiment = this.startExperiment.bind(this)
     this.getNextStimulus = this.getNextStimulus.bind(this)
     this.getNextTrial = this.getNextTrial.bind(this)
+    this.endExperiment = this.endExperiment.bind(this)
 
     this.fetchConfig = {
       headers: {
@@ -62,6 +63,22 @@ export default class App extends React.Component {
       .catch((err) => console.error(err))
   }
 
+  endExperiment() {
+    fetch("/endExperiment", this.fetchConfig)
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json()
+      } else {
+        throw new Error("/end failed with error code: " + response.status)
+      }
+    })
+    .then((data) => {
+      console.log("/end response:")
+      console.log(data)
+    })
+    .catch((err) => console.error(err))
+  }
+
   checkSessionData() {
     fetch("/showSessionData", this.fetchConfig)
     .then((response) => {
@@ -98,7 +115,7 @@ export default class App extends React.Component {
           trialData: {},
           trialLoaded: false,
           experimentDone: true
-        })
+        }, this.endExperiment)
 
       } else {
         this.setState({
@@ -116,8 +133,11 @@ export default class App extends React.Component {
     console.log("Called getNextTrial with object ", answer)
     // clockTime, answer, latency
     var toSend = {...answer}
-    toSend["clockTime"] = 0
-    toSend["latency"] = 0
+    console.log(answer)
+    toSend["clockTime"] = new Date().toISOString();
+    toSend["latency"] = (answer.end - answer.start) / 1000;
+    toSend["answer"] = answer
+    console.log(toSend)
     this.getNextStimulus(toSend)
   }
 
