@@ -142,14 +142,14 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
          res.status(400).json({"message": "Invalid request - no body."})
       } else {
          if (req.body.dumpQuery || !req.body.answer)     // If received signal to dump info or no info,
-         {          
+         {
             if (sess.sessdata.CurrentStimulus >= sess.sessdata.Stimuli.length)
                nextStimulus = { "Data": "Done" };
             else
                nextStimulus = sess.sessdata.Stimuli[sess.sessdata.CurrentStimulus];
          }
          else                                           // Else, if participant provided answer to problem, 
-         {                                                  // log, then increment and provide next problem
+         {     
             var currentStimulus = sess.sessdata.CurrentStimulus;
             if (currentStimulus >= 0 && currentStimulus < sess.sessdata.Stimuli.length
                && req.body.clockTime !== undefined && req.body.answer !== undefined && req.body.latency !== undefined) {
