@@ -1,9 +1,10 @@
 import React from 'react';
 
-function LoadingScreen() {
+function LoadingScreen(props) {
   return (
     <div className="loader centered-content">
-      <i className="fa fa-cog fa-spin" />
+      {props.text ? <h4>{props.text}</h4> : ""}
+      {props.hideLoader ? "" : <i className="fa fa-cog fa-spin" />}
     </div>
   );
 }

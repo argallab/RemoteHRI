@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Button, Form } from 'react-bootstrap';
+import { Row, Col, Button } from 'react-bootstrap';
 import ReactPlayer from 'react-player';
 import LoadingScreen from '../../LoadingScreen';
 import TextResponse from '../../Responses/TextResponse';
@@ -67,7 +67,7 @@ export default class VideoStimulus extends Component {
     render() {
         if (this.state.loaded) {
             var responses = this.state.data.questions.map((q, i) => {
-                if (q.type == 0) {
+                if (q.type === 0 || q.type === "0") {
                     return (
                         <TextResponse
                             key={`textresponse${i}`}

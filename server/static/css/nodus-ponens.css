@@ -1,0 +1,300 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway');
+
+body {
+   font-family: Raleway, Georgia, Serif, Helvetica, Arial;
+   text-align: left;
+   padding: 0;
+   font-size: 13pt;
+   color: #000;
+}
+
+p, label {
+   font-family: Raleway, Georgia, Serif;
+}
+
+ol {
+   font-family: Raleway, Georgia, Serif;
+   font-size: 13pt;
+}
+
+li {
+   font-family: Raleway, Georgia, Serif;
+   font-size: 13pt;
+}
+
+label, input {
+   display: block;
+   padding-left: 30px;
+   text-indent: -40px;
+}
+
+input.text {
+   margin-bottom: 14px;
+   width: 95%;
+   padding: .4em;
+}
+
+fieldset {
+   padding: 0;
+   border: 0;
+   margin-top: 25px;
+}
+
+.redtext {
+    color: darkred;
+}
+
+.bluetext {
+    color: darkblue;
+}
+
+.tab1 { 
+    margin-left: 40px; 
+    }
+
+.bluetab {
+    margin-left: 40px;
+    color: darkblue;
+}
+
+.ui-widget {
+   margin: 1px;
+   text-align: center;
+   padding: 0.3em;
+   font-size: 13pt;
+   font-weight: bold;
+}
+
+.ui-state-default {
+   background: #FFF;
+   border: 4px solid #000;
+   color: #000;
+}
+
+.ui-state-hover {
+   background: #EEE;
+   border: 4px solid #444;
+}
+
+.ui-state-active {
+   background: #FFFFC2;
+   border: 4px solid #000;
+}
+
+.ui-button {
+   font-family: Raleway, Georgia, Serif;
+   font-size: 13pt;
+   opacity: 1.0;
+   border: 3px solid #000;
+   font-color: #222;
+}
+
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="reset"]:disabled,
+input[type="file"]:disabled::-webkit-file-upload-button,
+button:disabled,
+select:disabled,
+keygen:disabled,
+optgroup:disabled,
+option:disabled,
+select[disabled] > option {
+   font-family: Raleway, Georgia, Serif;
+   font-size: 13pt;
+   opacity: 1.0;
+   border: 4px solid #BBB;
+   font-color: #222;
+}
+
+.ui-dialog {
+   width: 400px;
+   border: 4px solid red;
+   font-color: #000;
+}
+
+.ui-dialog-titlebar-close {
+   display: none;
+}
+
+.ui-widget-overlay.custom-overlay {
+   background-color: black;
+   background-image: none;
+   opacity: 0.9;
+   z-index: 1040;
+}
+
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="file"]::-webkit-file-upload-button,
+button {
+   font-family: Raleway, Georgia, Serif;
+   opacity: 1.0;
+   font-size: 13pt;
+   border: 4px solid #000;
+   font-color: #000;
+}
+
+select {
+   opacity: 1.0;
+   border: 1px solid #000;
+   font-color: #000;
+}
+
+.ui-widget-content {
+   background: #fff;
+   color: #000;
+}
+
+.ui-widget.success-dialog {
+   font-family: Georgia, Serif, Helvetica, Arial;
+   font-size: .8em;
+}
+
+.ui-widget-content.success-dialog {
+   background: #FFF;
+   border: 4px solid #000;
+   color: #222222;
+}
+
+.ui-dialog.success-dialog {
+   left: 0;
+   outline: 0 none;
+   padding: 10 !important;
+   position: absolute;
+   top: 0;
+}
+
+.ui-dialog.success-dialog .ui-dialog-content {
+   background: none repeat scroll 0 0 transparent;
+   border: 0 none;
+   overflow: auto;
+   position: relative;
+   padding: 0 !important;
+   margin: 0;
+}
+
+.ui-dialog.success-dialog .ui-widget-header {
+   background: #FFF;
+   border: 0;
+   color: #000;
+   font-weight: bold;
+}
+
+.ui-dialog.success-dialog .ui-dialog-titlebar {
+   padding: 0.1em .5em;
+   position: relative;
+   font-size: 1em;
+}
+
+div#container {
+   text-align: left;
+   width: 600px;
+   margin: 0 auto;
+   padding: 5px;
+   
+ /*  position: absolute;
+  
+   margin: -250px 0 0 -250px;
+   left: 50%;
+   top: 50%; */
+}
+
+textarea {
+   margin: 1px;
+   padding: 0.3em;
+   font-family: Raleway, Georgia, Serif,Helvetica, Arial;
+   font-size: 16px;
+   background-color: #FFF;
+   border: 3px solid #000;
+   width:100%;
+   height:100px;
+   -webkit-border-radius: 5px;
+   -moz-border-radius: 5px;
+   border-radius: 5px;
+   resize: none;
+}
+
+input[type=text] {
+   margin: 1px;
+   padding: 0.3em;
+   font-family: Raleway, Georgia, Serif,Helvetica, Arial;
+   font-size: 16px;
+   background-color: #eee;
+   text-align:center;
+   width:100%;
+   height:100px;
+   border: 2px #000;
+   border-style: none none dashed none; 
+   -webkit-border-radius: 0px;
+   -moz-border-radius: 0px;
+   border-radius: 0px;
+   resize: none;
+}
+
+
+input[type="text"]:focus, textarea:focus {
+  /* background-color: #fffdf2; */
+}
+
+.ui-slider-horizontal .ui-state-default {
+  background: #000;
+  overflow: hidden; 
+  position:absolute;
+  top: -10px;
+  width: 50px; 
+  height: 40px; 
+  margin-left: -30px;
+  text-align: center;
+  line-height: 2.7em;
+}
+
+.checkbox-custom, .radio-custom {
+    opacity: 0;
+    position:inherit;
+    top:-2px;   
+}
+
+
+.checkbox-custom, .checkbox-custom-label, .radio-custom .radio-custom-label {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 5px;
+    cursor: pointer;
+    position:absolute;
+    top:-2px;   
+}
+
+.checkbox-custom + .checkbox-custom-label:before, .radio-custom + .radio-custom-label:before {
+    content: '';
+    background: #fff;
+    border: 3px solid #999;
+    display: inline-block;
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    margin-right: 10px;
+    text-align: center;
+}
+
+.checkbox-custom:checked + .checkbox-custom-label:before {
+    background: #000;
+    box-shadow: inset 0px 0px 0px 4px #fff;
+}
+
+.radio-custom + .radio-custom-label:before {
+    border-radius: 50%;
+}
+
+.radio-custom:checked + .radio-custom-label:before {
+    background: #000;
+    box-shadow: inset 0px 0px 0px 4px #fff;
+}
+
+.ui-widget-content {
+    border: 3px solid #000;
+}
+
+
+
