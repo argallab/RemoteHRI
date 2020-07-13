@@ -65,16 +65,33 @@ function setupStimuli(PID)
 
    // flatten blocks into list of stimuli
    var stimuliList = []
+   for (var i = 0; i < res.preExperiment.length; i++)
+   {
+      stimuliList.push(res.preExperiment[i])
+   }
+
    for (var i = 0; i < res.blocks.length; i++)
    {
+      var obj = {}
+      for (var l = 0; l < res.blocks[i].preTrials.length; l++)
+      {
+         obj = res.blocks[i].preTrials[l]
+         obj["blockName"] = res.blocks[i].blockName
+         stimuliList.push(obj)
+      }
+
       for (var j = 0; j < res.blocks[i].trials.length; j++)
       {
-         stimuliList.push(res.blocks[i].trials[j])
+         obj = res.blocks[i].trials[j]
+         obj["blockName"] = res.blocks[i].blockName
+         stimuliList.push(obj)
       }
 
       for (var k = 0; k < res.blocks[i].postTrials.length; k++)
       {
-         stimuliList.push(res.blocks[i].postTrials[k])
+         obj = res.blocks[i].postTrials[k]
+         obj["blockName"] = res.blocks[i].blockName
+         stimuliList.push(obj)
       }
    }
 
@@ -99,13 +116,11 @@ function extendJSON(obj, PID)               // This fn imports any CSV "Design" 
 
 function assignContents(design)            // This assigns contents to schematic versions of problems
 {
-   /*
    for(i = 0; i < design.length; i++)
    {
-      design[i]["Supposition"]  = "Consider the following:";
-      design[i]["QuestionTask"] = "What, if anything, follows?";
+      design[i]["trialIndex"]  = i
    }
-   */
+   
    return design;
 }
 
@@ -119,9 +134,11 @@ var corsOptions = {
 }
 np.app.use(cors(corsOptions))
 
-np.app.get("/hello", (req, res) => {
-   res.json({"message": "hello"})
+np.app.get("/getExperimentName", (req, res) => {
+   res.json({"name": np.experimentName})
 })
+
+
 
 
 // --------------------------------------------------------------------------------------------------

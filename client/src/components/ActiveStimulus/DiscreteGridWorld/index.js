@@ -20,13 +20,17 @@ export default class DiscreteGridWorld extends Component {
             grid: [],
             numRows: 0,
             numCols: 0,
-            didWin: false
+            didWin: false,
+            windowWidth: 0,
+            windowHeight: 0
         }
 
         this.onSubmit = this.onSubmit.bind(this)
         this.computeGrid = this.computeGrid.bind(this)
         this.handleKeyPress = this.handleKeyPress.bind(this)
         this.onWin = this.onWin.bind(this)
+        this.updateWindowDimensions = this.updateWindowDimensions.bind(this)
+        this.calculateCellSize = this.calculateCellSize.bind(this)
     }
 
     /**
@@ -62,17 +66,43 @@ export default class DiscreteGridWorld extends Component {
             numObstacles: parseInt(json.numObstacles),
             loaded: true,
             trialIndex: json.trialIndex,
-            postText: json.postText
+            postText: json.postText,
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
+            cellWidth: 0,
+            cellHeight: 0
         }, () => {
             document.addEventListener("keydown", this.handleKeyPress, false);
+            window.addEventListener("resize", this.updateWindowDimensions)
             this.computeGrid()
         })
     }
+
+    updateWindowDimensions() {
+        this.setState({
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight
+        })
+    }
+
+    calculateCellSize() {
+        const gw = this.state.windowWidth*.8
+        const gh = this.state.windowHeight*.8
+
+        const sizeW = gw / this.state.width
+        const sizeH = gh / this.state.height
+
+        return Math.min(sizeW, sizeH)
+
+    }
+
+
 
     /**
      * Need to understand when this function will be called - could run into some bugs later where this listener is not being properly removed
      */
     componentWillUnmount() {
+        window.removeEventListener("resize", this.updateWindowDimensions)
         document.removeEventListener("keydown", this.handleKeyPress, false);
     }
 
@@ -234,6 +264,7 @@ export default class DiscreteGridWorld extends Component {
         */
 
         if (this.state.loaded) {
+            const cellSize = this.calculateCellSize()
             return (
                 <div>
                     <Row>
@@ -246,6 +277,7 @@ export default class DiscreteGridWorld extends Component {
 
                     <div className="centered-content">
                         <Grid
+                            cellSize={cellSize}
                             grid={this.state.grid}
                             numRows={this.state.numRows}
                             numCols={this.state.numCols}

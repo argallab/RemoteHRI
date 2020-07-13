@@ -106,10 +106,15 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       sess.sessdata.ParticipantID = "P" + np.participantID;
       sess.sessdata.ExperimentName = np.experimentName;
 
-      if (req.query.a) { sess.sessdata.Age = req.query.a; }           // Set experiment variables
-      if (req.query.s) { sess.sessdata.Sex = req.query.s; }
-      if (req.query.c) { sess.sessdata.Coursework = req.query.c; }
-      if (req.query.l) { sess.sessdata.Language = req.query.l; }
+      if (req.query.a !== "") { sess.sessdata.Age = req.query.a; }           // Set experiment variables
+      if (req.query.s !== "") { sess.sessdata.Sex = req.query.s; }
+      if (req.query.h !== "") { sess.sessdata.Hand = req.query.h; }
+      if (req.query.r !== "") { sess.sessdata.Race = req.query.r; }
+
+      // right or left handed
+      // race
+
+
 
       var today = new Date();
       sess.sessdata.StartTime = today.toISOString();
