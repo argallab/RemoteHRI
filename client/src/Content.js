@@ -7,6 +7,9 @@ import LoadingScreen from './components/LoadingScreen'
 import PreExperimentForm from './components/PreExperimentForm';
 import TextDisplay from './components/PassiveStimulus/TextDisplay'
 
+/**
+ * See README.md for documentation.
+ */
 export default class Content extends React.Component {
     constructor(props) {
         super(props);
@@ -160,6 +163,15 @@ export default class Content extends React.Component {
     }
 
     render() {
+        /**
+         * If the experiment is done, show the done screen.
+         * 
+         * If we have estalished a connection with the server but haven't loaded the experiment yet, show the Loading screen.
+         * If we have loaded the experiment but the subject has not pressed the start button, show the PreExperimentForm.
+         * If we have started the experiment and we have a trial loaded, display it.
+         * If we have started the experiment but are waiting for a trial to load, display the Loading screen.
+         */
+
         if (this.state.experimentDone) {
             return (
                 <LoadingScreen hideLoader={true} text={"Experiment done!"} />
