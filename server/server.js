@@ -46,15 +46,64 @@ np.port              = 3003;
 
 function setupStimuli(PID)
 {
-   var text    = fs.readFileSync('./DiscreteGridWorld.json').toString();           // read design into CSV string
-   var design  = extendJSON(text, PID);                    // CSVtoJSON returns stimuli as JSON object
+   var res    = JSON.parse(fs.readFileSync('./Experiment.json').toString());           // read design into CSV string
+   
+   // shuffle stimuli, if neccessary
+   if (res.shuffleBlocks)
+   {
+      res.blocks = np.randomize(res.blocks)
+   }
+
+   for (var i = 0; i < res.blocks.length; i++)
+   {
+      if (res.blocks[i].shuffleTrials)
+      {
+         res.blocks[i].trials = np.randomize(res.blocks[i].trials)
+      }
+   }
+
+
+   // flatten blocks into list of stimuli
+   var stimuliList = []
+   for (var i = 0; i < res.preExperiment.length; i++)
+   {
+      stimuliList.push(res.preExperiment[i])
+   }
+
+   for (var i = 0; i < res.blocks.length; i++)
+   {
+      var obj = {}
+      for (var l = 0; l < res.blocks[i].preTrials.length; l++)
+      {
+         obj = res.blocks[i].preTrials[l]
+         obj["blockName"] = res.blocks[i].blockName
+         stimuliList.push(obj)
+      }
+
+      for (var j = 0; j < res.blocks[i].trials.length; j++)
+      {
+         obj = res.blocks[i].trials[j]
+         obj["blockName"] = res.blocks[i].blockName
+         stimuliList.push(obj)
+      }
+
+      for (var k = 0; k < res.blocks[i].postTrials.length; k++)
+      {
+         obj = res.blocks[i].postTrials[k]
+         obj["blockName"] = res.blocks[i].blockName
+         stimuliList.push(obj)
+      }
+   }
+
+   var design  = extendJSON(stimuliList, PID);                    // add fields to each stimuli object
+
    var stimuli = assignContents(design);   // assign contents to the different problems in the design
    return stimuli;             // To randomize the order of the stimuli, return np.randomize(stimuli)
 }
 
-function extendJSON(text, PID)               // This fn imports any CSV "Design" file as a JSON object
+function extendJSON(obj, PID)               // This fn imports any CSV "Design" file as a JSON object
 {                                                             // and adds some columns for R analyses
-   var results = JSON.parse(text);
+   var results = obj;
    for (var i = 0; i < results.length; i++)
    {
       results[i]["ParticipantID"] = "P" + PID;
@@ -67,13 +116,11 @@ function extendJSON(text, PID)               // This fn imports any CSV "Design"
 
 function assignContents(design)            // This assigns contents to schematic versions of problems
 {
-   /*
    for(i = 0; i < design.length; i++)
    {
-      design[i]["Supposition"]  = "Consider the following:";
-      design[i]["QuestionTask"] = "What, if anything, follows?";
+      design[i]["trialIndex"]  = i
    }
-   */
+   
    return design;
 }
 
@@ -87,9 +134,11 @@ var corsOptions = {
 }
 np.app.use(cors(corsOptions))
 
-np.app.get("/hello", (req, res) => {
-   res.json({"message": "hello"})
+np.app.get("/getExperimentName", (req, res) => {
+   res.json({"name": np.experimentName})
 })
+
+
 
 
 // --------------------------------------------------------------------------------------------------
