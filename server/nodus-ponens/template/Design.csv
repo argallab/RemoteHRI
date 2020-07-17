@@ -1,0 +1,5 @@
+ProblemNumber,ProblemType,Premise1,Premise2,Supposition,QuestionTask,CorrectAnswer,IncorrectOption1,IncorrectOption2,NumberOfPremises
+1,Easy,Problem1-Premise1,Problem1-Premise2,Consider-the-following,What-follows,Problem1-CorrectAnswer,Problem1-IncorrectOption1,Problem1-IncorrectOption2,2
+2,Easy,Problem2-Premise1,Problem2-Premise2,Consider-the-following,What-follows,Problem2-CorrectAnswer,Problem2-IncorrectOption1,Problem2-IncorrectOption2,2
+3,Difficult,Problem3-Premise1,Problem3-Premise2,Consider-the-following,What-follows,Problem3-CorrectAnswer,Problem3-IncorrectOption1,Problem3-IncorrectOption2,2
+4,Difficult,Problem4-Premise1,Problem4-Premise2,Consider-the-following,What-follows,Problem4-CorrectAnswer,Problem4-IncorrectOption1,Problem4-IncorrectOption2,2

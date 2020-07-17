@@ -1,0 +1,32 @@
+{
+    "instructions": "Please answer the following questions.",
+    "questions": [
+        {
+            "text": "What was your favorite part of the video?",
+            "type": "text"
+        },
+        {
+            "text": "What was your least favorite part of the video?",
+            "type": "0"
+        },
+        {
+            "text": "How difficult were these tasks?",
+            "type": "slider",
+            "min": 1,
+            "max": 9,
+            "minDescription": "Easy",
+            "maxDescription": "Hard"
+        },
+        {
+            "text": "Select the reason you think that these tasks were difficult.",
+            "type": "select",
+            "options": [
+                "I did not find this difficult",
+                "Too many obstacles",
+                "Too few obstacles",
+                "Didn't understand the problem"
+            ]
+        }
+    ],
+    "trialIndex": 5
+}

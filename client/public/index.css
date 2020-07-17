@@ -1,0 +1,39 @@
+body {
+    padding: 3%;
+}
+
+.centered-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader {
+    font-size: 36px;
+    display: flex;
+    flex-direction: column;
+}
+
+.rectangles .rectangle {
+    display: inline-block;
+    border: 1px solid #000;
+    position: relative;
+}
+
+.rectangles .rectangle .circle {
+  background: #aaa;
+  border-radius: 100%;
+  position: absolute;
+}
+
+.grid-obstacle {
+    background-color: black;
+}
+
+.grid-empty {
+    background-color: white;
+}
+
+.grid-goal {
+    background-color: green;
+}
