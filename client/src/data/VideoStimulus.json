@@ -1,5 +1,4 @@
 {
-    "numQuestions": "2",
     "videoLink": "https://www.youtube.com/watch?v=TXdKrtmexWU",
     "instructions": "Watch the video and answer the following questions.",
     "questions": [
@@ -12,5 +11,4 @@
             "type": "0"
         }
     ],
-    "trialIndex": 1
 }

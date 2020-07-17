@@ -3,17 +3,67 @@
     "preExperiment": [
         {
             "stimulusType": "text-display",
-            "text": "<div style=\"display:flex; justify-content:center; flex-direction:column; align-items:center;\"><p>This is the pre-experiment instructions.  Thanks for taking the experiment!</p><img style=\"height:200px; width:auto\" src=\"cat.jpg\" /></div>"
+            "text": "<div><h3>Grid World Experiment</h3><hr /><p>This experiment consists of a training phase and a testing phase.</p><p>In the training phase, you will be introduced to our grid world and the objectives of the trials.</p><p>Once you have completed the training phase, you will be taken to the testing phase, which will consist of 2 sets of grid world games. The first block will consist of simple grid world games with no obstacles and the second block will consist of simple grid world games with obstacles.</p><p>When you are finished with the experiment, you may exit the webpage and your answers will be saved automatically.</p><div class=\"row\"><div class=\"col-md-6\"><p>Grid worlds will look like this. The gray robot is you and you must get the gray robot to the green square using WASD or arrow keys.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld3x3.png\" /></div><div class=\"col-md-6\"><p>Grid worlds with obstacles will look like this.  You are unable to move the robot into a black square.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld5x5.png\" /></div></div></div>"
         }
     ],
     "blocks": [
         {
-            "blockName": "A",
+            "blockName": "test",
+            "shuffleTrials": false,
+            "preTrials": [
+                {
+                    "stimulusType": "text-display",
+                    "text": "<div style=\"display:flex; justify-content:center; flex-direction:column; align-items:center;\"><p>This is the training phase.  It will consist of two grid world games that will represent the tests you will see in this experiment.</p><p>You can move upwards with W or up arrow, left with A or left arrow, down with S or down arrow, and right with D or right arrow.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld3x3.png\" /></div>"
+                }
+            ],
+            "trials": [
+                {
+                    "stimulusType": "grid-world",
+                    "width": 3,
+                    "height": 3,
+                    "goalLocationX": 2,
+                    "goalLocationY": 2,
+                    "obstacles": [],
+                    "robotLocationX": 0,
+                    "robotLocationY": 0,
+                    "visualizeGridLines": true,
+                    "instructions": "This is a grid-world with no obstacles.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "postText": "Good job! Press any key to continue."
+                },
+                {
+                    "stimulusType": "grid-world",
+                    "width": 4,
+                    "height": 2,
+                    "goalLocationX": 0,
+                    "goalLocationY": 0,
+                    "obstacles": [
+                        {
+                            "label": "Obstacle 1",
+                            "locationX": 1,
+                            "locationY": 0
+                        },
+                        {
+                            "label": "Obstacle 2",
+                            "locationX": 2,
+                            "locationY": 0
+                        }
+                    ],
+                    "robotLocationX": 3,
+                    "robotLocationY": 0,
+                    "visualizeGridLines": true,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "postText": "Good job!  Press any key to continue."
+                }
+            ],
+            "postTrials": []
+        },
+        {
+            "blockName": "noobstacles",
             "shuffleTrials": true,
             "preTrials": [
                 {
                     "stimulusType": "text-display",
-                    "text": "<div style=\"display:flex; justify-content:center; flex-direction:column; align-items:center;\"><p>This is the pre-trial instructions for block A.</p><img style=\"height:200px; width:auto\" src=\"cat.jpg\" /><br /><ol><li>Press Next.</li><li>Play the games.</li></ol></div>"
+                    "text": "<div style=\"display:flex; justify-content:center; flex-direction:column; align-items:center;\"><p>This is the first block of the testing phase.  It will consist of three grid world games with no obstacles.</p><p>You can move upwards with W or up arrow, left with A or left arrow, down with S or down arrow, and right with D or right arrow.</p></div>"
                 }
             ],
             "trials": [
@@ -21,28 +71,39 @@
                     "stimulusType": "grid-world",
                     "width": "25",
                     "height": "25",
-                    "goalLocationX": "2",
-                    "goalLocationY": "2",
+                    "goalLocationX": "20",
+                    "goalLocationY": "23",
                     "obstacles": [],
                     "robotLocationX": "0",
                     "robotLocationY": "0",
                     "visualizeGridLines": true,
                     "instructions": "Move the grey circle robot to the green square goal using the arrow keys or WASD.",
-                    "numObstacles": "0",
                     "postText": "Good job!"
                 },
                 {
                     "stimulusType": "grid-world",
-                    "width": "3",
-                    "height": "3",
+                    "width": "25",
+                    "height": "25",
+                    "goalLocationX": "16",
+                    "goalLocationY": "3",
+                    "obstacles": [],
+                    "robotLocationX": "3",
+                    "robotLocationY": "5",
+                    "visualizeGridLines": true,
+                    "instructions": "Move the grey circle robot to the green square goal using the arrow keys or WASD.",
+                    "postText": "Good job!"
+                },
+                {
+                    "stimulusType": "grid-world",
+                    "width": "25",
+                    "height": "25",
                     "goalLocationX": "0",
                     "goalLocationY": "0",
                     "obstacles": [],
-                    "robotLocationX": "1",
-                    "robotLocationY": "1",
+                    "robotLocationX": "24",
+                    "robotLocationY": "24",
                     "visualizeGridLines": true,
-                    "instructions": "Hello, good job!  You've made it to the next grid world.",
-                    "numObstacles": "0",
+                    "instructions": "Move the grey circle robot to the green square goal using the arrow keys or WASD.",
                     "postText": "Good job!"
                 }
             ],
@@ -51,14 +112,6 @@
                     "stimulusType": "survey",
                     "instructions": "Please answer the following questions.",
                     "questions": [
-                        {
-                            "text": "What was your favorite part of the video?",
-                            "type": "text"
-                        },
-                        {
-                            "text": "What was your least favorite part of the video?",
-                            "type": "0"
-                        },
                         {
                             "text": "How difficult were these tasks?",
                             "type": "slider",
@@ -82,66 +135,103 @@
             ]
         },
         {
-            "blockName": "B",
-            "shuffleTrials": false,
+            "blockName": "obstacles",
+            "shuffleTrials": true,
             "preTrials": [
                 {
                     "stimulusType": "text-display",
-                    "text": "<div style=\"display:flex; justify-content:center; flex-direction:column; align-items:center;\"><p>This is the pre-trial instructions for block B.</p><img style=\"height:200px; width:auto\" src=\"cat.jpg\" /><br /><ol><li>Press Next.</li><li>Play the games.</li></ol></div>"
+                    "text": "<div style=\"display:flex; justify-content:center; flex-direction:column; align-items:center;\"><p>This is the second block of the testing phase.  It will consist of three grid world games with obstacles.</p><p>You can move upwards with W or up arrow, left with A or left arrow, down with S or down arrow, and right with D or right arrow.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld5x5.png\" /></div>"
                 }
             ],
             "trials": [
                 {
                     "stimulusType": "grid-world",
-                    "width": "5",
-                    "height": "5",
-                    "goalLocationX": "4",
-                    "goalLocationY": "4",
+                    "width": "25",
+                    "height": "25",
+                    "goalLocationX": "20",
+                    "goalLocationY": "23",
                     "obstacles": [
                         {
-                            "label": "Obstacle 1",
-                            "locationX": "3",
-                            "locationY": "3"
+                            "locationX": 1,
+                            "locationY": 0
                         },
                         {
-                            "label": "Obstacle 2",
-                            "locationX": "0",
-                            "locationY": "1"
+                            "locationX": 1,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 19,
+                            "locationY": 22
+                        },
+                        {
+                            "locationX": 20,
+                            "locationY": 24
                         }
                     ],
                     "robotLocationX": "0",
                     "robotLocationY": "0",
                     "visualizeGridLines": true,
                     "instructions": "Move the grey circle robot to the green square goal using the arrow keys or WASD.",
-                    "numObstacles": "2",
                     "postText": "Good job!"
                 },
                 {
                     "stimulusType": "grid-world",
-                    "width": "2",
-                    "height": "2",
-                    "goalLocationX": "1",
-                    "goalLocationY": "1",
-                    "obstacles": [],
-                    "robotLocationX": "0",
-                    "robotLocationY": "0",
+                    "width": "25",
+                    "height": "25",
+                    "goalLocationX": "16",
+                    "goalLocationY": "3",
+                    "obstacles": [
+                        {
+                            "locationX": 15,
+                            "locationY": 3
+                        },
+                        {
+                            "locationX": 17,
+                            "locationY": 3
+                        },
+                        {
+                            "locationX": 16,
+                            "locationY": 4
+                        },
+                        {
+                            "locationX": 20,
+                            "locationY": 24
+                        }
+                    ],
+                    "robotLocationX": "3",
+                    "robotLocationY": "5",
                     "visualizeGridLines": true,
                     "instructions": "Move the grey circle robot to the green square goal using the arrow keys or WASD.",
-                    "numObstacles": "0",
                     "postText": "Good job!"
                 },
                 {
                     "stimulusType": "grid-world",
-                    "width": "3",
-                    "height": "3",
+                    "width": "25",
+                    "height": "25",
                     "goalLocationX": "0",
                     "goalLocationY": "0",
-                    "obstacles": [],
-                    "robotLocationX": "1",
-                    "robotLocationY": "1",
+                    "obstacles": [
+                        {
+                            "locationX": 0,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 1,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 16,
+                            "locationY": 4
+                        },
+                        {
+                            "locationX": 20,
+                            "locationY": 24
+                        }
+                    ],                    
+                    "robotLocationX": "24",
+                    "robotLocationY": "24",
                     "visualizeGridLines": true,
-                    "instructions": "Hello, good job!  You've made it to the next grid world.",
-                    "numObstacles": "0",
+                    "instructions": "Move the grey circle robot to the green square goal using the arrow keys or WASD.",
                     "postText": "Good job!"
                 }
             ],
@@ -150,14 +240,6 @@
                     "stimulusType": "survey",
                     "instructions": "Please answer the following questions.",
                     "questions": [
-                        {
-                            "text": "What was your favorite part of the video?",
-                            "type": "text"
-                        },
-                        {
-                            "text": "What was your least favorite part of the video?",
-                            "type": "0"
-                        },
                         {
                             "text": "How difficult were these tasks?",
                             "type": "slider",

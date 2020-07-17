@@ -63,7 +63,6 @@ export default class DiscreteGridWorld extends Component {
             robotLocationY: json.robotLocationY,
             visualizeGridLines: json.visualizeGridLines,
             instructions: json.instructions,
-            numObstacles: parseInt(json.numObstacles),
             loaded: true,
             trialIndex: json.trialIndex,
             postText: json.postText,
