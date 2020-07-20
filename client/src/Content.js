@@ -6,6 +6,7 @@ import Survey from './components/PassiveStimulus/Survey'
 import LoadingScreen from './components/LoadingScreen'
 import PreExperimentForm from './components/PreExperimentForm';
 import TextDisplay from './components/PassiveStimulus/TextDisplay'
+import ContinuousWorld from './components/ActiveStimulus/ContinuousWorld'
 
 /**
  * See README.md for documentation.
@@ -171,6 +172,8 @@ export default class Content extends React.Component {
          * If we have started the experiment and we have a trial loaded, display it.
          * If we have started the experiment but are waiting for a trial to load, display the Loading screen.
          */
+
+         return (<ContinuousWorld />)
 
         if (this.state.experimentDone) {
             return (

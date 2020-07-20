@@ -37,3 +37,16 @@ body {
 .grid-goal {
     background-color: green;
 }
+
+.world-container {
+    position: relative;
+    width: 750px;
+    height: 750px;
+    border: 1px solid black;
+}
+
+#worldrobot {
+    width: 50px;
+    height: auto;
+    position: absolute;
+}
