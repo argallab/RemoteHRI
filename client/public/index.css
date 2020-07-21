@@ -50,3 +50,8 @@ body {
     height: auto;
     position: absolute;
 }
+
+#worldgoal {
+    position: absolute;
+    z-index: -100;
+}
