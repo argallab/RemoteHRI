@@ -24,6 +24,7 @@ Calling the extendJSON function and the assignContents function serves to just a
 
 To run the server, run 
 
+`npm install nodus-ponens`
 `node server.js`
 
 # Data schemas
