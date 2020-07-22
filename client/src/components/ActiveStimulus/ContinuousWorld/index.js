@@ -1,6 +1,6 @@
 import React from 'react'
 import TwoDWorld from "../components/TwoDWorld"
-import {Row, Col} from 'react-bootstrap'
+import { Row, Col } from 'react-bootstrap'
 var SAT = require('sat');
 
 export default class ContinuousWorld extends React.Component {
@@ -21,6 +21,7 @@ export default class ContinuousWorld extends React.Component {
         this.handleKeyPress = this.handleKeyPress.bind(this)
         this.computeMovement = this.computeMovement.bind(this)
         this.degreeToRad = this.degreeToRad.bind(this)
+        this.onSubmit = this.onSubmit.bind(this)
     }
 
     degreeToRad(theta) {
@@ -33,36 +34,38 @@ export default class ContinuousWorld extends React.Component {
 
     componentDidMount() {
 
+        var json = this.props.data
 
-        var robot = new SAT.Box(new SAT.Vector(0, 0), 50, 50).toPolygon()
-        var obstacles = [
-            new SAT.Box(new SAT.Vector(100,200), 50, 100).toPolygon()
-        ]
-        var goal = new SAT.Box(new SAT.Vector(650, 650), 50, 50).toPolygon()
 
-        var SATObjects = { obstacles, robot, goal }
+        var obstacles = json.obstacles
+
+        var robot = new SAT.Box(new SAT.Vector(json.x, json.y), json.width, json.height).toPolygon()
+        var SATobstacles = obstacles.map(o => new SAT.Box(new SAT.Vector(o.locationX, o.locationY), o.width, o.height).toPolygon());
+
+        var goal = new SAT.Box(new SAT.Vector(json.goalLocationX, json.goalLocationY), json.goalWidth, json.goalHeight).toPolygon()
+
+        var SATObjects = { obstacles: SATobstacles, robot, goal }
 
         this.setState({
-            x: 0,
-            y: 0,
-            angle: 0,
-            velocity: 20,
-            angularVelocity: 5,
+            start: Date.now(),
+            keypresses: [],
+            x: json.x,
+            y: json.y,
+            angle: json.angle,
+            velocity: json.velocity,
+            angularVelocity: json.angularVelocity,
             SATObjects,
-            width: 50,
-            height: 50,
+            width: json.width,
+            height: json.height,
             didWin: false,
-            trialIndex: 1,
-            instructions: "Move the robot to the goal.",
-            postText: "You won!",
-            obstacles: [
-                {
-                    locationX: 100,
-                    locationY: 200,
-                    width: 50,
-                    height: 100
-                }
-            ]
+            trialIndex: json.trialIndex,
+            instructions: json.instructions,
+            postText: json.postText,
+            obstacles,
+            goalLocationX: json.goalLocationX,
+            goalLocationY: json.goalLocationY,
+            goalWidth: json.goalWidth,
+            goalHeight: json.goalHeight
         }, () => {
             document.addEventListener("keydown", this.handleKeyPress, false);
             document.addEventListener("keyup", this.handleKeyPress, false);
@@ -77,22 +80,35 @@ export default class ContinuousWorld extends React.Component {
 
     handleKeyPress(event) {
         this.keys[event.key] = event.type === "keydown"
-        this.computeMovement()
+        if (event.type === "keydown")
+        {
+            this.computeMovement()
+        }
+    }
+
+
+    onSubmit() {
+        console.log("onSubmit called from ContinuousGridWorld")
+        var answer = {
+            start: this.state.start,
+            keypresses: this.state.keypresses,
+            end: Date.now()
+        }
+        this.props.submit(answer)
     }
 
 
     onWin() {
         this.setState({
             didWin: true
-        });
+        })
+        this.onSubmit()
     }
 
     checkCollisions(robot) {
-        for (var o of this.state.SATObjects.obstacles)
-        {
+        for (var o of this.state.SATObjects.obstacles) {
             var response = new SAT.Response()
-            if (SAT.testPolygonPolygon(robot, o, response))
-            {
+            if (SAT.testPolygonPolygon(robot, o, response) && response.overlap > 5) {
                 return true
             }
         }
@@ -114,6 +130,21 @@ export default class ContinuousWorld extends React.Component {
             return
         }
 
+
+        var copy = this.state.keypresses
+        copy.push({
+            keysPressed: {...this.keys},
+            timestamp: Date.now(),
+            state: {
+                robotLocation: {
+                    x,
+                    y,
+                    angle
+                }
+            }
+        })
+
+
         if (this.keys["a"] || this.keys["ArrowLeft"]) {
             angle = (angle - this.state.angularVelocity) % 360
 
@@ -133,12 +164,11 @@ export default class ContinuousWorld extends React.Component {
             var newY = y + deltaY
             if (newX < 0 || newX > 700 || newY < 0 || newY > 700) {
 
-                this.setState({ angle, SATObjects })
+                this.setState({ keypresses: copy, angle, SATObjects })
                 return
             }
             x = x + deltaX
             y = y + deltaY
-
 
 
         } else if (this.keys["s"] || this.keys["ArrowDown"]) {
@@ -146,7 +176,7 @@ export default class ContinuousWorld extends React.Component {
             var newY = y - deltaY
             if (newX < 0 || newX > 700 || newY < 0 || newY > 700) {
 
-                this.setState({ angle, SATObjects })
+                this.setState({ keypresses: copy, angle, SATObjects })
                 return
             }
             x = x - deltaX
@@ -154,18 +184,17 @@ export default class ContinuousWorld extends React.Component {
 
         }
 
-                
+
         SATObjects.robot.pos.x = x
         SATObjects.robot.pos.y = y
-        if (this.checkCollisions(SATObjects.robot))
-        {
+        if (this.checkCollisions(SATObjects.robot)) {
             SATObjects.robot.pos.x = oldX
             SATObjects.robot.pos.y = oldY
             x = oldX
             y = oldY
         }
 
-        this.setState({ x, y, angle, SATObjects })
+        this.setState({ keypresses: copy, x, y, angle, SATObjects })
     }
 
     render() {
@@ -185,10 +214,10 @@ export default class ContinuousWorld extends React.Component {
                             x={this.state.x}
                             y={this.state.y}
                             angle={this.state.angle}
-                            goalLocationX={650}
-                            goalLocationY={650}
-                            goalWidth={100}
-                            goalHeight={100}
+                            goalLocationX={this.state.goalLocationX}
+                            goalLocationY={this.state.goalLocationY}
+                            goalWidth={this.state.goalWidth}
+                            goalHeight={this.state.goalHeight}
                             obstacles={this.state.obstacles}
                         />
                     </div>

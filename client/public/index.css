@@ -28,6 +28,8 @@ body {
 
 .grid-obstacle {
     background-color: black;
+    margin: 0px;
+    padding: 0px;
 }
 
 .grid-empty {
@@ -36,6 +38,8 @@ body {
 
 .grid-goal {
     background-color: green;
+    margin: 0px;
+    padding: 0px;
 }
 
 .world-container {
@@ -46,8 +50,6 @@ body {
 }
 
 #worldrobot {
-    width: 50px;
-    height: auto;
     position: absolute;
 }
 

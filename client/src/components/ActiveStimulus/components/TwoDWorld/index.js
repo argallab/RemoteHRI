@@ -2,7 +2,7 @@ import React from 'react'
 
 export default class TwoDWorld extends React.Component {
     render() {
-        var worldrobotPosition = {top: this.props.y, left: this.props.x, transform: `rotate(${this.props.angle}deg)`}
+        var worldrobotPosition = {width: this.props.width, height: this.props.height, top: this.props.y, left: this.props.x, transform: `rotate(${this.props.angle}deg)`}
         var worldgoalPosition = {top: this.props.goalLocationY, left: this.props.goalLocationX, width: this.props.goalWidth, height: this.props.goalHeight}
         var worldObstacles = this.props.obstacles.map((o) => <div style={{position: "absolute", width: o.width, height: o.height, top: o.locationY, left: o.locationX}} className="grid-obstacle"></div>)
         return (

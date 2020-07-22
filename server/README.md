@@ -53,7 +53,7 @@ postTrials | Array(Stimulus) | N/A | Stimuli to display after the experimental t
 
 Field Name | Type | Values | Description
 ---------- | ---- | ------ | -----------
-stimulusType | string | text-display, grid-world, video, survey | Specifies which type of stimulus this object is
+stimulusType | string | text-display, continuous-world, grid-world, video, survey | Specifies which type of stimulus this object is
 
 ### Text Display (extends Stimulus)
 
@@ -93,6 +93,28 @@ Field Name | Type | Values | Description
 instructions | string | N/A | Main instructions to display for the survey
 questions | Array(Question) | N/A | Array of questions to display in the survey
 
+### Continuous World (extends Stimulus)
+
+*Note: this could be extended to have a fixed width/height of the world displayed on the screen, but support a variable coordinate system (ie, 500x500 instead of 750x750) using percentages.*
+
+Locations are given in position of top-left corner (closest to (0,0))
+
+Field Name | Type | Values | Description
+---------- | ---- | ------ | -----------
+width | int | (0, 750]) | Width of the robot image
+height | int | (0, 750]) | Height of the robot image
+x | int | [0,750] | X-coordinate of the starting robot location
+y | int | [0.750] | Y-coordinate of the starting robot location
+angle | int | N/A | Angle of the starting robot in degrees, positive is clockwise
+velocity | int | N/A | Number of units to advance the robot forwards on each iteration
+angularVelocity | int | N/A | Number of degrees to rotate the robot on each iteration
+obstacles | Array(Obstacle) | N/A | Obstacles to render in the world
+goalLocationX | int | [0,750] | X-coordinate of the goal location
+goalLocationY | int | [0,750] | Y-coordinate of the goal location
+goalWidth | int | [0,750] | Width of the goal
+goalHeight | int | [0,750] | Height of the goal
+instructions | string | N/A | Instructions (displayed in a paragraph HTML tag) for the continuous world
+postText | string | N/A | Text to display after reaching the goal (displayed in a paragraph HTML tag)
 
 ### Question
 
@@ -108,3 +130,5 @@ Field Name | Type | Values | Description
 name (optional) | string | N/A | Name of the obstacle (currently not necessary)
 locationX | int | [0, width) | X-coordinate of obstacle (0-indexed)
 locationY | int | [0, height) | Y-coordinate of obstacle (0-indexed)
+width | int | [0,750] | Width of the obstacle, *only for ContinuousWorld*
+height | int | [0,750] | Height of the obstacle, *only for ContinuousWorld*

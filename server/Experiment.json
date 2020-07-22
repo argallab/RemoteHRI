@@ -1,6 +1,37 @@
 {
     "shuffleBlocks": false,
     "preExperiment": [
+
+        {
+            "stimulusType": "continuous-world",
+            "width": 50,
+            "height": 50,
+            "x": 0,
+            "y": 0,
+            "angle": 90,
+            "velocity": 20,
+            "angularVelocity": 10,
+            "obstacles": [
+                {
+                    "locationX": 250,
+                    "locationY": 250,
+                    "width": 400,
+                    "height": 200
+                },
+                {
+                    "locationX": 500,
+                    "locationY": 600,
+                    "width": 100,
+                    "height": 100
+                }
+            ],
+            "goalLocationX": 650,
+            "goalLocationY": 650,
+            "goalWidth": 100,
+            "goalHeight": 100,
+            "instructions": "Move the robot to the green square.",
+            "postText": "Great job!"
+        },
         {
             "stimulusType": "text-display",
             "text": "<div><h3>Grid World Experiment</h3><hr /><p>This experiment consists of a training phase and a testing phase.</p><p>In the training phase, you will be introduced to our grid world and the objectives of the trials.</p><p>Once you have completed the training phase, you will be taken to the testing phase, which will consist of 2 sets of grid world games. The first block will consist of simple grid world games with no obstacles and the second block will consist of simple grid world games with obstacles.</p><p>When you are finished with the experiment, you may exit the webpage and your answers will be saved automatically.</p><div class=\"row\"><div class=\"col-md-6\"><p>Grid worlds will look like this. The gray robot is you and you must get the gray robot to the green square using WASD or arrow keys.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld3x3.png\" /></div><div class=\"col-md-6\"><p>Grid worlds with obstacles will look like this.  You are unable to move the robot into a black square.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld5x5.png\" /></div></div></div>"
