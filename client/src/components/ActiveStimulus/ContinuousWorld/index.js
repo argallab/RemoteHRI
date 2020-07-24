@@ -36,7 +36,6 @@ export default class ContinuousWorld extends React.Component {
 
         var json = this.props.data
 
-
         var obstacles = json.obstacles
 
         var robot = new SAT.Box(new SAT.Vector(json.x, json.y), json.width, json.height).toPolygon()
@@ -80,8 +79,7 @@ export default class ContinuousWorld extends React.Component {
 
     handleKeyPress(event) {
         this.keys[event.key] = event.type === "keydown"
-        if (event.type === "keydown")
-        {
+        if (event.type === "keydown") {
             this.computeMovement()
         }
     }
@@ -108,7 +106,7 @@ export default class ContinuousWorld extends React.Component {
     checkCollisions(robot) {
         for (var o of this.state.SATObjects.obstacles) {
             var response = new SAT.Response()
-            if (SAT.testPolygonPolygon(robot, o, response) && response.overlap > 5) {
+            if (SAT.testPolygonPolygon(robot, o, response)) {
                 return true
             }
         }
@@ -117,6 +115,7 @@ export default class ContinuousWorld extends React.Component {
 
 
     computeMovement() {
+
         var x = this.state.x
         var y = this.state.y
         var angle = this.state.angle
@@ -126,23 +125,25 @@ export default class ContinuousWorld extends React.Component {
         var response = new SAT.Response()
         var collisionGoal = SAT.testPolygonPolygon(SATObjects.robot, SATObjects.goal)
         if (this.state.didWin || (collisionGoal && response.overlap > 10)) {
+            document.removeEventListener("keydown", this.handleKeyPress, false);
+            document.removeEventListener("keyup", this.handleKeyPress, false);
             this.onWin()
             return
         }
 
 
         var copy = this.state.keypresses
-        copy.push({
-            keysPressed: {...this.keys},
-            timestamp: Date.now(),
-            state: {
-                robotLocation: {
-                    x,
-                    y,
-                    angle
-                }
+        var keysPressed = []
+        for (var key in this.keys) {
+            if (this.keys[key])
+            {
+                keysPressed.push(key)
             }
-        })
+        }
+
+
+
+        var currentlyCollided = this.checkCollisions(SATObjects.robot)
 
 
         if (this.keys["a"] || this.keys["ArrowLeft"]) {
@@ -157,6 +158,7 @@ export default class ContinuousWorld extends React.Component {
         var oldX = x;
         var oldY = y;
 
+        // change this to vectors, not this hardcoded check
         var deltaX = (this.state.velocity * Math.cos(this.degreeToRad(angle)))
         var deltaY = (this.state.velocity * Math.sin(this.degreeToRad(angle)))
         if (this.keys["w"] || this.keys["ArrowUp"]) {
@@ -185,13 +187,37 @@ export default class ContinuousWorld extends React.Component {
         }
 
 
+
+
         SATObjects.robot.pos.x = x
         SATObjects.robot.pos.y = y
-        if (this.checkCollisions(SATObjects.robot)) {
+        var nextCollided = this.checkCollisions(SATObjects.robot)
+
+        if (currentlyCollided && nextCollided) {
             SATObjects.robot.pos.x = oldX
             SATObjects.robot.pos.y = oldY
             x = oldX
             y = oldY
+        }
+
+
+        
+        if (copy.length > 0 && keysPressed.join("") === copy[copy.length - 1].keysPressed.join(""))
+        {
+            copy[copy.length - 1].numIterations++
+        } else {
+            copy.push({
+                keysPressed: keysPressed,
+                timestamp: Date.now(),
+                state: {
+                    robotLocation: {
+                        x,
+                        y,
+                        angle
+                    }
+                },
+                numIterations: 1
+            })
         }
 
         this.setState({ keypresses: copy, x, y, angle, SATObjects })
@@ -219,6 +245,8 @@ export default class ContinuousWorld extends React.Component {
                             goalWidth={this.state.goalWidth}
                             goalHeight={this.state.goalHeight}
                             obstacles={this.state.obstacles}
+                            width={this.state.width}
+                            height={this.state.height}
                         />
                     </div>
                     <hr />

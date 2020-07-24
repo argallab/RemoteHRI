@@ -7,7 +7,7 @@ import LoadingScreen from './components/LoadingScreen'
 import PreExperimentForm from './components/PreExperimentForm';
 import TextDisplay from './components/PassiveStimulus/TextDisplay'
 import ContinuousWorld from './components/ActiveStimulus/ContinuousWorld'
-
+import ContinuousWorld2 from './components/ActiveStimulus/ContinuousWorld/index2'
 /**
  * See README.md for documentation.
  */
@@ -164,6 +164,10 @@ export default class Content extends React.Component {
     }
 
     render() {
+
+        return (
+            <ContinuousWorld2 />
+        )
         /**
          * If the experiment is done, show the done screen.
          * 
