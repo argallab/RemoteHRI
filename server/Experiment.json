@@ -3,30 +3,43 @@
     "preExperiment": [
 
         {
+            "fps": 60,
             "stimulusType": "continuous-world",
             "width": 50,
             "height": 50,
-            "x": 0,
-            "y": 0,
+            "x": 100,
+            "y": 600,
             "angle": 90,
-            "velocity": 20,
-            "angularVelocity": 10,
+            "velocity": 250,
+            "angularVelocity": 120,
             "obstacles": [
                 {
                     "locationX": 250,
-                    "locationY": 250,
-                    "width": 400,
+                    "locationY": 10,
+                    "width": 20,
+                    "height": 300
+                },
+                {
+                    "locationX": 100,
+                    "locationY": 200,
+                    "width": 300,
                     "height": 20
                 },
                 {
-                    "locationX": 500,
-                    "locationY": 100,
-                    "width": 20,
-                    "height": 600
+                    "locationX": 100,
+                    "locationY": 651,
+                    "width": 500,
+                    "height": 10
+                },
+                {
+                    "locationX": 450,
+                    "locationY": 300,
+                    "width": 200,
+                    "height": 200
                 }
             ],
             "goalLocationX": 650,
-            "goalLocationY": 650,
+            "goalLocationY": 0,
             "goalWidth": 100,
             "goalHeight": 100,
             "instructions": "Move the robot to the green square.",
