@@ -6,11 +6,13 @@ class Scene extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentNode: 0
+            currentNode: 0,
+            mode: 2 // 0 controls nodes, 1 controls hand angle, 2 controls hand pos
         };
 
         this.jointAngularVelocity = 0.05
         this.jointOffset = 10
+        this.handVelocity = 10
 
         this.keys = {}
         this.handleKeyPress = this.handleKeyPress.bind(this)
@@ -18,6 +20,7 @@ class Scene extends React.Component {
 
         this.collisionActive = false
         this.collisionLastDirection = ""
+        this.collisionInvolvesCurrent = false
 
 
     }
@@ -66,6 +69,7 @@ class Scene extends React.Component {
 
         var x_n = this.percentX(50)
         var y_n = this.percentY(50)
+        this.robot_a = 75
         var radius = 12
         var w_n = 25
         var h_n = 100
@@ -85,16 +89,44 @@ class Scene extends React.Component {
             }
         ]
 
-        this.nodes = nodeSpecs.map((node) => {
-            return Bodies.rectangle(x_n, y_n, w_n, h_n, {
+        this.robot = Composite.create(
+            {
+                isStatic: true,
+            }
+        )
+
+        this.nodes = nodeSpecs.map((node, index) => {
+            return Bodies.rectangle(x_n, (this.percentY(100) - wall_width / 2) -((0.5 + index)*h_n + 10*(index+2)), w_n, h_n, {
                 chamfer: { radius: radius },
-                inertia: Infinity,
+                inertia: index !== 0 && Infinity,
                 render: {
                     fillStyle: node.color
                 },
                 frictionAir: 0,
             })
         })
+
+        this.hand = Bodies.rectangle(x_n, 725-((0.5 + this.nodes.length)*h_n + 10*(this.nodes.length + 2)), this.robot_a, this.robot_a, {
+            inertia: Infinity,
+            render: {
+                fillStyle: "yellow"
+            },
+            frictionAir: 0,
+            chamfer: {radius: 10},
+            restitution: 0
+        })
+
+        this.handAngle = 0
+
+
+        this.inertia = this.nodes[0].inertia
+
+        for (var node of this.nodes) {
+             Composite.add(this.robot, node)
+
+        }
+
+        Composite.add(this.robot, this.hand)
 
         this.joints = []
         for (var i = 0; i < this.nodes.length; i++) {
@@ -119,6 +151,39 @@ class Scene extends React.Component {
             }))
         }
 
+        this.joints.push(Constraint.create({
+            bodyA: this.nodes[this.nodes.length - 1],
+            bodyB: this.hand,
+            length: 0,
+            stiffness: 0.7,
+            pointA: {x: 0, y: -1 * h_n / 2 - this.jointOffset},
+            pointB: {x:0, y: this.robot_a/2 + this.jointOffset},
+            friction: 0
+        }))
+
+
+
+        this.prevCollisions = {
+            walls: [],
+            nodes: []
+        }
+
+        for (var i = 0; i < this.walls.length; i++) {
+            this.prevCollisions.walls.push([])
+            for (var j = 0; j < this.nodes.length; j++) {
+                this.prevCollisions.walls[i].push(0)
+            }
+        }
+
+        for (var i = 0; i < this.nodes.length; i++) {
+            this.prevCollisions.nodes.push([])
+            for (var j = i+1; j < this.nodes.length; j++) {
+                this.prevCollisions.nodes[i].push(0)
+            }
+        }
+
+
+
         Events.on(engine, 'beforeUpdate', (event) => {
             this.updateBodies()
         })
@@ -128,6 +193,7 @@ class Scene extends React.Component {
 
         World.add(world, this.nodes)
         World.add(world, this.joints)
+        World.add(world, this.hand)
 
         Engine.run(engine)
         Render.run(render)
@@ -149,30 +215,39 @@ class Scene extends React.Component {
     }
 
     handleKeyPress(event) {
-        var validKeys = new Set(["w", "a", "s", "d", "ArrowUp", "ArrowLeft", "ArrowRight", "ArrowDown"])
+        var validKeys = new Set([" ", "w", "a", "s", "d", "ArrowUp", "ArrowLeft", "ArrowRight", "ArrowDown"])
         if (validKeys.has(event.key)) this.keys[event.key] = event.type === "keydown"
 
         if (event.type === "keydown") {
-            if (event.key === "w" && this.state.currentNode < this.nodes.length - 1) {
-                this.setState({
-                    currentNode: this.state.currentNode + 1
-                }, () => {
-                    if (this.collisionActive) {
-                        if (this.collisionLastDirection == "a") this.collisionLastDirection = "d"
-                        else this.collisionLastDirection = "a"
-                    }
-                })
+            var mode = this.state.mode
 
-            } else if (event.key === "s" && this.state.currentNode > 0) {
+            if (event.key === " ") {
+                mode = (mode + 1) % 3
+                if (mode === 2) this.handAngle = this.hand.angle
                 this.setState({
-                    currentNode: this.state.currentNode - 1
-                }, () => {
-                    if (this.collisionActive) {
-                        if (this.collisionLastDirection == "a") this.collisionLastDirection = "d"
-                        else this.collisionLastDirection = "a"
-                    }
+                    mode: mode
                 })
             }
+
+            if (mode === 0) {
+                if (event.key === "w" && this.state.currentNode < this.nodes.length - 1) {
+                    this.setState({
+                        currentNode: this.state.currentNode + 1
+                    }, () => {
+                        Matter.Body.setInertia(this.nodes[this.state.currentNode], this.inertia)
+                        Matter.Body.setInertia(this.nodes[this.state.currentNode-1], Infinity)
+                    })
+    
+                } else if (event.key === "s" && this.state.currentNode > 0) {
+                    this.setState({
+                        currentNode: this.state.currentNode - 1
+                    }, () => {
+                        Matter.Body.setInertia(this.nodes[this.state.currentNode], this.inertia)
+                        Matter.Body.setInertia(this.nodes[this.state.currentNode+1], Infinity)
+                    })
+                }
+            }
+
         }
     }
 
@@ -192,49 +267,62 @@ class Scene extends React.Component {
         return keys.join(",")
     }
 
+   
     updateBodies() {
-        var q = this.state.currentNode
-        var t_d = 0
-        
-        if (this.collisionActive) {
-            if (this.collisionLastDirection === "d") {
-                if (this.keys["a"]) {
-                    t_d = -1 * this.jointAngularVelocity
-                }
-            } else if (this.collisionLastDirection === "a") {
-                if (this.keys["d"]) {
-                    t_d = this.jointAngularVelocity
+        if (this.state.mode == 0) {
+            var q = this.state.currentNode
+            Matter.Body.setInertia(this.nodes[q], this.inertia)
+            Matter.Body.setInertia(this.hand, Infinity)
+            for (var i = 0; i < this.nodes.length; i++) {
+                if (i !== q) {
+                    Matter.Body.setAngularVelocity(this.nodes[i], 0)
+                    Matter.Body.setInertia(this.nodes[i], Infinity)
                 }
             }
-
-        } else {
-            if (this.keys["d"]) {
-                t_d = this.jointAngularVelocity
-            } else if (this.keys["a"]) {
-                t_d = -1 * this.jointAngularVelocity
+            if (this.keys["a"]) {
+                Matter.Body.setAngularVelocity(this.nodes[q], -1 * this.jointAngularVelocity)
+    
+            } else if (this.keys["d"]) {
+               Matter.Body.setAngularVelocity(this.nodes[q], 1 * this.jointAngularVelocity)
+            } else {
+                Matter.Body.setAngularVelocity(this.nodes[q], 0)
             }
-        }
-
-        Matter.Body.rotate(this.nodes[q], t_d)
-
-        var collision = false
-        for (var i = 0; i < this.nodes.length; i++) {
-            for (var k = 0; k < this.walls.length; k++) {
-                collision = collision || Matter.SAT.collides(this.walls[k], this.nodes[i]).collided
+        } else if (this.state.mode == 1) {
+            Matter.Body.setInertia(this.hand, this.inertia)
+            for (var i = 0; i < this.nodes.length; i++) {
+                Matter.Body.setInertia(this.nodes[i], Infinity)
+                Matter.Body.setAngularVelocity(this.nodes[i], 0)
             }
-            for (var j = i + 1; j < this.nodes.length; j++) {
-                collision = collision || Matter.SAT.collides(this.nodes[j], this.nodes[i]).collided
+            var angVel = 0.05
+            if (this.keys["ArrowLeft"]) {
+                Matter.Body.setAngularVelocity(this.hand, -1*angVel)
+            } else if (this.keys["ArrowRight"]) {
+                Matter.Body.setAngularVelocity(this.hand, angVel)
+            } else {
+                Matter.Body.setAngularVelocity(this.hand, 0)
             }
-        }
 
-        if (collision) {
-            this.collisionActive = true
-            if (this.collisionLastDirection === "") {
-                this.collisionLastDirection = this.keys["d"] ? "d" : "a"
+        } else if (this.state.mode == 2) {
+            console.log(this.handAngle)
+
+            Matter.Body.setStatic(this.hand, true)
+            for (var i = 0; i < this.nodes.length; i++) {
+                Matter.Body.setInertia(this.nodes[i], this.inertia)
+                Matter.Body.setAngularVelocity(this.nodes[i], 0)
             }
-        } else {
-            this.collisionActive = false
-            this.collisionLastDirection = ""
+            var cos = this.handVelocity * Math.cos(this.handAngle)
+            var sin = this.handVelocity * Math.sin(this.handAngle)
+            if (this.keys["ArrowUp"]) {
+                Matter.Body.setPosition(this.hand, Matter.Vector.add(this.hand.position, Matter.Vector.create(sin, -1*cos)))
+            } else if (this.keys["ArrowDown"]) {
+                Matter.Body.setPosition(this.hand,  Matter.Vector.add(this.hand.position, Matter.Vector.create(-1*sin, cos)))
+            } else if (this.keys["ArrowLeft"]) {
+                Matter.Body.setPosition(this.hand, Matter.Vector.add(this.hand.position, Matter.Vector.create(-1*cos, -1*sin)))
+            } else if (this.keys["ArrowRight"]) {
+                Matter.Body.setPosition(this.hand, Matter.Vector.add(this.hand.position, Matter.Vector.create(cos, sin)))
+            }
+            Matter.Body.setAngle(this.hand, this.handAngle)
+            Matter.Body.setStatic(this.hand, false)
         }
     }
 
@@ -244,7 +332,15 @@ class Scene extends React.Component {
         return (
             <div style={{ flexDirection: "column" }} className="centered-content">
                 <div>
-                    <p>Current node: {this.state.currentNode}</p>
+                    {
+                        this.state.mode === 0 && <p>Current node: {this.state.currentNode}</p>
+                    }
+                    {
+                        this.state.mode === 1 && <p>Controlling hand angle</p>
+                    }
+                    {
+                        this.state.mode === 2 && <p>Controlling hand position</p>
+                    }
                 </div>
                 <div className="centered-content">
                     <canvas id="world"></canvas>
