@@ -303,8 +303,6 @@ class Scene extends React.Component {
             }
 
         } else if (this.state.mode == 2) {
-            console.log(this.handAngle)
-
             Matter.Body.setStatic(this.hand, true)
             for (var i = 0; i < this.nodes.length; i++) {
                 Matter.Body.setInertia(this.nodes[i], this.inertia)
