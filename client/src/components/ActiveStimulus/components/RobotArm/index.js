@@ -79,7 +79,7 @@ class Scene extends React.Component {
                 color: "purple"
             },
             {
-                color: "green"
+                color: "orange"
             },
             {
                 color: "red"
@@ -117,6 +117,18 @@ class Scene extends React.Component {
         })
 
         this.handAngle = 0
+
+        this.goal = Bodies.rectangle(this.percentX(75), this.percentY(25), this.robot_a, this.robot_a, {
+            isStatic: true,
+            render: {
+                fillStyle: "green"
+            },
+            chamfer: {radius: 10}
+        })
+
+        Body.setAngle(this.goal, 2)
+
+        World.add(world, this.goal)
 
 
         this.inertia = this.nodes[0].inertia
