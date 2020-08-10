@@ -57,3 +57,9 @@ body {
     position: absolute;
     z-index: -100;
 }
+
+#robotControlButtons button {
+    margin: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
