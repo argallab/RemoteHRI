@@ -16,7 +16,6 @@ class Scene extends React.Component {
         this.anyKeysPressed = this.anyKeysPressed.bind(this)
         this.handleModeChange = this.handleModeChange.bind(this)
         this.prepareHandMove = this.prepareHandMove.bind(this)
-        this.prepareHandRotate = this.prepareHandRotate.bind(this)
 
         this.prepareJointRotate = this.prepareJointRotate.bind(this)
         this.onWin = this.onWin.bind(this)
@@ -72,7 +71,6 @@ class Scene extends React.Component {
         this.linkHeight = json.linkHeight
         this.linkWidth = json.linkWidth
         this.linkRadius = json.linkRadius
-        this.jointOffset = json.jointOffset
         this.constraintsVisible = json.constraintsVisible
         this.robotA = json.robotA // dimension of robot hand
         this.handColor = json.handColor
@@ -84,6 +82,8 @@ class Scene extends React.Component {
             this.goalX = json.goal.x
             this.goalY = json.goal.y
         }
+
+        this.jointOffset = 3
 
         this.goalAngle = json.goal.theta
         // eventually this.linkSpecs may include dimensions for the links as well, rendering linkHeight, linkWidth, linkRadius useless
@@ -104,38 +104,67 @@ class Scene extends React.Component {
 
         World.add(this.world, this.walls)
 
+        var debug = false
         /* Creates the links in the physics engine */
         this.links = this.linkSpecs.map((link, i) => {
             return Bodies.rectangle(this.percentX(50), this.percentY(100) - this.wall_width / 2 - ((2 * i + 1) * this.linkHeight / 2 + (2 * (i + 1) * this.jointOffset)), this.linkWidth, this.linkHeight, {
                 render: { fillStyle: link.color },
                 chamfer: {
                     radius: this.linkRadius
-                }
+                },
+                isStatic: debug
             })
         })
         this.inertia = this.links[0].inertia // save initial inertia value as some modes set the inertia of the links to Infinity, may need to become an array of inertias with variable link size
+        
+        var yLoc = this.wall_width / 2 + 2 * (this.links.length + 1) * this.jointOffset + this.links.length * this.linkHeight + this.robotA / 2
+        this.hand = Bodies.rectangle(this.percentX(50), this.percentY(100) - yLoc, this.robotA, this.robotA, {
+            render: {
+                fillStyle: this.handColor
+            },
+            chamfer: { radius: 10 },
+            label: "hand",
+            isStatic: debug
+        })
+
+        this.handAngle = 0 // just bookkeeping - not specifiable, but could be
+        this.links.push(this.hand)
+
 
         /* Creates the joints in the physics engine (pin connections between two links) */
         this.joints = []
         for (var i = 0; i < this.links.length; i++) {
-            var bodyA
-            var prevOffset
-            if (i === 0) {
-                bodyA = this.floor
-                prevOffset = -1 * this.wall_width / 2 - this.jointOffset
+            // if we are dealing with the hand, must use different heights (just handle the case separately)
+            if (i === this.links.length - 1) {
+                this.joints.push(Constraint.create({
+                    bodyA: this.links[i-1],
+                    pointA: {x: 0, y: -1 * this.linkHeight / 2 - this.jointOffset},
+                    bodyB: this.hand,
+                    pointB: {x: 0, y: this.robotA / 2 + this.jointOffset},
+                    length: 0,
+                    stiffness: 1
+                }))
             } else {
-                bodyA = this.links[i - 1]
-                prevOffset = -1 * this.linkHeight / 2 - this.jointOffset
+                // all other bodies besides the hand (links)
+                var bodyA
+                var prevOffset
+                if (i === 0) {
+                    bodyA = this.floor
+                    prevOffset = -1 * this.wall_width / 2 - this.jointOffset
+                } else {
+                    bodyA = this.links[i - 1]
+                    prevOffset = -1 * this.linkHeight / 2 - this.jointOffset
+                }
+    
+                this.joints.push(Constraint.create({
+                    bodyA: bodyA,
+                    bodyB: this.links[i],
+                    length: 0,
+                    pointA: { x: 0, y: prevOffset },
+                    pointB: { x: 0, y: this.linkHeight / 2 + this.jointOffset },
+                    stiffness: 1
+                }))
             }
-
-            this.joints.push(Constraint.create({
-                bodyA: bodyA,
-                bodyB: this.links[i],
-                length: 0,
-                pointA: { x: 0, y: prevOffset },
-                pointB: { x: 0, y: this.linkHeight / 2 + this.jointOffset },
-                stiffness: 1
-            }))
         }
 
         /* Four sets of supports to keep the links in place.
@@ -157,22 +186,22 @@ class Scene extends React.Component {
             var lengthC
             var lengthBT
             var lengthBB
-            if (i === 0) {
-                bodyA = this.walls[2]
+            if (i === 0 || i === this.links.length - 1) {
+                bodyA = i === 0 ? this.walls[2] : this.links[i-1]
                 prevOffsetC = { x: 0, y: 0 }
                 prevOffsetBT = { x: 0, y: 0 }
                 prevOffsetBB = { x: 0, y: 0 }
-                lengthC = this.getDistance(0)
-                lengthBT = this.getDistance(0)
-                lengthBB = this.getDistance(0)
+                lengthC = this.getDistance(i)
+                lengthBT = this.getDistance(i)
+                lengthBB = this.getDistance(i)
             } else {
                 bodyA = this.links[i - 1]
                 prevOffsetC = { x: 0, y: 0 }
                 prevOffsetBT = { x: 0, y: this.linkHeight / 2 }
                 prevOffsetBB = { x: 0, y: this.linkHeight / 2 }
                 lengthC = this.getDistance(i)//this.linkHeight + 2 * this.jointOffset
-                lengthBT = 2 * this.linkHeight + 2 * this.jointOffset
-                lengthBB = this.linkHeight + 2 * this.jointOffset
+                lengthBT = this.getBTDistance(i) //2 * this.linkHeight + 2 * this.jointOffset
+                lengthBB = this.getBBDistance(i) //this.linkHeight + 2 * this.jointOffset
             }
 
             this.centerSupports.push(Constraint.create({
@@ -192,7 +221,7 @@ class Scene extends React.Component {
                 bodyB: this.links[i],
                 length: lengthBT,
                 pointA: prevOffsetBT,
-                pointB: { x: 0, y: i === 0 ? 0 : -1 * this.linkHeight / 2 },
+                pointB: { x: 0, y: i === 0 || i === this.links.length - 1 ? 0 : -1 * this.linkHeight / 2 },
                 stiffness: 1,
                 render: {
                     visible: this.constraintsVisible
@@ -205,26 +234,13 @@ class Scene extends React.Component {
                 bodyB: this.links[i],
                 length: lengthBB,
                 pointA: prevOffsetBB,
-                pointB: { x: 0, y: i === 0 ? 0 : this.linkHeight / 2 },
+                pointB: { x: 0, y: i === 0 || i === this.links.length - 1 ? 0 : this.linkHeight / 2 },
                 stiffness: 1,
                 render: {
                     visible: this.constraintsVisible
                 }
 
             }))
-
-            this.wallSupports.push(Constraint.create({
-                bodyA: this.walls[2],
-                bodyB: this.links[i],
-                length: Math.hypot(this.walls[2].position.x - this.links[i].position.x, this.walls[2].position.y - this.links[i].position.y),
-                pointA: { x: 0, y: 0 },
-                pointB: { x: 0, y: 0 },
-                stiffness: 1,
-                render: {
-                    visible: this.constraintsVisible
-                }
-            }))
-
         }
 
 
@@ -241,42 +257,6 @@ class Scene extends React.Component {
         })
 
 
-        var yLoc = this.wall_width / 2 + 2 * (this.links.length + 1) + this.links.length * this.linkHeight + this.robotA / 2
-        this.hand = Bodies.rectangle(this.percentX(50), this.percentY(100) - yLoc, this.robotA, this.robotA, {
-            render: {
-                fillStyle: this.handColor
-            },
-            chamfer: { radius: 10 },
-            label: "hand"
-        })
-
-        this.handAngle = 0 // just bookkeeping - not specifiable, but could be
-
-
-        // add this to the joints array in order to rotate the hand
-        var lastLink = this.links[this.links.length - 1]
-        this.handRightSupport = Constraint.create({
-            bodyA: lastLink,
-            bodyB: this.hand,
-            length: this.robotA / 2 + 2 * this.jointOffset + this.linkHeight / 2,
-            stiffness: 1,
-            pointA: { x: 0, y: 0 },
-            pointB: { x: 0, y: 0 },
-            render: {
-                visible: this.constraintsVisible
-            }
-        })
-
-
-        this.joints.push(Constraint.create({
-            bodyA: lastLink,
-            bodyB: this.hand,
-            length: 0,
-            stiffness: 1,
-            pointA: { x: 0, y: -1 * this.linkHeight / 2 - this.jointOffset },
-            pointB: { x: 0, y: this.robotA / 2 + this.jointOffset }
-
-        }))
 
         Body.setAngle(this.goal, this.goalAngle)
 
@@ -285,9 +265,6 @@ class Scene extends React.Component {
         World.add(this.world, this.centerSupports)
         World.add(this.world, this.btSupports)
         World.add(this.world, this.bbSupports)
-        World.add(this.world, this.hand)
-        World.add(this.world, this.handRightSupport)
-        World.add(this.world, this.goal)
 
         /* Handles each 'tick' of the physics engine */
         Events.on(engine, 'beforeUpdate', (event) => {
@@ -352,9 +329,6 @@ class Scene extends React.Component {
                 this.bbSupports[i + 1].length = this.getBBDistance(i + 1)
             }
         }
-
-        var lastLink = this.links[this.links.length - 1]
-        this.handRightSupport.length = Math.hypot(this.hand.position.x - lastLink.position.x, this.hand.position.y - lastLink.position.y)
     }
 
 
@@ -366,27 +340,9 @@ class Scene extends React.Component {
 
         Body.setAngularVelocity(this.hand, 0)
 
-        World.remove(this.world, this.handRightSupport)
         World.remove(this.world, this.bbSupports)
         World.remove(this.world, this.btSupports)
         World.remove(this.world, this.centerSupports)
-        World.remove(this.world, this.wallSupports)
-    }
-
-    /* Prepares hand rotation. Adds wall supports and removes hand support.  May remove this when converting hand rotation to joint rotation */
-    prepareHandRotate() {
-        for (var i of this.links) {
-            Body.setAngularVelocity(i, 0)
-        }
-
-        for (var i = 0; i < this.links.length; i++) {
-            this.wallSupports[i].length = Math.hypot(this.walls[2].position.x - this.links[i].position.x, this.walls[2].position.y - this.links[i].position.y)
-        }
-
-
-        Body.setAngularVelocity(this.hand, 0)
-        World.add(this.world, this.wallSupports)
-        World.remove(this.world, this.handRightSupport)
     }
 
     /* Handles the mode change (when the mode buttons are clicked) */
@@ -407,20 +363,11 @@ class Scene extends React.Component {
             World.add(this.world, this.bbSupports[q])
         }
 
-        // if the previous mode is hand rotation, we need to remove the wall supports since they are only used for hand rotation
-        if (this.state.mode === 1) {
-            World.remove(this.world, this.wallSupports)
-        }
-
         this.handAngle = this.hand.angle
 
         switch (mode) {
             case 0:
-                World.add(this.world, this.handRightSupport)
                 this.prepareJointRotate()
-                break
-            case 1:
-                this.prepareHandRotate()
                 break
             case 2:
                 this.prepareHandMove()
@@ -445,6 +392,7 @@ class Scene extends React.Component {
 
     /* Calculates the distance between the center of this link and the link directly below it. For bottom link, calculates distance to the right wall. */
     getDistance(i) {
+
         var posA = i === 0 ? this.walls[2].position : this.links[i - 1].position
         var posB = this.links[i].position
 
@@ -454,28 +402,37 @@ class Scene extends React.Component {
     /* Calculates the BT distance between this link (T) and the link directly below it (B). */
     getBTDistance(i) {
         if (i === 0) return this.getDistance(i)
-        var posA = this.links[i - 1].position
-        var posB = this.links[i].position
-        var thetaA = this.links[i - 1].angle
-        var thetaB = this.links[i].angle
-        // posA bottom, posB top
-        var dx = (posA.x - this.linkHeight / 2 * Math.sin(thetaA)) - (posB.x + this.linkHeight / 2 * Math.sin(thetaB))
-        var dy = (posA.y + this.linkHeight / 2 * Math.cos(thetaA)) - (posB.y - this.linkHeight / 2 * Math.cos(thetaB))
-        return Math.hypot(dx, dy)
+        else if (i === this.links.length - 1) return this.getDistance(i)
+        else {
+            var posA = this.links[i - 1].position
+            var posB = this.links[i].position
+            var thetaA = this.links[i - 1].angle
+            var thetaB = this.links[i].angle
+            // posA bottom, posB top
+            var bLength = this.linkHeight
+            var dx = (posA.x - this.linkHeight / 2 * Math.sin(thetaA)) - (posB.x + bLength / 2 * Math.sin(thetaB))
+            var dy = (posA.y + this.linkHeight / 2 * Math.cos(thetaA)) - (posB.y - bLength / 2 * Math.cos(thetaB))
+            return Math.hypot(dx, dy)
+        }
+
     }
 
     /* Calculates the BB distance between this link and the link directly below it. */
     getBBDistance(i) {
         if (i === 0) return this.getDistance(i)
+        else if (i === this.links.length - 1) return this.getDistance(i)
+        else {
+            var posA = this.links[i - 1].position
+            var posB = this.links[i].position
+            var thetaA = this.links[i - 1].angle
+            var thetaB = this.links[i].angle
+            // posA bottom, posB bottom
+            var bLength = this.linkHeight
+            var dx = (posA.x - this.linkHeight / 2 * Math.sin(thetaA)) - (posB.x - bLength / 2 * Math.sin(thetaB))
+            var dy = (posA.y + this.linkHeight / 2 * Math.cos(thetaA)) - (posB.y + bLength / 2 * Math.cos(thetaB))
+            return Math.hypot(dx, dy)
+        }
 
-        var posA = this.links[i - 1].position
-        var posB = this.links[i].position
-        var thetaA = this.links[i - 1].angle
-        var thetaB = this.links[i].angle
-        // posA bottom, posB bottom
-        var dx = (posA.x - this.linkHeight / 2 * Math.sin(thetaA)) - (posB.x - this.linkHeight / 2 * Math.sin(thetaB))
-        var dy = (posA.y + this.linkHeight / 2 * Math.cos(thetaA)) - (posB.y + this.linkHeight / 2 * Math.cos(thetaB))
-        return Math.hypot(dx, dy)
     }
 
     /* Updates the lengths of supports for adjacent links to the current one (NOT ALL LINKS). */
@@ -529,9 +486,6 @@ class Scene extends React.Component {
 
                     this.setState({
                         currentNode: this.state.currentNode + 1
-                    }, () => {
-                        // Matter.Body.setInertia(this.nodes[this.state.currentNode], this.inertia)
-                        // Matter.Body.setInertia(this.nodes[this.state.currentNode-1], Infinity)
                     })
 
                 } else if (event.key === "s" && this.state.currentNode > 0) {
@@ -552,9 +506,6 @@ class Scene extends React.Component {
 
                     this.setState({
                         currentNode: this.state.currentNode - 1
-                    }, () => {
-                        // Matter.Body.setInertia(this.nodes[this.state.currentNode], this.inertia)
-                        // Matter.Body.setInertia(this.nodes[this.state.currentNode+1], Infinity)
                     })
                 }
             }
@@ -656,9 +607,6 @@ class Scene extends React.Component {
                         this.state.mode === 0 && <p>Current node: {this.state.currentNode}</p>
                     }
                     {
-                        this.state.mode === 1 && <p>Controlling hand angle</p>
-                    }
-                    {
                         this.state.mode === 2 && <p>Controlling hand position</p>
                     }
                     {
@@ -670,7 +618,6 @@ class Scene extends React.Component {
                 </div>
                 <div id="robotControlButtons" style={{ display: "flex", flexDirection: "row", justifyContent: "center", width: "100%" }}>
                     <Button disabled={this.state.mode === 0 || this.state.mode > 2} onClick={() => this.handleModeChange(0)} name="rotatejoints">Rotate joints</Button>
-                    <Button disabled={this.state.mode === 1 || this.state.mode > 2} onClick={() => this.handleModeChange(1)} name="rotatehand">Rotate hand</Button>
                     <Button disabled={this.state.mode === 2 || this.state.mode > 2} onClick={() => this.handleModeChange(2)} name="movehand">Move hand</Button>
                 </div>
             </div>
