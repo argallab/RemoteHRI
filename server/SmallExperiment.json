@@ -1,0 +1,43 @@
+{
+    "shuffleBlocks": false,
+    "blocks": [
+        {
+            "blockName": "Grid World",
+            "shuffleTrials": true,
+            "trials": [
+                {
+                    "stimulusType": "grid-world",
+                    "width": 5, "height": 5,
+                    "goalLocationX": 0, "goalLocationY": 0,
+                    "obstacles": [
+                        { "locationX": 1, "locationY": 0 },
+                        { "locationX": 2, "locationY": 0 },
+                        { "locationX": 2, "locationY": 2 },
+                        { "locationX": 0, "locationY": 4 },
+                        { "locationX": 4, "locationY": 1 }
+                    ],
+                    "robotLocationX": 3, "robotLocationY": 4
+                },
+                {
+                    "stimulusType": "survey",
+                    "questions": [
+                        {
+                            "text": "How difficult were these tasks?", "type": "slider",
+                            "min": 1, "max": 9,
+                            "minDescription": "Easy", "maxDescription": "Hard"
+                        },
+                        {
+                            "text": "Select why these tasks were difficult.", "type": "select",
+                            "options": [
+                                "I did not find this difficult",
+                                "Too many obstacles",
+                                "Too few obstacles",
+                                "Didn't understand the problem"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

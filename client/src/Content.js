@@ -174,10 +174,6 @@ export default class Content extends React.Component {
          * If we have started the experiment but are waiting for a trial to load, display the Loading screen.
          */
 
-        return (
-            <RobotArmWorld />
-        )
-
 
         if (this.state.experimentDone) {
             return (
@@ -207,6 +203,10 @@ export default class Content extends React.Component {
                     } else if (this.state.trialData.stimulusType === "continuous-world") {
                         return (
                             <ContinuousWorld key={this.state.trialData.trialIndex} data={this.state.trialData} submit={this.getNextTrial} />
+                        )
+                    } else if (this.state.trialData.stimulusType === "robot-arm") {
+                        return (
+                            <RobotArmWorld key={this.state.trialData.trialIndex} data={this.state.trialData} submit={this.getNextTrial} />
                         )
                     }
 
