@@ -111,11 +111,6 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       if (req.query.h !== "") { sess.sessdata.Hand = req.query.h; }
       if (req.query.r !== "") { sess.sessdata.Race = req.query.r; }
 
-      // right or left handed
-      // race
-
-
-
       var today = new Date();
       sess.sessdata.StartTime = today.toISOString();
       sess.sessdata.CurrentStimulus = 0;

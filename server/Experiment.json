@@ -1,6 +1,50 @@
 {
     "shuffleBlocks": false,
     "preExperiment": [
+
+        {
+            "fps": 60,
+            "stimulusType": "continuous-world",
+            "width": 50,
+            "height": 50,
+            "x": 100,
+            "y": 600,
+            "angle": 90,
+            "velocity": 250,
+            "angularVelocity": 120,
+            "obstacles": [
+                {
+                    "locationX": 250,
+                    "locationY": 10,
+                    "width": 20,
+                    "height": 300
+                },
+                {
+                    "locationX": 100,
+                    "locationY": 200,
+                    "width": 300,
+                    "height": 20
+                },
+                {
+                    "locationX": 100,
+                    "locationY": 651,
+                    "width": 500,
+                    "height": 10
+                },
+                {
+                    "locationX": 450,
+                    "locationY": 300,
+                    "width": 200,
+                    "height": 200
+                }
+            ],
+            "goalLocationX": 650,
+            "goalLocationY": 0,
+            "goalWidth": 100,
+            "goalHeight": 100,
+            "instructions": "Move the robot to the green square.",
+            "postText": "Great job!"
+        },
         {
             "stimulusType": "text-display",
             "text": "<div><h3>Grid World Experiment</h3><hr /><p>This experiment consists of a training phase and a testing phase.</p><p>In the training phase, you will be introduced to our grid world and the objectives of the trials.</p><p>Once you have completed the training phase, you will be taken to the testing phase, which will consist of 2 sets of grid world games. The first block will consist of simple grid world games with no obstacles and the second block will consist of simple grid world games with obstacles.</p><p>When you are finished with the experiment, you may exit the webpage and your answers will be saved automatically.</p><div class=\"row\"><div class=\"col-md-6\"><p>Grid worlds will look like this. The gray robot is you and you must get the gray robot to the green square using WASD or arrow keys.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld3x3.png\" /></div><div class=\"col-md-6\"><p>Grid worlds with obstacles will look like this.  You are unable to move the robot into a black square.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld5x5.png\" /></div></div></div>"
