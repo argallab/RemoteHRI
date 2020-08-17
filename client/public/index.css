@@ -21,7 +21,6 @@ body {
 }
 
 .rectangles .rectangle .circle {
-  background: #aaa;
   border-radius: 100%;
   position: absolute;
 }

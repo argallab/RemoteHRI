@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import LoadingScreen from '../../LoadingScreen';
 import Grid from '../components/Grid'
+import AStarNode from '../../../services/AStarNode'
+import AStar from '../../../services/AStarPlanning'
+
 
 /**
  * VideoStimulus trial display.  Displays videos and variable number of questions to the user.
@@ -31,6 +34,8 @@ export default class DiscreteGridWorld extends Component {
         this.onWin = this.onWin.bind(this)
         this.updateWindowDimensions = this.updateWindowDimensions.bind(this)
         this.calculateCellSize = this.calculateCellSize.bind(this)
+        this.calculateAutonomousPlan = this.calculateAutonomousPlan.bind(this)
+        this.moveAutonomousAgent = this.moveAutonomousAgent.bind(this)
     }
 
     /**
@@ -48,32 +53,43 @@ export default class DiscreteGridWorld extends Component {
             o.locationX = parseInt(o.locationX)
             o.locationY = parseInt(o.locationY)
         }
-        json.robotLocationX = parseInt(json.robotLocationX)
-        json.robotLocationY = parseInt(json.robotLocationY)
+
+        this.plan = []
+        this.started = false
+
+        this.autonomousAgentTimerLength = json.autonomousAgentTimer
+
+        this.start = Date.now()
+        this.keypresses = []
+
+        this.visualizeGridLines = json.visualizeGridLines
+        this.trialIndex = json.trialIndex
+        this.width = json.width
+        this.height = json.height
 
         this.setState({
-            start: Date.now(),
-            keypresses: [],
-            width: json.width,
-            height: json.height,
             goalLocationX: json.goalLocationX,
             goalLocationY: json.goalLocationY,
             obstacles: json.obstacles,
-            robotLocationX: json.robotLocationX,
-            robotLocationY: json.robotLocationY,
-            visualizeGridLines: json.visualizeGridLines,
+            humanAgent: json.humanAgent,
+            autonomousAgent: json.autonomousAgent,
             instructions: json.instructions,
             loaded: true,
-            trialIndex: json.trialIndex,
             postText: json.postText,
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
             cellWidth: 0,
             cellHeight: 0
         }, () => {
+
+
             document.addEventListener("keydown", this.handleKeyPress, false);
             window.addEventListener("resize", this.updateWindowDimensions)
             this.computeGrid()
+            if (this.state.autonomousAgent) {
+                this.plan = this.calculateAutonomousPlan()
+                this.moveAutonomousAgent()
+            }
         })
     }
 
@@ -85,14 +101,63 @@ export default class DiscreteGridWorld extends Component {
     }
 
     calculateCellSize() {
-        const gw = this.state.windowWidth*.8
-        const gh = this.state.windowHeight*.8
+        const gw = this.state.windowWidth * .8
+        const gh = this.state.windowHeight * .8
 
-        const sizeW = gw / this.state.width
-        const sizeH = gh / this.state.height
+        const sizeW = gw / this.width
+        const sizeH = gh / this.height
 
         return Math.min(sizeW, sizeH)
 
+    }
+
+    calculateAutonomousPlan() {
+        var grid = []
+        for (var i = 0; i < this.height; i++) {
+            var row = []
+            for (var j = 0; j < this.width; j++) {
+                row.push(new AStarNode(i, j, false))
+            }
+            grid.push(row)
+        }
+
+        for (var o of this.state.obstacles) {
+            grid[o.locationX][o.locationY].isOccupied = true
+        }
+
+        if (this.state.humanAgent) {
+            grid[this.state.humanAgent.x][this.state.humanAgent.y].isOccupied = true
+        }
+
+        grid[this.state.goalLocationX][this.state.goalLocationY].isOccupied = false
+
+        var planner = new AStar(grid)
+        var path = planner.search(grid[this.state.autonomousAgent.x][this.state.autonomousAgent.y], grid[this.state.goalLocationX][this.state.goalLocationY])
+        return path
+    }
+
+    moveAutonomousAgent() {
+        if (this.started) {
+            if (this.plan.length === 0) {
+                // do nothing
+            } else {
+                if (!(this.plan[0].x === this.state.goalLocationX && this.plan[0].y === this.state.goalLocationY) && this.state.humanAgent && this.plan[0].x === this.state.humanAgent.x && this.plan[0].y === this.state.humanAgent.y) {
+                    this.plan = this.calculateAutonomousPlan()
+                } else {
+                    this.setState({
+                        autonomousAgent: {
+                            x: this.plan[0].x,
+                            y: this.plan[0].y
+                        }
+                    }, () => {    
+                        this.computeGrid()
+                        this.plan = this.calculateAutonomousPlan()
+                    })
+                }
+            }
+        }
+
+        this.autonomousAgentTimer = setTimeout(this.moveAutonomousAgent, this.autonomousAgentTimerLength)
     }
 
 
@@ -110,89 +175,77 @@ export default class DiscreteGridWorld extends Component {
      * @param {event} event 
      */
     handleKeyPress(event) {
+        if (!this.state.humanAgent) {
+            this.started = !this.started
+            return;
+        }
+
+        this.started = true
+
         if (this.state.didWin) {
             return;
         }
 
-        var copy = this.state.keypresses
-        copy.push({
+        this.keypresses.push({
             keyPress: event.key,
             timestamp: Date.now(),
             state: {
-                robotLocation: {
-                    x: this.state.robotLocationX,
-                    y: this.state.robotLocationY
-                }
+                humanAgent: this.state.humanAgent,
+                autonomousAgent: this.state.autonomousAgent
             }
         })
 
-
-
+        var oldLocation = this.state.humanAgent
+        var newLocation
         if (event.key === "w" || event.key === "ArrowUp") {
             // if the robot is in top row or cell above the robot is an obstacle - invalid move
-            if (this.state.robotLocationY === 0 || this.state.grid[this.state.robotLocationY - 1][this.state.robotLocationX] === "O") {
-                this.setState({
-                    answer: {
-                        keypresses: copy
-                    }
-                })
-                return;
+            if (this.state.humanAgent.y === 0 || this.state.grid[this.state.humanAgent.y - 1][this.state.humanAgent.x] === "O") return;
+            
+
+            newLocation = {
+                x: oldLocation.x,
+                y: oldLocation.y - 1
             }
-            this.setState({
-                answer: {
-                    keypresses: copy
-                },
-                robotLocationY: this.state.robotLocationY - 1
-            }, this.computeGrid)
+
         } else if (event.key === "s" || event.key === "ArrowDown") {
             // if the robot is in bottom row or cell below the robot is an obstacle - invalid move
-            if (this.state.robotLocationY === this.state.numRows - 1 || this.state.grid[this.state.robotLocationY + 1][this.state.robotLocationX] === "O") {
-                this.setState({
-                    answer: {
-                        keypresses: copy
-                    },
-                })
-                return;
+            if (this.state.humanAgent.y === this.state.numRows - 1 || this.state.grid[this.state.humanAgent.y + 1][this.state.humanAgent.x] === "O") return;
+
+            newLocation = {
+                x: oldLocation.x,
+                y: oldLocation.y + 1
             }
-            this.setState({
-                answer: {
-                    keypresses: copy
-                },
-                robotLocationY: this.state.robotLocationY + 1
-            }, this.computeGrid)
+
         } else if (event.key === "a" || event.key === "ArrowLeft") {
             // if the robot is in left column or cell left of the robot is an obstacle - invalid move
-            if (this.state.robotLocationX === 0 || this.state.grid[this.state.robotLocationY][this.state.robotLocationX - 1] === "O") {
-                this.setState({
-                    answer: {
-                        keypresses: copy
-                    }
-                })
-                return;
+            if (this.state.humanAgent.x === 0 || this.state.grid[this.state.humanAgent.y][this.state.humanAgent.x - 1] === "O") return;
+
+            newLocation = {
+                x: oldLocation.x - 1,
+                y: oldLocation.y
             }
-            this.setState({
-                answer: {
-                    keypresses: copy
-                },
-                robotLocationX: this.state.robotLocationX - 1
-            }, this.computeGrid)
+
         } else if (event.key === "d" || event.key === "ArrowRight") {
             // if the robot is in right column or cell right of the robot is an obstacle - invalid move
-            if (this.state.robotLocationX === this.state.numCols - 1 || this.state.grid[this.state.robotLocationY][this.state.robotLocationX + 1] === "O") {
-                this.setState({
-                    answer: {
-                        keypresses: copy
-                    }
-                })
-                return;
+            if (this.state.humanAgent.x === this.state.numCols - 1 || this.state.grid[this.state.humanAgent.y][this.state.humanAgent.x + 1] === "O") return;
+
+            newLocation = {
+                x: oldLocation.x + 1,
+                y: oldLocation.y
             }
-            this.setState({
-                answer: {
-                    keypresses: copy
-                },
-                robotLocationX: this.state.robotLocationX + 1
-            }, this.computeGrid)
         }
+
+        if (newLocation && this.state.autonomousAgent) {
+            var autoWon = this.state.autonomousAgent.x === this.state.goalLocationX && this.state.autonomousAgent.y === this.state.goalLocationY
+            if (!autoWon && newLocation.x === this.state.autonomousAgent.x && newLocation.y === this.state.autonomousAgent.y) newLocation = oldLocation
+        }
+
+        this.setState({
+            humanAgent: newLocation || oldLocation
+        }, () => {
+            this.computeGrid()
+            if (this.state.autonomousAgent) this.plan = this.calculateAutonomousPlan()
+        })
     }
 
     onWin() {
@@ -204,14 +257,25 @@ export default class DiscreteGridWorld extends Component {
 
     computeGrid() {
         var didWin = false
-        if (this.state.robotLocationX === this.state.goalLocationX && this.state.robotLocationY === this.state.goalLocationY) {
+        var autoWin = false
+        if (this.state.humanAgent && this.state.humanAgent.x === this.state.goalLocationX && this.state.humanAgent.y === this.state.goalLocationY) {
             didWin = true
-            this.onWin()
         }
+
+        if (this.state.autonomousAgent && this.state.autonomousAgent.x === this.state.goalLocationX && this.state.autonomousAgent.y === this.state.goalLocationY) {
+            autoWin = true
+            clearTimeout(this.autonomousAgentTimer)
+        }
+
+
+        var winningState = (this.state.humanAgent && this.state.autonomousAgent && didWin && autoWin) || (this.state.humanAgent && didWin && !this.state.autonomousAgent) || (!this.state.humanAgent && this.state.autonomousAgent && autoWin)
+
+        if (winningState) this.onWin()
+
         var grid = []
-        for (var i = 0; i < this.state.height; i++) {
+        for (var i = 0; i < this.height; i++) {
             var r = []
-            for (var j = 0; j < this.state.width; j++) {
+            for (var j = 0; j < this.width; j++) {
                 r.push("X")
             }
             grid.push(r)
@@ -221,16 +285,28 @@ export default class DiscreteGridWorld extends Component {
             grid[o.locationY][o.locationX] = "O"
         }
 
-        grid[this.state.robotLocationY][this.state.robotLocationX] = "0"
-        grid[this.state.goalLocationY][this.state.goalLocationX] = "G"
-
-        if (didWin) {
-            grid[this.state.goalLocationY][this.state.goalLocationX] = "W"
+        if (this.state.humanAgent) {
+            grid[this.state.humanAgent.y][this.state.humanAgent.x] = "0"
         }
+
+        if (this.state.autonomousAgent) {
+            grid[this.state.autonomousAgent.y][this.state.autonomousAgent.x] = "A"
+        }
+
+        grid[this.state.goalLocationY][this.state.goalLocationX] = "G"
+        if (autoWin && didWin) {
+            grid[this.state.goalLocationY][this.state.goalLocationX] = "WAH"
+        } else if (autoWin) {
+            console.log("auto won")
+            grid[this.state.goalLocationY][this.state.goalLocationX] = "WA"
+        } else if (didWin) {
+            grid[this.state.goalLocationY][this.state.goalLocationX] = "WH"
+        }
+
         this.setState({
             grid,
-            numRows: this.state.height,
-            numCols: this.state.width
+            numRows: this.height,
+            numCols: this.width
         })
     }
 
@@ -239,8 +315,8 @@ export default class DiscreteGridWorld extends Component {
     onSubmit() {
         console.log("onSubmit called from DiscreteGridWorld")
         var answer = {
-            start: this.state.start,
-            keypresses: this.state.keypresses,
+            start: this.start,
+            keypresses: this.keypresses,
             end: Date.now()
         }
         this.props.submit(answer)
@@ -267,7 +343,7 @@ export default class DiscreteGridWorld extends Component {
             return (
                 <div>
                     <Row>
-                        <Col xs={12}><h4>{`Trial ${this.state.trialIndex + 1}`}</h4></Col>
+                        <Col xs={12}><h4>{`Trial ${this.trialIndex + 1}`}</h4></Col>
                     </Row>
                     <hr />
                     <Row>
