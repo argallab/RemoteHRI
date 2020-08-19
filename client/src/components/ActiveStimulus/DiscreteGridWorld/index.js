@@ -5,7 +5,6 @@ import Grid from '../components/Grid'
 import AStarNode from '../../../services/AStarNode'
 import AStar from '../../../services/AStarPlanning'
 
-
 /**
  * VideoStimulus trial display.  Displays videos and variable number of questions to the user.
  * Additional data expected in addition to VideoStimulus data:
@@ -35,7 +34,7 @@ export default class DiscreteGridWorld extends Component {
         this.updateWindowDimensions = this.updateWindowDimensions.bind(this)
         this.calculateCellSize = this.calculateCellSize.bind(this)
         this.calculateAutonomousPlan = this.calculateAutonomousPlan.bind(this)
-        this.moveAutonomousAgent = this.moveAutonomousAgent.bind(this)
+        this.moveObjects = this.moveObjects.bind(this)
     }
 
     /**
@@ -45,19 +44,23 @@ export default class DiscreteGridWorld extends Component {
     componentDidMount() {
         var json = this.props.data
 
+
         json.height = parseInt(json.height);
         json.width = parseInt(json.width)
         json.goalLocationX = parseInt(json.goalLocationX);
         json.goalLocationY = parseInt(json.goalLocationY);
+
         for (var o of json.obstacles) {
             o.locationX = parseInt(o.locationX)
             o.locationY = parseInt(o.locationY)
         }
 
+        this.obstacles = json.obstacles
+
         this.plan = []
         this.started = false
 
-        this.autonomousAgentTimerLength = json.autonomousAgentTimer
+        this.tickTime = json.tickTime
 
         this.start = Date.now()
         this.keypresses = []
@@ -86,9 +89,10 @@ export default class DiscreteGridWorld extends Component {
             document.addEventListener("keydown", this.handleKeyPress, false);
             window.addEventListener("resize", this.updateWindowDimensions)
             this.computeGrid()
+            this.moveObjects()
+
             if (this.state.autonomousAgent) {
                 this.plan = this.calculateAutonomousPlan()
-                this.moveAutonomousAgent()
             }
         })
     }
@@ -121,7 +125,8 @@ export default class DiscreteGridWorld extends Component {
             grid.push(row)
         }
 
-        for (var o of this.state.obstacles) {
+
+        for (var o of this.obstacles) {
             grid[o.locationX][o.locationY].isOccupied = true
         }
 
@@ -136,28 +141,62 @@ export default class DiscreteGridWorld extends Component {
         return path
     }
 
-    moveAutonomousAgent() {
-        if (this.started) {
+    moveObjects() {
+        // move the autonomous agent
+        var autonomousAgent = this.state.autonomousAgent
+
+        if (this.started && autonomousAgent) {
             if (this.plan.length === 0) {
                 // do nothing
             } else {
                 if (!(this.plan[0].x === this.state.goalLocationX && this.plan[0].y === this.state.goalLocationY) && this.state.humanAgent && this.plan[0].x === this.state.humanAgent.x && this.plan[0].y === this.state.humanAgent.y) {
-                    this.plan = this.calculateAutonomousPlan()
                 } else {
-                    this.setState({
-                        autonomousAgent: {
-                            x: this.plan[0].x,
-                            y: this.plan[0].y
-                        }
-                    }, () => {    
-                        this.computeGrid()
-                        this.plan = this.calculateAutonomousPlan()
-                    })
+                    autonomousAgent = this.plan[0]
                 }
             }
         }
 
-        this.autonomousAgentTimer = setTimeout(this.moveAutonomousAgent, this.autonomousAgentTimerLength)
+
+        for (var o of this.obstacles) {
+            var oldPosition = {
+                x: o.locationX,
+                y: o.locationY
+            }
+
+
+            var newX = o.deltaX ? oldPosition.x + o.deltaX : oldPosition.x
+            var newY = o.deltaY ? oldPosition.y + o.deltaY : oldPosition.y
+
+            if (newX === -1) newX = this.width - 1
+            else if (newX === this.width) newX = 0
+
+            if (newY === -1) newY = this.height - 1
+            else if (newY === this.height) newY = 0
+
+
+            var newPosition = {
+                x: newX,
+                y: newY
+            }
+
+            var autoWon = this.state.autonomousAgent && this.state.autonomousAgent.x === this.state.goalLocationX && this.state.autonomousAgent.y === this.state.goalLocationY
+            var humanWon = this.state.humanAgent && this.state.humanAgent.x === this.state.goalLocationX && this.state.humanAgent.y === this.state.goalLocationY
+            // obstacle can not overlap robots
+            if ((this.state.autonomousAgent && !autoWon && newPosition.x === this.state.autonomousAgent.x && newPosition.y === this.state.autonomousAgent.y) || (this.state.humanAgent && !humanWon && newPosition.x === this.state.humanAgent.x && newPosition.y === this.state.humanAgent.y)) {
+                newPosition = oldPosition
+                // can also do reflection here by flipping velocities
+            }
+
+            o.locationX = newPosition.x
+            o.locationY = newPosition.y
+        }
+
+        this.setState({
+            autonomousAgent,
+        })
+        this.computeGrid()
+        this.plan = this.calculateAutonomousPlan()
+        this.autonomousAgentTimer = setTimeout(this.moveObjects, this.tickTime)
     }
 
 
@@ -249,6 +288,8 @@ export default class DiscreteGridWorld extends Component {
     }
 
     onWin() {
+        clearTimeout(this.autonomousAgentTimer)
+
         this.setState({
             didWin: true
         })
@@ -264,7 +305,6 @@ export default class DiscreteGridWorld extends Component {
 
         if (this.state.autonomousAgent && this.state.autonomousAgent.x === this.state.goalLocationX && this.state.autonomousAgent.y === this.state.goalLocationY) {
             autoWin = true
-            clearTimeout(this.autonomousAgentTimer)
         }
 
 
@@ -280,10 +320,9 @@ export default class DiscreteGridWorld extends Component {
             }
             grid.push(r)
         }
+        grid[this.state.goalLocationY][this.state.goalLocationX] = "G"
 
-        for (var o of this.state.obstacles) {
-            grid[o.locationY][o.locationX] = "O"
-        }
+
 
         if (this.state.humanAgent) {
             grid[this.state.humanAgent.y][this.state.humanAgent.x] = "0"
@@ -293,7 +332,6 @@ export default class DiscreteGridWorld extends Component {
             grid[this.state.autonomousAgent.y][this.state.autonomousAgent.x] = "A"
         }
 
-        grid[this.state.goalLocationY][this.state.goalLocationX] = "G"
         if (autoWin && didWin) {
             grid[this.state.goalLocationY][this.state.goalLocationX] = "WAH"
         } else if (autoWin) {
@@ -301,6 +339,10 @@ export default class DiscreteGridWorld extends Component {
             grid[this.state.goalLocationY][this.state.goalLocationX] = "WA"
         } else if (didWin) {
             grid[this.state.goalLocationY][this.state.goalLocationX] = "WH"
+        }
+
+        for (var o of this.obstacles) {
+            grid[o.locationY][o.locationX] = "O"
         }
 
         this.setState({
@@ -356,6 +398,7 @@ export default class DiscreteGridWorld extends Component {
                             grid={this.state.grid}
                             numRows={this.state.numRows}
                             numCols={this.state.numCols}
+                            visualizeGridLines={this.visualizeGridLines}
                         />
                     </div>
                     <hr />

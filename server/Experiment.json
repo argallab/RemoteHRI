@@ -3,18 +3,18 @@
     "preExperiment": [
         {
             "stimulusType": "grid-world",
-            "width": 5,
-            "height": 5,
+            "width": 10,
+            "height": 10,
             "goalLocationX": 0,
             "goalLocationY": 0,
             "obstacles": [
                 {
-                    "label": "Obstacle 1",
                     "locationX": 1,
-                    "locationY": 0
+                    "locationY": 0,
+                    "deltaX": -1,
+                    "deltaY": 0
                 },
                 {
-                    "label": "Obstacle 2",
                     "locationX": 2,
                     "locationY": 0
                 },
@@ -24,11 +24,15 @@
                 },
                 {
                     "locationX": 0,
-                    "locationY": 4
+                    "locationY": 4,
+                    "deltaX": -1,
+                    "deltaY": -1
                 },
                 {
                     "locationX": 4,
-                    "locationY": 1
+                    "locationY": 1,
+                    "deltaX": 1,
+                    "deltaY": 1
                 },
                 {
                     "locationX": 0,
@@ -47,8 +51,8 @@
                 "x": 4,
                 "y": 4
             },
-            "autonomousAgentTimer": 600,
-            "visualizeGridLines": true,
+            "tickTime": 600,
+            "visualizeGridLines": false,
             "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
             "postText": "Good job!  Press any key to continue."
         },

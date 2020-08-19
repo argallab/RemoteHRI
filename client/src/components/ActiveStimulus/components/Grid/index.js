@@ -11,7 +11,7 @@ import { Row } from 'react-bootstrap';
 export default class Grid extends Component {
     render() {
         const rectangleStyle = {
-            
+            border: this.props.visualizeGridLines && "1px solid #000",
             width: this.props.cellSize,
             height: this.props.cellSize
         }
@@ -98,7 +98,7 @@ export default class Grid extends Component {
         }
 
         return (
-            <div className="rectangles">
+            <div style={{border: "1px solid #000"}} className="rectangles">
                 {gridJsx}
             </div>
         )
