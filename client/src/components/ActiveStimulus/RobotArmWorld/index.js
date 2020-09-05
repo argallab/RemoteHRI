@@ -8,7 +8,7 @@ class Scene extends React.Component {
         super(props);
         this.state = {
             currentNode: 0,
-            mode: 0 // 0 controls nodes, 1 controls hand angle, 2 controls hand pos
+            mode: 0 // 0 controls nodes 2 controls hand pos
         };
 
         this.keys = {}
@@ -25,10 +25,22 @@ class Scene extends React.Component {
         this.collisionInvolvesCurrent = false
 
 
+        this.onSubmit = this.onSubmit.bind(this)
+
+        document.addEventListener("keydown", this.handleKeyPress, false);
+        document.addEventListener("keyup", this.handleKeyPress, false)
+
+        this.eventLog = {
+            rotation: {},
+            translation: {}
+        }
 
     }
 
     componentDidMount() {
+
+        this.start = Date.now()
+        this.keys = {}
         var Engine = Matter.Engine,
             Render = Matter.Render,
             Runner = Matter.Runner,
@@ -265,6 +277,7 @@ class Scene extends React.Component {
         World.add(this.world, this.centerSupports)
         World.add(this.world, this.btSupports)
         World.add(this.world, this.bbSupports)
+        World.add(this.world, this.goal)
 
         /* Handles each 'tick' of the physics engine */
         Events.on(engine, 'beforeUpdate', (event) => {
@@ -285,8 +298,7 @@ class Scene extends React.Component {
         Engine.run(engine)
         Render.run(render)
 
-        document.addEventListener("keydown", this.handleKeyPress, false);
-        document.addEventListener("keyup", this.handleKeyPress, false)
+       
 
 
     }
@@ -301,6 +313,19 @@ class Scene extends React.Component {
         this.setState({
             mode: 3
         })
+
+        this.onSubmit()
+    }
+
+    
+    onSubmit() {
+        console.log("onSubmit called from RobotArmWorld")
+        var answer = {
+            start: this.start,
+            keypresses: this.eventLog,
+            end: Date.now()
+        }
+        this.props.submit(answer)
     }
 
 
@@ -466,6 +491,9 @@ class Scene extends React.Component {
             var mode = this.state.mode
 
             if (mode === 0) {
+                if (!this.links) {
+                    return;
+                }
                 if (event.key === "w" && this.state.currentNode < this.links.length - 1) {
                     for (var i of this.links) {
                         Body.setAngularVelocity(i, 0)
@@ -512,6 +540,73 @@ class Scene extends React.Component {
 
 
         }
+
+
+        if (event.type === "keydown")
+        {
+            if (this.state.mode == 0) {
+                if (!this.eventLog.rotation[event.key]) this.eventLog.rotation[event.key] = []
+
+                if (event.repeat) {}
+                else {
+                    this.eventLog.rotation[event.key].push({
+                        start: {
+                            time: Date.now(),
+                            links: this.links.map((link) => {
+                                return {
+                                    pos: link.position,
+                                    angle: link.angle
+                                }
+                            }),
+                        },
+                        currentNode: this.state.currentNode
+                    })
+                }
+            } else if (this.state.mode == 2) {
+                if (!this.eventLog.translation[event.key]) this.eventLog.translation[event.key] = []
+
+                if (event.repeat) {}
+                else {
+                    this.eventLog.translation[event.key].push({
+                        start: {
+                            time: Date.now(),
+                            links: this.links.map((link) => {
+                                return {
+                                    pos: link.position,
+                                    angle: link.angle
+                                }
+                            }),
+                        },
+                        currentNode: this.state.currentNode
+                    })
+                }
+            }
+        } else if (event.type === "keyup") {
+            if (this.state.mode === 0) {
+                if (!this.eventLog.rotation[event.key]) {return}
+                this.eventLog.rotation[event.key][this.eventLog.rotation[event.key].length - 1].end = {
+                    time: Date.now(),
+                    links: this.links.map((link) => {
+                        return {
+                            pos: link.position,
+                            angle: link.angle
+                        }
+                    })
+                }
+            } else if (this.state.mode === 2) {
+                if (!this.eventLog.translation[event.key]) {return}
+                this.eventLog.translation[event.key][this.eventLog.translation[event.key].length - 1].end = {
+                    time: Date.now(),
+                    links: this.links.map((link) => {
+                        return {
+                            pos: link.position,
+                            angle: link.angle
+                        }
+                    })
+                }
+            }
+
+        }
     }
 
     componentWillUnmount() {
@@ -532,6 +627,7 @@ class Scene extends React.Component {
 
     /* Handles the update of the physics engine based on mode and state of keys pressed. */
     updateBodies() {
+
 
         if (this.state.mode == 0) {
             // handles joint rotation

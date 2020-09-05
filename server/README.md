@@ -27,6 +27,16 @@ To run the server, run
 `npm install nodus-ponens`
 `node server.js`
 
+# Deploying the project
+
+Deploying the RemoteHRI server can be done using any server hosting website, or by hosting the server on a organization-owned machine.
+
+One option is to use AWS EC2.  Here are some links to help with this.
+[https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server](https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server)
+[https://aws.amazon.com/getting-started/hands-on/deploy-nodejs-web-app/](https://aws.amazon.com/getting-started/hands-on/deploy-nodejs-web-app/)
+
+IMPORTANT NOTE: Some changes may need to be made to the ReactJs client in order to correctly send requests to the hosted server, in terms of domain/routes called.  Currently, the ReactJs client is set up to call the localhost server, which will not work in production.  Also, CORS issues may arise, which can be solved by setting the correct request/response headers.
+
 # Data schemas
 
 An example of an experiment schema can be found in [Experiment.json](Experiment.json)
@@ -53,7 +63,7 @@ postTrials | Array(Stimulus) | N/A | Stimuli to display after the experimental t
 
 Field Name | Type | Values | Description
 ---------- | ---- | ------ | -----------
-stimulusType | string | text-display, continuous-world, grid-world, video, survey | Specifies which type of stimulus this object is
+stimulusType | string | text-display, continuous-world, grid-world, video, survey, robot-arm | Specifies which type of stimulus this object is
 
 ### Text Display (extends Stimulus)
 
@@ -72,11 +82,13 @@ height | int | N/A | Number of rows in the grid
 goalLocationX | int | [0, width) | X-coordinate of the goal (0-indexed)
 goalLocationY | int | [0, height) | Y-coordinate of the goal (0-indexed)
 obstacles | Array(Obstacle) | N/A | Array of obstacles to render in grid world
-robotLocationX | int | [0, width) | X-coordinate of the starting robot location (0-indexed)
-robotLocationY | int | [0, height) | Y-coordinate of the starting robot location (0-indexed)
+humanAgent | Robot | N/A | Object specifying starting location of human robot - OPTIONAL (one or both of humanAgent and autonomousAgent must be specified)
+autonomousAgent | Robot | N/A | Object specifying starting location of autonomous robot - OPTIONAL (one or both of humanAgent and autonomousAgent must be specified)
+tickTime | int | [0, infinity] | Number of milliseconds between updates for autonomous agent and obstacles
 visualizeGridLines | boolean | true, false | Controls whether grid lines are visible on the grid world.  Not implemented
 instructions | string | N/A | Instructions (displayed in a paragraph HTML tag) for the grid world
 postText | string | N/A | Text to display after reaching the goal (displayed in a paragraph HTML tag)
+
 
 ### Video (extends Stimulus)
 
@@ -102,13 +114,9 @@ Locations are given in position of bottom-left corner (closest to (0,0)) - this 
 Field Name | Type | Values | Description
 ---------- | ---- | ------ | -----------
 fps | int | N/A | Number of frames to run per second (recommend 60fps)
-width | int | (0, 750]) | Width of the robot image
-height | int | (0, 750]) | Height of the robot image
-x | int | [0,750] | X-coordinate of the starting robot location (center)
-y | int | [0.750] | Y-coordinate of the starting robot location (center)
-angle | int | N/A | Angle of the starting robot in degrees, positive is clockwise
-velocity | int | N/A | Forward velocity of robot in pixels/second
-angularVelocity | int | N/A | Number of degrees to rotate the robot on each iteration per second
+gridApproximation | int | [1, 3] | Reduction factor of the grid for planning - smaller numbers = more accuracy but larger compute time, default/recommended value is 2
+humanAgent | Robot | N/A | Object specifying human robot - OPTIONAL (one or both of humanAgent and autonomousAgent must be specified)
+autonomousAgent | Robot | N/A | Object specifying autonomous agent - OPTIONAL (one or both of humanAgent and autonomousAgent must be specified)
 obstacles | Array(Obstacle) | N/A | Obstacles to render in the world
 goalLocationX | int | [0,750] | X-coordinate of the goal location (bottom-left corner)
 goalLocationY | int | [0,750] | Y-coordinate of the goal location (bottom-left corner)
@@ -116,6 +124,43 @@ goalWidth | int | [0,750] | Width of the goal
 goalHeight | int | [0,750] | Height of the goal
 instructions | string | N/A | Instructions (displayed in a paragraph HTML tag) for the continuous world
 postText | string | N/A | Text to display after reaching the goal (displayed in a paragraph HTML tag)
+
+### Robotic Arm World (extends Stimulus)
+
+Field Name | Type | Values | Description
+---------- | ---- | ------ | -----------
+links | Array(Link) | N/A | Array specifying characteristics of each link
+jointAgularVelocity | float | N/A | Specifies how many radians to rotate joints per frame (NOT per second), recommended value is 0.03
+handVelocity | int | N/A | Specifes how many units to move the hand per frame (NOT per second), recommended value is 5
+winPositionThreshold | float | [0, 1] | Specifes what percentage of the hand must be inside of the goal for a winning condition, recommended lowest value is 0.95
+wallWidth | int | N/A | Specifes how large the walls are
+linkHeight | int | N/A | Height of links
+linkWidth | int | N/A | Width of links
+linkRadius | int | N/A | Corner radius of links
+constraintsVisible | bool | true, false | Whether or not to visualize supports, recommended value is false
+robotA | int | N/A | Height/width dimension of robot hand
+handColor | string | any valid color | Color to render the robot hand
+goal | RobotArmGoal | N/A | Object specifying goal characteristics
+
+### Link
+
+Note: eventually, linkHeight, linkWidth, and linkRadius can be moved to this object to allow for variable specification of links, rather than the same for all links as is currently implemented.
+
+Field Name | Type | Values | Description
+---------- | ---- | ------ | -----------
+color | string | any valid color | Color to render the link
+
+
+### RobotArmGoal
+
+Allows for two ways of specifying location of the goal.  If percent is chosen, x and y represent the percentage location of the goal.  For example a value of x: 80 would mean the goal is placed 80% of the way across the world.  A value of y: 50 would mean the goal is placed 50% of the way down the world.  Regardless of unit, (0,0) is the top left of the world.
+
+Field Name | Type | Values | Description
+---------- | ---- | ------ | -----------
+x | int | N/A | X-coordinate for location of the goal, or percentage location for horizontal placement of the goal
+y | int | N/A | Y-coordinate for location of the goal, or percentage location for vertical placement of the goal
+theta | int | N/A | Angle of the goal in radians
+unit | string | percent, pixel | Determines whether the x and y specifications are in units of percentages or pixels
 
 ### Question
 
@@ -133,3 +178,18 @@ locationX | int | [0, width) | X-coordinate of obstacle (0-indexed) (bottom-left
 locationY | int | [0, height) | Y-coordinate of obstacle (0-indexed) (bottom-left corner)
 width | int | [0,750] | Width of the obstacle, *only for ContinuousWorld*
 height | int | [0,750] | Height of the obstacle, *only for ContinuousWorld*
+deltaX | int | N/A | Horizontal velocity of the obstacle (how the x-coordinate should change each iteration) - OPTIONAL
+deltaY | int | N/A | Vertical velocity of the obstacle (how the x-coordinate should change each iteration) - OPTIONAL
+
+
+### Robot
+
+Field Name | Type | Values | Description
+---------- | ---- | ------ | -----------
+x | int | [0, width) | X-coordinate of the starting robot location (0-indexed)
+y | int | [0, height) | Y-coordinate of the starting robot location (0-indexed)
+angle | int | N/A | Starting angle of the robot, measured in degrees, positive is clockwise *only for ContinuousWorld*
+velocity | int | N/A | Number of units the robot travels in one second *only for ContinuousWorld*
+angularVelocity | int | N/A | Number of degrees the robot rotates in one second *only for ContinuousWorld*
+width | int | [0, 750] | Width of the robot *only for ContinuousWorld*
+height | int | width | Height of the robot, must be square (equal to width) *only for ContinuousWorld*

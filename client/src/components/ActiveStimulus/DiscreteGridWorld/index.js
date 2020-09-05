@@ -95,6 +95,8 @@ export default class DiscreteGridWorld extends Component {
                 this.plan = this.calculateAutonomousPlan()
             }
         })
+
+        this.calledWin = false
     }
 
     updateWindowDimensions() {
@@ -115,11 +117,12 @@ export default class DiscreteGridWorld extends Component {
 
     }
 
+    // Runs A* to calculate the plan
     calculateAutonomousPlan() {
         var grid = []
-        for (var i = 0; i < this.height; i++) {
+        for (var i = 0; i < this.width; i++) {
             var row = []
-            for (var j = 0; j < this.width; j++) {
+            for (var j = 0; j < this.height; j++) {
                 row.push(new AStarNode(i, j, false))
             }
             grid.push(row)
@@ -141,10 +144,13 @@ export default class DiscreteGridWorld extends Component {
         return path
     }
 
+    // calculates each tick - moves autonomous agent and moves obstacles
+    // NOTE: shared control can be implemented in this function by setting up a key listening object, similarly to ContinuousWorld, and then changing the space that the robot moves in to 
     moveObjects() {
         // move the autonomous agent
         var autonomousAgent = this.state.autonomousAgent
 
+        // start moving the aa only when user presses a key
         if (this.started && autonomousAgent) {
             if (this.plan.length === 0) {
                 // do nothing
@@ -156,7 +162,7 @@ export default class DiscreteGridWorld extends Component {
             }
         }
 
-
+        // move the obstacles
         for (var o of this.obstacles) {
             var oldPosition = {
                 x: o.locationX,
@@ -192,7 +198,7 @@ export default class DiscreteGridWorld extends Component {
         }
 
         this.setState({
-            autonomousAgent,
+            autonomousAgent
         })
         this.computeGrid()
         this.plan = this.calculateAutonomousPlan()
@@ -205,8 +211,11 @@ export default class DiscreteGridWorld extends Component {
      * Need to understand when this function will be called - could run into some bugs later where this listener is not being properly removed
      */
     componentWillUnmount() {
+        clearTimeout(this.autonomousAgentTimer)
+
         window.removeEventListener("resize", this.updateWindowDimensions)
         document.removeEventListener("keydown", this.handleKeyPress, false);
+
     }
 
     /**
@@ -230,7 +239,10 @@ export default class DiscreteGridWorld extends Component {
             timestamp: Date.now(),
             state: {
                 humanAgent: this.state.humanAgent,
-                autonomousAgent: this.state.autonomousAgent
+                autonomousAgent: {
+                    x: this.state.autonomousAgent.x,
+                    y: this.state.autonomousAgent.y
+                }
             }
         })
 
@@ -288,6 +300,11 @@ export default class DiscreteGridWorld extends Component {
     }
 
     onWin() {
+        if (this.calledWin) {
+            return
+        }
+
+        this.calledWin = true
         clearTimeout(this.autonomousAgentTimer)
 
         this.setState({
@@ -322,7 +339,9 @@ export default class DiscreteGridWorld extends Component {
         }
         grid[this.state.goalLocationY][this.state.goalLocationX] = "G"
 
-
+        for (var o of this.obstacles) {
+            grid[o.locationY][o.locationX] = "O"
+        }
 
         if (this.state.humanAgent) {
             grid[this.state.humanAgent.y][this.state.humanAgent.x] = "0"
@@ -341,9 +360,7 @@ export default class DiscreteGridWorld extends Component {
             grid[this.state.goalLocationY][this.state.goalLocationX] = "WH"
         }
 
-        for (var o of this.obstacles) {
-            grid[o.locationY][o.locationX] = "O"
-        }
+
 
         this.setState({
             grid,
