@@ -7,6 +7,7 @@ import LoadingScreen from './components/LoadingScreen'
 import PreExperimentForm from './components/PreExperimentForm';
 import TextDisplay from './components/PassiveStimulus/TextDisplay'
 import ContinuousWorld from './components/ActiveStimulus/ContinuousWorld'
+import RobotArmWorld from './components/ActiveStimulus/RobotArmWorld';
 /**
  * See README.md for documentation.
  */
@@ -116,9 +117,11 @@ export default class Content extends React.Component {
             })
     }
 
-    getNextStimulus(body = {}) {
+    getNextStimulus(body = {}, dumpQuery = false) {
         var params = { ...this.fetchConfig }
         params["method"] = "POST"
+        if (dumpQuery) body.dumpQuery = true
+
         params["body"] = JSON.stringify(body)
         fetch("/getNextStimulus", params)
             .then((response) => {
@@ -131,7 +134,7 @@ export default class Content extends React.Component {
             .then((data) => {
                 console.log("/getNextStimulus response:")
                 console.log(data)
-                if (data.Data === "Done") {
+                if (data.data.Data === "Done") {
                     this.setState({
                         trialData: {},
                         trialLoaded: false,
@@ -139,10 +142,14 @@ export default class Content extends React.Component {
                     }, this.endExperiment)
 
                 } else {
-                    this.setState({
-                        trialData: data,
-                        trialLoaded: true
-                    })
+                    if (data.progress) {
+                        this.setState({
+                            trialData: data.data,
+                            trialLoaded: true
+                        })
+                    } else {
+                        console.log("Successfully dumped data")
+                    }
                 }
             })
             .catch((err) => {
@@ -154,11 +161,9 @@ export default class Content extends React.Component {
         console.log("Called getNextTrial with object ", answer)
         // clockTime, answer, latency
         var toSend = { ...answer }
-        console.log(answer)
         toSend["clockTime"] = new Date().toISOString();
         toSend["latency"] = (answer.end - answer.start) / 1000;
         toSend["answer"] = answer
-        console.log(toSend)
         this.getNextStimulus(toSend)
     }
 
@@ -201,7 +206,11 @@ export default class Content extends React.Component {
                         )
                     } else if (this.state.trialData.stimulusType === "continuous-world") {
                         return (
-                            <ContinuousWorld key={this.state.trialData.trialIndex} data={this.state.trialData} submit={this.getNextTrial} />
+                            <ContinuousWorld key={this.state.trialData.trialIndex} data={this.state.trialData} batchSubmit={this.getNextStimulus} submit={this.getNextTrial} />
+                        )
+                    } else if (this.state.trialData.stimulusType === "robot-arm") {
+                        return (
+                            <RobotArmWorld key={this.state.trialData.trialIndex} data={this.state.trialData} submit={this.getNextTrial} />
                         )
                     }
 

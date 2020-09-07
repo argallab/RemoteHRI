@@ -28,6 +28,18 @@ Then import the component inside of Content, and add another else-if condition t
 
 See the [Survey stimulus](src/components/PassiveStimulus/Survey/index.js) for a simple implementation of a stimulus component.
 
+# Deploying the project
+
+Deploying the RemoteHRI client can be done using any static site hosting service, such as AWS S3, Google Firebase, Heroku, etc.
+
+After running `npm run build`, the resulting "build" folder will contain all files needed to deploy the whole client.  This can be uploaded to any static site hosting service, as mentioned above.
+
+One option is to use AWS S3.  Here are some links to help with this.
+[https://medium.com/serverlessguru/deploy-reactjs-app-with-s3-static-hosting-f640cb49d7e6](https://medium.com/serverlessguru/deploy-reactjs-app-with-s3-static-hosting-f640cb49d7e6)
+[https://medium.com/dailyjs/a-guide-to-deploying-your-react-app-with-aws-s3-including-https-a-custom-domain-a-cdn-and-58245251f081](https://medium.com/dailyjs/a-guide-to-deploying-your-react-app-with-aws-s3-including-https-a-custom-domain-a-cdn-and-58245251f081)
+
+IMPORTANT NOTE: Some changes may need to be made to the ReactJs client in order to correctly send requests to the hosted server, in terms of domain/routes called.  Currently, the ReactJs client is set up to call the localhost server, which will not work in production.  Also, CORS issues may arise, which can be solved by setting the correct request/response headers.
+
 # Running the project
 
 ## Available Scripts

@@ -16,12 +16,10 @@ body {
 
 .rectangles .rectangle {
     display: inline-block;
-    border: 1px solid #000;
     position: relative;
 }
 
 .rectangles .rectangle .circle {
-  background: #aaa;
   border-radius: 100%;
   position: absolute;
 }
@@ -47,6 +45,7 @@ body {
     width: 750px;
     height: 750px;
     border: 1px solid black;
+    overflow: hidden;
 }
 
 #worldrobot {
@@ -56,4 +55,10 @@ body {
 #worldgoal {
     position: absolute;
     z-index: -100;
+}
+
+#robotControlButtons button {
+    margin: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
