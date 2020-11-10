@@ -1,60 +1,55 @@
 {
     "shuffleBlocks": false,
     "blocks": [
+        
         {
             "blockName": "Grid World",
             "shuffleTrials": false,
             "preTrials": [],
             "trials": [
+
+                
                 {
                     "stimulusType": "grid-world",
                     "width": 5,
                     "height": 5,
-                    "goalLocationX": 0,
-                    "goalLocationY": 0,
+                    "goalLocationX": 4,
+                    "goalLocationY": 4,
                     "obstacles": [
                         {
                             "locationX": 1,
                             "locationY": 0,
-                            "deltaX": -1,
+                            "deltaX": 0,
                             "deltaY": 0
                         },
                         {
-                            "locationX": 2,
-                            "locationY": 0
-                        },
-                        {
-                            "locationX": 2,
-                            "locationY": 2
-                        },
-                        {
-                            "locationX": 0,
-                            "locationY": 4,
-                            "deltaX": -1,
-                            "deltaY": -1
-                        },
-                        {
-                            "locationX": 4,
-                            "locationY": 1,
-                            "deltaX": 1,
-                            "deltaY": 1
-                        },
-                        {
-                            "locationX": 0,
-                            "locationY": 2
+                            "locationX": 1,
+                            "locationY": 1
                         },
                         {
                             "locationX": 1,
                             "locationY": 2
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 4,
+                            "deltaX": 0,
+                            "deltaY": 0
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 3,
+                            "deltaX": 0,
+                            "deltaY": 0
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 1
                         }
                     ],
                     "humanAgent": {
-                        "x": 3,
-                        "y": 3
-                    },
-                    "autonomousAgent": {
-                        "x": 4,
-                        "y": 4
+                        "x": 0,
+                        "y": 0
                     },
                     "tickTime": 600,
                     "visualizeGridLines": false,
@@ -62,34 +57,156 @@
                     "postText": "Good job!  Press any key to continue."
                 },
                 {
-                    "stimulusType": "robot-arm",
-                    "links": [
+                    "stimulusType": "grid-world",
+                    "width": 5,
+                    "height": 5,
+                    "goalLocationX": 4,
+                    "goalLocationY": 4,
+                    "obstacles": [
                         {
-                            "color": "red"
+                            "locationX": 1,
+                            "locationY": 0,
+                            "deltaX": 0,
+                            "deltaY": 0
                         },
                         {
-                            "color": "blue"
+                            "locationX": 1,
+                            "locationY": 1
                         },
                         {
-                            "color": "orange"
+                            "locationX": 1,
+                            "locationY": 2
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 4,
+                            "deltaX": 0,
+                            "deltaY": 0
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 3,
+                            "deltaX": 0,
+                            "deltaY": 0
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 1
                         }
                     ],
-                    "jointAngularVelocity": 0.03,
-                    "handVelocity": 5,
-                    "winPositionThreshold": 0.95,
-                    "wallWidth": 50,
-                    "linkHeight": 100,
-                    "linkWidth": 25,
-                    "linkRadius": 10,
-                    "constraintsVisible": false,
-                    "robotA": 75,
-                    "handColor": "pink",
-                    "goal": {
-                        "x": 80,
-                        "y": 60,
-                        "theta": 2,
-                        "unit": "percent"
-                    }
+                    "humanAgent": {
+                        "x": 4,
+                        "y": 0
+                    },
+                    "autonomousAgent": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "postText": "Good job!  Press any key to continue."
+                },
+                {
+                    "stimulusType": "grid-world",
+                    "width": 5,
+                    "height": 5,
+                    "goalLocationX": 4,
+                    "goalLocationY": 4,
+                    "obstacles": [
+                        {
+                            "locationX": 1,
+                            "locationY": 0,
+                            "deltaX": 0,
+                            "deltaY": 0
+                        },
+                        {
+                            "locationX": 1,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 1,
+                            "locationY": 2
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 4,
+                            "deltaX": 0,
+                            "deltaY": 0
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 3,
+                            "deltaX": 0,
+                            "deltaY": 0
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 1,
+                            "deltaX": -1,
+                            "deltaY": 0
+                        }
+                    ],
+                    "humanAgent": {
+                        "x": 4,
+                        "y": 0
+                    },
+                    "autonomousAgent": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "postText": "Good job!  Press any key to continue."
+                },
+                {
+                    "fps": 60,
+                    "stimulusType": "continuous-world",
+                    "worldWidth": 750,
+                    "worldHeight": 750,
+                    "gridApproximation": 3,
+                    "humanAgent": {
+                        "x": 50,
+                        "y": 700,
+                        "angle": 90,
+                        "velocity": 250,
+                        "angularVelocity": 120,
+                        "width": 50,
+                        "height": 50
+                    },
+                    "obstacles": [
+                        {
+                            "locationX": 250,
+                            "locationY": 10,
+                            "width": 20,
+                            "height": 300
+                        },
+                        {
+                            "locationX": 100,
+                            "locationY": 200,
+                            "width": 300,
+                            "height": 20
+                        },
+                        {
+                            "locationX": 100,
+                            "locationY": 651,
+                            "width": 500,
+                            "height": 10
+                        },
+                        {
+                            "locationX": 475,
+                            "locationY": 300,
+                            "width": 140,
+                            "height": 200
+                        }
+                    ],
+                    "goalLocationX": 600,
+                    "goalLocationY": 50,
+                    "goalWidth": 100,
+                    "goalHeight": 100,
+                    "instructions": "Move the robot to the green square.",
+                    "postText": "Great job!"
                 },
                 {
                     "fps": 60,
@@ -147,9 +264,37 @@
                     "goalHeight": 100,
                     "instructions": "Move the robot to the green square.",
                     "postText": "Great job!"
+                },
+                {
+                    "stimulusType": "robot-arm",
+                    "links": [
+                        {
+                            "color": "red"
+                        },
+                        {
+                            "color": "blue"
+                        },
+                        {
+                            "color": "orange"
+                        }
+                    ],
+                    "jointAngularVelocity": 0.03,
+                    "handVelocity": 5,
+                    "winPositionThreshold": 0.95,
+                    "wallWidth": 50,
+                    "linkHeight": 100,
+                    "linkWidth": 25,
+                    "linkRadius": 10,
+                    "constraintsVisible": false,
+                    "robotA": 75,
+                    "handColor": "pink",
+                    "goal": {
+                        "x": 80,
+                        "y": 60,
+                        "theta": 2,
+                        "unit": "percent"
+                    }
                 }
-                
-                
             ],
             "postTrials": []
         }

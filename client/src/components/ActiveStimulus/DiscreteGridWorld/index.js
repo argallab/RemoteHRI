@@ -140,8 +140,12 @@ export default class DiscreteGridWorld extends Component {
         grid[this.state.goalLocationX][this.state.goalLocationY].isOccupied = false
 
         var planner = new AStar(grid)
-        var path = planner.search(grid[this.state.autonomousAgent.x][this.state.autonomousAgent.y], grid[this.state.goalLocationX][this.state.goalLocationY])
-        return path
+        if (this.state.autonomousAgent) {
+            var path = planner.search(grid[this.state.autonomousAgent.x][this.state.autonomousAgent.y], grid[this.state.goalLocationX][this.state.goalLocationY])
+            return path
+        }
+        return []
+
     }
 
     // calculates each tick - moves autonomous agent and moves obstacles
@@ -239,7 +243,7 @@ export default class DiscreteGridWorld extends Component {
             timestamp: Date.now(),
             state: {
                 humanAgent: this.state.humanAgent,
-                autonomousAgent: {
+                autonomousAgent: this.state.autonomousAgent && {
                     x: this.state.autonomousAgent.x,
                     y: this.state.autonomousAgent.y
                 }
