@@ -15,6 +15,7 @@
 // 4. Writing participant data to file (http://localhost/endExperiment)
 // --------------------------------------------------------------------------------------------------
 
+// import all necessary JS libraries. 
 var dateFormat = require("dateformat");
 var express = require('express');
 var session = require('express-session');
@@ -56,7 +57,6 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
    // --------------------------------------------------------------------------------------------------
    // 0. Setting up the main experiment object, np, and creating a server instance
    // --------------------------------------------------------------------------------------------------
-
    var np = new Object();
    np["app"] = require('express')();
    np["http"] = require('http').Server(np.app);
@@ -104,9 +104,9 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       sess.sessdata.ExperimentInformationHeader = "ExperimentInformation";
       np.participantID = np.updateParticipantID();
       sess.sessdata.ParticipantID = "P" + np.participantID;
-      sess.sessdata.ExperimentName = np.experimentName;
+      
 
-      if (req.query.a !== "") { sess.sessdata.Age = req.query.a; }           // Set experiment variables
+      if (req.query.a !== "") { sess.sessdata.Age = req.query.a; }           // Set experiment variables a for age, s- sex, h-hand, r-race
       if (req.query.s !== "") { sess.sessdata.Sex = req.query.s; }
       if (req.query.h !== "") { sess.sessdata.Hand = req.query.h; }
       if (req.query.r !== "") { sess.sessdata.Race = req.query.r; }
@@ -114,7 +114,8 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       var today = new Date();
       sess.sessdata.StartTime = today.toISOString();
       sess.sessdata.CurrentStimulus = 0;
-      sess.sessdata.Stimuli           = np.loadStimuli(np.participantID);
+      sess.sessdata.Stimuli           = np.loadStimuli(np.participantID); // this calls the setUpStimuli in index.js, sess.sessdata.Stimuli is a flattened list containing all the trials (confirm this)? 
+      sess.sessdata.ExperimentName = np.experimentName; // loadStimuli will update the experimentName field. 
 
       req.session = sess;
       console.log(dateFormat(today) + "   Set up experiment for " + sess.sessdata.ParticipantID + "...");

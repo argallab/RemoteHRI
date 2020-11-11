@@ -201,7 +201,9 @@ export default class DiscreteGridWorld extends Component {
             autonomousAgent
         })
         this.computeGrid()
-        this.plan = this.calculateAutonomousPlan()
+        if (this.state.autonomousAgent){
+            this.plan = this.calculateAutonomousPlan()
+        }
         this.autonomousAgentTimer = setTimeout(this.moveObjects, this.tickTime)
     }
 
@@ -234,17 +236,27 @@ export default class DiscreteGridWorld extends Component {
             return;
         }
 
-        this.keypresses.push({
-            keyPress: event.key,
-            timestamp: Date.now(),
-            state: {
-                humanAgent: this.state.humanAgent,
-                autonomousAgent: {
-                    x: this.state.autonomousAgent.x,
-                    y: this.state.autonomousAgent.y
+        if (this.state.autonomousAgent) {
+            this.keypresses.push({
+                keyPress: event.key,
+                timestamp: Date.now(),
+                state: {
+                    humanAgent: this.state.humanAgent,
+                    autonomousAgent: {
+                        x: this.state.autonomousAgent.x,
+                        y: this.state.autonomousAgent.y
+                    }
                 }
-            }
-        })
+            })
+        } else {
+            this.keypresses.push({
+                keyPress: event.key,
+                timestamp: Date.now(),
+                state: {
+                    humanAgent: this.state.humanAgent
+                }
+            })
+        }
 
         var oldLocation = this.state.humanAgent
         var newLocation

@@ -20,8 +20,8 @@ export default class ContinuousWorld extends React.Component {
             height: data.worldHeight,
         }
 
-        var humanSpecs // these variables used for state
-        var aaSpecs // these variables used for state
+        var humanSpecs // these variables used for state of the human controlled robot
+        var aaSpecs // these variables used for state for the autonomy controlled robot
         if (data.humanAgent) {
             // contains constant values about the human robot
             this.humanSpecs = {
@@ -111,10 +111,11 @@ export default class ContinuousWorld extends React.Component {
         // set up human robot
 
         if (this.humanSpecs) {
-            var deltax = this.humanSpecs.width / 2
-            var deltay = this.humanSpecs.height / 2
+            console.log('in HUMAN')
+            var h_deltax = this.humanSpecs.width / 2
+            var h_deltay = this.humanSpecs.height / 2
             // specify human robot from the center, and then four points
-            this.human = new SAT.Polygon(this.point(this.state.humanSpecs.x, this.state.humanSpecs.y), [this.point(-1 * deltax, -1 * deltay), this.point(deltax, -1 * deltay), this.point(deltax, deltay), this.point(-1 * deltax, deltay)])
+            this.human = new SAT.Polygon(this.point(this.state.humanSpecs.x, this.state.humanSpecs.y), [this.point(-1 * h_deltax, -1 * h_deltay), this.point(h_deltax, -1 * h_deltay), this.point(h_deltax, h_deltay), this.point(-1 * h_deltax, h_deltay)])
             this.human.setAngle(-1 * this.degreeToRad(this.state.humanSpecs.angle))
 
         }
@@ -122,9 +123,10 @@ export default class ContinuousWorld extends React.Component {
         // set up aa robot
 
         if (this.aaSpecs) {
-            var deltax = this.aaSpecs.width / 2
-            var deltay = this.aaSpecs.height / 2
-            this.aa = new SAT.Polygon(this.point(this.state.aaSpecs.x, this.state.aaSpecs.y), [this.point(-1 * deltax, -1 * deltay), this.point(deltax, -1 * deltay), this.point(deltax, deltay), this.point(-1 * deltax, deltay)])
+            console.log('in AUTONOMY')
+            var a_deltax = this.aaSpecs.width / 2
+            var a_deltay = this.aaSpecs.height / 2
+            this.aa = new SAT.Polygon(this.point(this.state.aaSpecs.x, this.state.aaSpecs.y), [this.point(-1 * a_deltax, -1 * a_deltay), this.point(a_deltax, -1 * a_deltay), this.point(a_deltax, a_deltay), this.point(-1 * a_deltax, a_deltay)])
             this.aa.setAngle(-1 * this.degreeToRad(this.state.aaSpecs.angle))
         }
 
@@ -191,7 +193,7 @@ export default class ContinuousWorld extends React.Component {
     // finds the index of the plan that has the closest waypoint to the current robots position
     // use this because calculating plan takes a long time - robot could move while calculating the plan from a previous point
     adjustPlan(plan) {
-        if (plan.length == 0) return 0
+        if (plan.length === 0) return 0
         var minIndex = 0
         var robot = this.aa.pos
         var minDistance = Math.hypot(plan[0].x - robot.x, plan[0].y - robot.y)

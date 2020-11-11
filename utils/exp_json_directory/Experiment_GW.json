@@ -1,0 +1,388 @@
+{
+    "experimentName": "Grid World Experiment",
+    "shuffleBlocks": false,
+    "blocks": [
+        {
+            "blockName": "Training Block",
+            "preTrials": [
+                {
+                    "stimulusType": "text-display",
+                    "text": "<div><h3>Grid World Experiment</h3><hr /><p>This experiment consists of a training phase and a testing phase.</p><p>In this training phase, you will be introduced to our grid world and the objectives of the trials.</p><p>Once you have completed the training phase, you will be taken to the testing phase, which will consist of 2 sets of grid world games. The first block will consist of simple grid world games with no obstacles and the second block will consist of simple grid world games with obstacles.</p><p>When you are finished with the experiment, you may exit the webpage and your answers will be saved automatically.</p><div class=\"row\"><div class=\"col-md-6\"><p>Grid worlds will look like this. The gray robot is you and you must get the gray robot to the green square using WASD or arrow keys.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld3x3.png\" /></div><div class=\"col-md-6\"><p>Grid worlds with obstacles will look like this.  You are unable to move the robot into a black square.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld5x5.png\" /></div></div></div>"
+                }
+            ],
+            "shuffleTrials": false,
+            "trials": [
+                {
+                    "stimulusType": "grid-world",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [],
+                    "goalLocationX": 6,
+                    "goalLocationY": 4,
+                    "humanAgent": {
+                        "y": 4,
+                        "x": 2
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                },
+                {
+                    "stimulusType": "grid-world",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [],
+                    "goalLocationX": 7,
+                    "goalLocationY": 1,
+                    "humanAgent": {
+                        "y": 0,
+                        "x": 2
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                },
+                {
+                    "stimulusType": "grid-world",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [],
+                    "goalLocationX": 5,
+                    "goalLocationY": 6,
+                    "humanAgent": {
+                        "y": 2,
+                        "x": 2
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                }
+            ],
+            "postTrials": [
+                {
+                    "stimulusType": "text-display",
+                    "text": "<div><h3>Current block over. Press any key for next block</h3><hr/></div>"
+                }
+            ]
+        },
+        {
+            "blockName": "Testing Block 1",
+            "preTrials": [],
+            "shuffleTrials": false,
+            "trials": [
+                {
+                    "stimulusType": "grid-world",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [
+                        {
+                            "locationX": 6,
+                            "locationY": 3
+                        },
+                        {
+                            "locationX": 6,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 6,
+                            "locationY": 2
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 2
+                        },
+                        {
+                            "locationX": 7,
+                            "locationY": 2
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 1
+                        }
+                    ],
+                    "goalLocationX": 0,
+                    "goalLocationY": 2,
+                    "humanAgent": {
+                        "y": 0,
+                        "x": 2
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                },
+                {
+                    "stimulusType": "grid-world",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [
+                        {
+                            "locationX": 5,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 7
+                        },
+                        {
+                            "locationX": 6,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 7
+                        },
+                        {
+                            "locationX": 2,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 5
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 7
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 5
+                        }
+                    ],
+                    "goalLocationX": 7,
+                    "goalLocationY": 2,
+                    "humanAgent": {
+                        "y": 1,
+                        "x": 0
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                },
+                {
+                    "stimulusType": "grid-world",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [
+                        {
+                            "locationX": 2,
+                            "locationY": 0
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 2,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 0,
+                            "locationY": 3
+                        },
+                        {
+                            "locationX": 1,
+                            "locationY": 3
+                        },
+                        {
+                            "locationX": 2,
+                            "locationY": 3
+                        },
+                        {
+                            "locationX": 1,
+                            "locationY": 4
+                        }
+                    ],
+                    "goalLocationX": 2,
+                    "goalLocationY": 6,
+                    "humanAgent": {
+                        "y": 6,
+                        "x": 0
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                }
+            ],
+            "postTrials": [
+                {
+                    "stimulusType": "text-display",
+                    "text": "<div><h3>Current block over. Press any key for next block</h3><hr/></div>"
+                }
+            ]
+        },
+        {
+            "blockName": "Testing Block 2",
+            "preTrials": [],
+            "shuffleTrials": false,
+            "trials": [
+                {
+                    "stimulusType": "grid-world",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [
+                        {
+                            "locationX": 7,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 7,
+                            "locationY": 5
+                        },
+                        {
+                            "locationX": 6,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 7
+                        },
+                        {
+                            "locationX": 6,
+                            "locationY": 7
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 7
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 7
+                        }
+                    ],
+                    "goalLocationX": 2,
+                    "goalLocationY": 1,
+                    "humanAgent": {
+                        "y": 5,
+                        "x": 3
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                },
+                {
+                    "stimulusType": "grid-world",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [
+                        {
+                            "locationX": 4,
+                            "locationY": 5
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 4
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 5
+                        },
+                        {
+                            "locationX": 6,
+                            "locationY": 5
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 5
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 6
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 5
+                        }
+                    ],
+                    "goalLocationX": 7,
+                    "goalLocationY": 0,
+                    "humanAgent": {
+                        "y": 5,
+                        "x": 1
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                },
+                {
+                    "stimulusType": "grid-world",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [
+                        {
+                            "locationX": 6,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 6,
+                            "locationY": 0
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 0
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 0
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 0
+                        }
+                    ],
+                    "goalLocationX": 7,
+                    "goalLocationY": 2,
+                    "humanAgent": {
+                        "y": 4,
+                        "x": 3
+                    },
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                }
+            ],
+            "postTrials": [
+                {
+                    "stimulusType": "text-display",
+                    "text": "<div><h3>Current block over. Press any key for next block</h3><hr/></div>"
+                }
+            ]
+        }
+    ]
+}

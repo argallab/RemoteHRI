@@ -65,10 +65,11 @@ export default class Content extends React.Component {
     }
 
     startExperiment(data = {}) {
-        var url = `/startExperiment?&s=${data.sex}&a=${data.age}&r=${data.race}&h=${data.hand}`
+        var url = `/startExperiment?&s=${data.sex}&a=${data.age}&r=${data.race}&h=${data.hand}` // the 'data' structure comes from the PreExperiment Form and is assumed to have sex,age,race and hand info. Assign each of the variables in data to s,a,r, and h respectively.
+        // Refer to onSubmit() in PreExperimentForm
         fetch(url, this.fetchConfig)
             .then((response) => {
-                if (response.status === 200) {
+                if (response.status === 200) { //response.status === 200 means that the server successfully answered the request.
                     return response.json()
                 } else {
                     throw new Error("/startExperiment failed with error code: " + response.status)
@@ -80,8 +81,8 @@ export default class Content extends React.Component {
                 this.setState({
                     startExperimentResponse: data,
                     experimentStarted: true
-                })
-                this.getNextStimulus()
+                }) // At this point the session variable has the flattened (randomized) stimuli list ready to be served. 
+                this.getNextStimulus() // get the first trial right away. 
             })
             .catch((err) => console.error(err))
     }
@@ -226,6 +227,7 @@ export default class Content extends React.Component {
                         <hr />
                         <PreExperimentForm startExperiment={this.startExperiment} />
                     </div>
+                    // show name of the experiment at the top of the pre-experiment form. Which collects demographic data. 
                 )
             }
         } else {

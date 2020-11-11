@@ -29,7 +29,9 @@ var staticDirectory  = path.resolve("static");              // Set directory of 
 var dataDirectory    = path.resolve("data");              // Set directory where data will be written
 var participantIndex = 0;                            // Start participant numbering at this value + 1
 
-var np               = require("./nodus-ponens")(participantIndex, staticDirectory, dataDirectory);
+// var supnp               = require("./nodus-ponens");//(participantIndex, staticDirectory, dataDirectory);
+// np = new supnp(participantIndex, staticDirectory, dataDirectory);
+var np               = require("./nodus-ponens")(participantIndex, staticDirectory, dataDirectory); //this line is a concise way of invoking the constructor (commented out lines in line 32 and 33 shows the long way)
 np.authors           = "Authors";
 np.experimentName    = "Test Experiment";
 np.port              = 3003;
@@ -44,11 +46,13 @@ np.port              = 3003;
 // after defining "setupStimuli", "CSVtoJSON", and "assignContents", the code sets np.loadStimuli to
 // "setupStimuli".
 
-function setupStimuli(PID)
+function setupStimuli(PID) // PID refers to ParticipantID
 {
-   var res    = JSON.parse(fs.readFileSync('./Experiment.json').toString());           // read design into CSV string
-   
+   var res    = JSON.parse(fs.readFileSync('./Experiment_GW.json').toString());           // read the experiment design into CSV string
    // shuffle stimuli, if neccessary
+   if (res.experimentName)
+      np.experimentName = res.experimentName // how to add checks for whether the field exists
+
    if (res.shuffleBlocks)
    {
       res.blocks = np.randomize(res.blocks)
@@ -109,19 +113,20 @@ function setupStimuli(PID)
   
 
    var design  = extendJSON(stimuliList, PID);                    // add fields to each stimuli object
-
    var stimuli = assignContents(design);   // assign contents to the different problems in the design
+   
    return stimuli;             // To randomize the order of the stimuli, return np.randomize(stimuli)
 }
 
 function extendJSON(obj, PID)               // This fn imports any CSV "Design" file as a JSON object
 {                                                             // and adds some columns for R analyses
    var results = obj;
-   for (var i = 0; i < results.length; i++)
+   for (var i = 0; i < results.length; i++) // for each element in the stimuli list add PID, clocktime and trial header. 
    {
       results[i]["ParticipantID"] = "P" + PID;
       results[i]["ClockTime"] = new Date().toISOString();
       results[i]["TrialHeader"] = "Trial";
+      // results[i]["trialIndex"] = i // I think if we do this write here, then we can avoid assignContents(design) function call.
    }
 
    return results;
@@ -148,7 +153,7 @@ var corsOptions = {
 np.app.use(cors(corsOptions))
 
 np.app.get("/getExperimentName", (req, res) => {
-   res.json({"name": np.experimentName})
+   res.json({"name": np.experimentName}) // potentially need to update the experiment name from experiment.json
 })
 
 

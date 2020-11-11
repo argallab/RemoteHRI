@@ -12,7 +12,7 @@ On mount, Content requests the server for the name of the experiment.  This serv
 
 Content also contains a function API for the server, including startExperiment, endExperiment, checkSessionData, and getNextStimulus.  Each of these functions directly relates to a [Nodus-Ponens](https://www.npmjs.com/package/nodus-ponens) function that deals with the corresponding experimental flow actions.  After calling these server routes, Content takes the returned data and saves it in state.  **Note that currently, there is no handling of server error codes.  For example, if the server responds with 404 or 500, the user will see no change on the screen and will be stuck on the LoadingScreen component forever.**
 
-In Content's state, there are various boolean flags indicating the progress of the experiment's loading from the server in order to render the correct components during the various stages.  The use of the flags can be found in Content's render method.
+In Content's state, there are various boolean flags indicating the progress of the experiment's loading from the server in order to render the correct components during the various stages.  The use of the flags can be found in Content's render method. These flags are experimentLoaded, experimentStarted, trialLoaded.
 
 Content determines what component to render based on the stimulusType property in the trial json data sent from the server.
 

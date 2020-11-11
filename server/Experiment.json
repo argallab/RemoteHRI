@@ -1,4 +1,5 @@
-{
+{   
+    "experimentName": "Combined Experiment Test",
     "shuffleBlocks": false,
     "blocks": [
         {
