@@ -1,3 +1,5 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution. Based on main.js in nodus-ponens/template
+
 // --------------------------------------------------------------------------------------------------
 // Template Experiment 1
 // --------------------------------------------------------------------------------------------------
@@ -64,36 +66,49 @@ function setupStimuli(PID)
 
 
    // flatten blocks into list of stimuli
+
    var stimuliList = []
-   for (var i = 0; i < res.preExperiment.length; i++)
-   {
-      stimuliList.push(res.preExperiment[i])
-   }
-
-   for (var i = 0; i < res.blocks.length; i++)
-   {
-      var obj = {}
-      for (var l = 0; l < res.blocks[i].preTrials.length; l++)
+   if (res.preExperiment) {
+      for (var i = 0; i < res.preExperiment.length; i++)
       {
-         obj = res.blocks[i].preTrials[l]
-         obj["blockName"] = res.blocks[i].blockName
-         stimuliList.push(obj)
-      }
-
-      for (var j = 0; j < res.blocks[i].trials.length; j++)
-      {
-         obj = res.blocks[i].trials[j]
-         obj["blockName"] = res.blocks[i].blockName
-         stimuliList.push(obj)
-      }
-
-      for (var k = 0; k < res.blocks[i].postTrials.length; k++)
-      {
-         obj = res.blocks[i].postTrials[k]
-         obj["blockName"] = res.blocks[i].blockName
-         stimuliList.push(obj)
+         stimuliList.push(res.preExperiment[i])
       }
    }
+
+
+   if (res.blocks) {
+      for (var i = 0; i < res.blocks.length; i++)
+      {
+         var obj = {}
+         if (res.blocks[i].preTrials){
+            for (var l = 0; l < res.blocks[i].preTrials.length; l++)
+            {
+               obj = res.blocks[i].preTrials[l]
+               obj["blockName"] = res.blocks[i].blockName
+               stimuliList.push(obj)
+            }
+         }
+ 
+   
+         for (var j = 0; j < res.blocks[i].trials.length; j++)
+         {
+            obj = res.blocks[i].trials[j]
+            obj["blockName"] = res.blocks[i].blockName
+            stimuliList.push(obj)
+         }
+   
+         if (res.blocks[i].postTrials) {
+            for (var k = 0; k < res.blocks[i].postTrials.length; k++)
+            {
+               obj = res.blocks[i].postTrials[k]
+               obj["blockName"] = res.blocks[i].blockName
+               stimuliList.push(obj)
+            }
+         }
+
+      }
+   }
+  
 
    var design  = extendJSON(stimuliList, PID);                    // add fields to each stimuli object
 

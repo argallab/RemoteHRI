@@ -111,11 +111,6 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       if (req.query.h !== "") { sess.sessdata.Hand = req.query.h; }
       if (req.query.r !== "") { sess.sessdata.Race = req.query.r; }
 
-      // right or left handed
-      // race
-
-
-
       var today = new Date();
       sess.sessdata.StartTime = today.toISOString();
       sess.sessdata.CurrentStimulus = 0;
@@ -141,6 +136,7 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
    np.app.post("/getNextStimulus", function (req, res) {
       var sess = req.session;
       var nextStimulus = {};
+      var progress = false
    
       if (req.body === undefined)
       {
@@ -148,18 +144,45 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       } else {
          if (req.body.dumpQuery || !req.body.answer)     // If received signal to dump info or no info,
          {
+            if (!req.body.answer) progress = true
+            if (req.body.dumpQuery) {
+               var currentStimulus = sess.sessdata.CurrentStimulus;
+               if (currentStimulus >= 0 && currentStimulus < sess.sessdata.Stimuli.length
+                  && req.body.answer !== undefined) {
+
+                     if (!sess.sessdata.Stimuli[currentStimulus]["Answer"]) {
+                        sess.sessdata.Stimuli[currentStimulus]["Answer"] = {}
+                        sess.sessdata.Stimuli[currentStimulus]["Answer"].keypresses = []
+                     }
+                     sess.sessdata.Stimuli[currentStimulus]["Answer"].keypresses.push(req.body.answer)
+                     logData(np.dataDirectory + "/incomplete", sess.sessdata)
+               }
+            }
+            
             if (sess.sessdata.CurrentStimulus >= sess.sessdata.Stimuli.length)
                nextStimulus = { "Data": "Done" };
             else
                nextStimulus = sess.sessdata.Stimuli[sess.sessdata.CurrentStimulus];
          }
          else                                           // Else, if participant provided answer to problem, 
-         {     
+         {
+            progress = true     
             var currentStimulus = sess.sessdata.CurrentStimulus;
             if (currentStimulus >= 0 && currentStimulus < sess.sessdata.Stimuli.length
                && req.body.clockTime !== undefined && req.body.answer !== undefined && req.body.latency !== undefined) {
                sess.sessdata.Stimuli[currentStimulus]["ClockTime"] = req.body.clockTime;
+               var oldKeypresses
+               if (sess.sessdata.Stimuli[currentStimulus]["Answer"] && sess.sessdata.Stimuli[currentStimulus]["Answer"].keypresses && sess.sessdata.Stimuli[currentStimulus]["Answer"].keypresses.length > 0) {
+                  oldKeypresses = [...sess.sessdata.Stimuli[currentStimulus]["Answer"].keypresses];
+               }
+
                sess.sessdata.Stimuli[currentStimulus]["Answer"] = req.body.answer;
+
+               if (oldKeypresses) {
+                  sess.sessdata.Stimuli[currentStimulus]["Answer"].keypresses = oldKeypresses;
+               }
+
+
                sess.sessdata.Stimuli[currentStimulus]["Latency"] = req.body.latency;
                sess.sessdata.Stimuli[currentStimulus]["TrialNumber"] = currentStimulus + 1;
                logData(np.dataDirectory + "/incomplete", sess.sessdata);
@@ -171,9 +194,35 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
                nextStimulus = sess.sessdata.Stimuli[currentStimulus + 1];
          }
          req.session = sess;
-         res.json(nextStimulus);
+         var returnVal = {
+            data: nextStimulus,
+            progress: progress
+         }
+         res.json(returnVal);
       }
    });
+
+   np.app.get("/dumpLogs", function (req, res) {
+      // read in data from JSON file
+      
+      var experimentData = JSON.parse(JSON.stringify(sessionData));
+
+      var fileName = dataDirectory + "/data-" + experimentData.ExperimentName + "-" + experimentData.ParticipantID
+         + "-" + new Date().toISOString().slice(0, 10) + ".json";
+      
+      var existingInformation = JSON.parse(fs.readFileSync(fileName))
+      if (existingInformation.Stimuli) {
+         if (existingInformation.Stimuli.length === req.session.sessdata.CurrentStimulus) {
+            existingInformation.Stimuli.push({})
+         }
+         if (!existingInformation.Stimuli.Answer.keypresses) {
+            existingInformation.Stimuli["Answer"]
+         }
+      }
+
+      // Write out experiment header information
+      fs.writeFileSync(fileName, JSON.stringify(experimentData, null, 2));
+   })
 
    // --------------------------------------------------------------------------------------------------
    // 4. Writing participant data to file

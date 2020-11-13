@@ -1,3 +1,4 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution
 import React, { Component } from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
 import ReactPlayer from 'react-player';

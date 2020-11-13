@@ -1,3 +1,4 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution
 import React from 'react'
 import { OverlayTrigger, Button } from 'react-bootstrap'
 import RenderTooltip from '../RenderTooltip'

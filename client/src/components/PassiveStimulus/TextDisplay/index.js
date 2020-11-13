@@ -1,3 +1,4 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import LoadingScreen from '../../LoadingScreen';
@@ -8,7 +9,7 @@ export default class TextDisplay extends React.Component {
 
         this.state = {
             loaded: false,
-            text: `<div style="display:flex; justify-content:center; flex-direction:column; align-items:center;"><p>Hello, thanks for taking part in our experiment. Here are some instructions.</p><img style="height:200px; width:auto" src="cat.jpg" /><br /><ol><li>Press Next.</li><li>Play the game.</li></ol></div>`
+            text: ""
         }
 
         this.onSubmit = this.onSubmit.bind(this)

@@ -1,3 +1,4 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution
 import React, { Component } from 'react';
 import { Row } from 'react-bootstrap';
 /**
@@ -11,16 +12,44 @@ import { Row } from 'react-bootstrap';
 export default class Grid extends Component {
     render() {
         const rectangleStyle = {
-            
+            border: this.props.visualizeGridLines && "1px solid #000",
             width: this.props.cellSize,
             height: this.props.cellSize
         }
 
         const circleStyle = {
-            width: 0.6*this.props.cellSize,
-            height: 0.6*this.props.cellSize,
-            top: 0.2*this.props.cellSize,
-            left: 0.2*this.props.cellSize
+            human: {
+                width: 0.6*this.props.cellSize,
+                height: 0.6*this.props.cellSize,
+                top: 0.2*this.props.cellSize,
+                left: 0.2*this.props.cellSize,
+                backgroundColor: "#aaa"
+            },
+            auto: {
+                width: 0.6*this.props.cellSize,
+                height: 0.6*this.props.cellSize,
+                top: 0.2*this.props.cellSize,
+                right: 0.2*this.props.cellSize,
+                backgroundColor: "red"
+            }
+        }
+
+        const circleStyleWin = {
+            human: {
+                width: 0.6*this.props.cellSize,
+                height: 0.6*this.props.cellSize,
+                top: 0.2*this.props.cellSize,
+                left: 0.07*this.props.cellSize,
+                backgroundColor: "#aaa",
+                zIndex: 100
+            },
+            auto: {
+                width: 0.6*this.props.cellSize,
+                height: 0.6*this.props.cellSize,
+                top: 0.2*this.props.cellSize,
+                right: 0.07*this.props.cellSize,
+                backgroundColor: "red"
+            }
         }
 
         var gridJsx = []
@@ -42,16 +71,24 @@ export default class Grid extends Component {
                         <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-empty">
                         </div>
                     )
-                } else if (this.props.grid[i][j] === "W") {
+                } else if (this.props.grid[i][j] === "WA" || this.props.grid[i][j] === "WH") {
                     row.push(
                         <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-goal">
-                            <div style={circleStyle} className="circle"></div>
+                            <div style={this.props.grid[i][j] === "WA" ? circleStyle.auto : circleStyle.human} className="circle"></div>
                         </div>
                     )
-                } else {
+                } else if (this.props.grid[i][j] === "WAH") {
+                    row.push(
+                        <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-goal">
+                            <div style={circleStyleWin.human} className="circle"></div>
+                            <div style={circleStyleWin.auto} className="circle"></div>
+                        </div>
+                    )
+                }
+                else {
                     row.push(
                         <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-empty">
-                            <div style={circleStyle} className="circle"></div>
+                            <div style={this.props.grid[i][j] === "A" ? circleStyle.auto : circleStyle.human} className="circle"></div>
                         </div>
                     )
                 }
@@ -62,7 +99,7 @@ export default class Grid extends Component {
         }
 
         return (
-            <div className="rectangles">
+            <div style={{border: "1px solid #000"}} className="rectangles">
                 {gridJsx}
             </div>
         )

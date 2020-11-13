@@ -1,3 +1,4 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution
 import React, { Component } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 
