@@ -1,3 +1,4 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution
 import React from 'react';
 import { render } from '@testing-library/react';
 import App from './App';

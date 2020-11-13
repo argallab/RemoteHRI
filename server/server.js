@@ -1,3 +1,5 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution. Based on main.js in nodus-ponens/template
+
 // --------------------------------------------------------------------------------------------------
 // Template Experiment 1
 // --------------------------------------------------------------------------------------------------

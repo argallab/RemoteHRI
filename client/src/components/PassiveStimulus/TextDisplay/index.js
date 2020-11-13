@@ -1,3 +1,4 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import LoadingScreen from '../../LoadingScreen';

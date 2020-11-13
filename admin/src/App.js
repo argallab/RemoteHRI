@@ -1,3 +1,5 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution
+
 import React from 'react';
 import VideoStimulus from './components/PassiveStimulus/VideoStimulus'
 import DiscreteGridWorld from './components/ActiveStimulus/DiscreteGridWorld'

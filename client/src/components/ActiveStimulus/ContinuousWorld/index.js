@@ -1,3 +1,4 @@
+// Code developed by Finley Lau*, Deepak Gopinath*. Copyright (c) 2020. Argallab. (*) Equal contribution
 import React from 'react'
 import TwoDWorld from "../components/TwoDWorld"
 import { Row, Col } from 'react-bootstrap'
