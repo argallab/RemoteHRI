@@ -22,8 +22,8 @@
                         "angularVelocity":0.0,
                         "maxLinearVelocity": 250,
                         "maxAngularVelocity": 120,
-                        "linearAcceleration": 20,
-                        "angularAcceleration": 12,
+                        "linearAcceleration": 2,
+                        "angularAcceleration": 2,
                         "width": 50,
                         "height": 50
                         

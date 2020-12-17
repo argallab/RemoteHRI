@@ -470,6 +470,8 @@ export default class ContinuousWorldDynamic extends React.Component {
 
     handleKeyPress(event) {
         var validKeys = new Set(["w", "a", "s", "d", "ArrowUp", "ArrowLeft", "ArrowRight", "ArrowDown"])
+        var linearKeys = new Set(["w", "s", "ArrowUp", "ArrowDown"])
+        var angularKeys = new Set(["a","d","ArrowLeft", "ArrowRight"])
         if (validKeys.has(event.key)) this.keys[event.key] = event.type === "keydown"
         if (event.type === "keydown") this.started = true
 
@@ -506,6 +508,14 @@ export default class ContinuousWorldDynamic extends React.Component {
                     angularVelocity: this.human.tv
                 }
             }
+            if (linearKeys.has(event.key)){
+            this.human.xv= 0.0
+            this.human.yv = 0.0
+            }
+            if (angularKeys.has(event.key)){
+                this.human.tv = 0.0
+            }
+            
         }
 
     }
