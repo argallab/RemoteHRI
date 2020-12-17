@@ -23,7 +23,7 @@ export default class ContinuousWorld extends React.Component {
         var humanSpecs // these variables used for state of the human controlled robot
         var aaSpecs // these variables used for state for the autonomy controlled robot
         if (data.humanAgent) {
-            // contains constant values about the human robot
+            // contains constant values about the human robot. 
             this.humanSpecs = {
                 width: data.humanAgent.width,
                 height: data.humanAgent.height,
@@ -117,7 +117,7 @@ export default class ContinuousWorld extends React.Component {
             // specify human robot from the center, and then four points
             this.human = new SAT.Polygon(this.point(this.state.humanSpecs.x, this.state.humanSpecs.y), [this.point(-1 * h_deltax, -1 * h_deltay), this.point(h_deltax, -1 * h_deltay), this.point(h_deltax, h_deltay), this.point(-1 * h_deltax, h_deltay)])
             this.human.setAngle(-1 * this.degreeToRad(this.state.humanSpecs.angle))
-
+            
         }
 
         // set up aa robot
@@ -412,8 +412,6 @@ export default class ContinuousWorld extends React.Component {
             }
 
 
-
-
             var pass = false // if no agent has moved, don't relog
             var a = event
             var b = this.eventList[this.eventList.length - 1]
@@ -569,7 +567,6 @@ export default class ContinuousWorld extends React.Component {
         var xf = xi + xd
         var yf = yi + yd
 
-
         //this.robot.rotate(td)
         this.human.setAngle(tf)
         this.human.pos.x = xf
@@ -590,7 +587,7 @@ export default class ContinuousWorld extends React.Component {
         var response = new SAT.Response()
         var insideBoundary = SAT.testPolygonPolygon(this.human, this.world, response)
         if (!(insideBoundary && response.aInB) || collisionObstacle) {
-            // if we have collided or outside the boundaries, reject the movement (revert changes in reverse order)
+            // if we have collided or outside the boundaries, reject the movement (revert changes in reverse order) //why is this important for it to be reverse order
             this.human.pos.y = yi
             this.human.pos.x = xi
             this.human.setAngle(ti)

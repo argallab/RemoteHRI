@@ -106,6 +106,7 @@
                         "angularVelocity": 120,
                         "width": 50,
                         "height": 50
+                        
                     },
                     "autonomousAgent": {
                         "x": 150,
@@ -121,7 +122,9 @@
                             "locationX": 250,
                             "locationY": 10,
                             "width": 20,
-                            "height": 300
+                            "height": 300,
+                            "deltaX":-10,
+                            "deltaY":0
                         },
                         {
                             "locationX": 100,

@@ -7,6 +7,7 @@ import LoadingScreen from './components/LoadingScreen'
 import PreExperimentForm from './components/PreExperimentForm';
 import TextDisplay from './components/PassiveStimulus/TextDisplay'
 import ContinuousWorld from './components/ActiveStimulus/ContinuousWorld'
+import ContinuousWorldDynamic from './components/ActiveStimulus/ContinuousWorldDynamic'
 import RobotArmWorld from './components/ActiveStimulus/RobotArmWorld';
 /**
  * See README.md for documentation.
@@ -212,6 +213,10 @@ export default class Content extends React.Component {
                     } else if (this.state.trialData.stimulusType === "robot-arm") {
                         return (
                             <RobotArmWorld key={this.state.trialData.trialIndex} data={this.state.trialData} submit={this.getNextTrial} />
+                        )
+                    } else if (this.state.trialData.stimulusType === 'continuous-world-dynamic') {
+                        return (
+                            <ContinuousWorldDynamic key={this.state.trialData.trialIndex} data={this.state.trialData} batchSubmit={this.getNextStimulus} submit={this.getNextTrial} />
                         )
                     }
 

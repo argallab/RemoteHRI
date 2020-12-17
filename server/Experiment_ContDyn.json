@@ -1,0 +1,46 @@
+{   
+    "experimentName": "Continuous Dynamic Experiment Test",
+    "shuffleBlocks": false,
+    "blocks": [
+        {
+            "blockName": "Cont Dyn Test",
+            "shuffleTrials": false,
+            "preTrials": [],
+            "trials": [
+                {
+                    "fps": 60,
+                    "stimulusType": "continuous-world-dynamic",
+                    "worldWidth": 750,
+                    "worldHeight": 750,
+                    "gridApproximation": 3,
+                    "humanAgent": {
+                        "x": 400,
+                        "y": 300,
+                        "angle":90,
+                        "xv":0.0,
+                        "yv":0.0,
+                        "angularVelocity":0.0,
+                        "maxLinearVelocity": 250,
+                        "maxAngularVelocity": 120,
+                        "linearAcceleration": 20,
+                        "angularAcceleration": 12,
+                        "width": 50,
+                        "height": 50
+                        
+                    },
+                    "obstacles": [
+                    ],
+                    "goalLocationX": 600,
+                    "goalLocationY": 50,
+                    "goalWidth": 100,
+                    "goalHeight": 100,
+                    "instructions": "Move the robot to the green square.",
+                    "postText": "Great job!"
+                }
+                
+                
+            ],
+            "postTrials": []
+        }
+    ]
+}

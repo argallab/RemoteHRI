@@ -48,8 +48,9 @@ np.port              = 3003;
 
 function setupStimuli(PID) // PID refers to ParticipantID
 {
-   var res    = JSON.parse(fs.readFileSync('./Experiment_GW.json').toString());           // read the experiment design into CSV string
+   var res    = JSON.parse(fs.readFileSync('./Experiment_ContDyn.json').toString());           // read the experiment design into CSV string
    // shuffle stimuli, if neccessary
+   console.log(res)
    if (res.experimentName)
       np.experimentName = res.experimentName // how to add checks for whether the field exists
 
