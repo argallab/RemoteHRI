@@ -127,6 +127,8 @@ export default class ContinuousWorldDynamic extends React.Component {
         this.plan = []
         this.noCount = 0
         this.started = false
+        this.linear_vel_active = false
+        this.angular_vel_active = false
     }
 
     componentDidMount(){
@@ -187,7 +189,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             if (this.human) event["human"] = {
                 x: this.human.pos.x,
                 y: this.human.pos.y,
-                angle: this.human.angle, //potentially add velocity info as well?
+                angle: this.human.angle,
                 xv: this.human.xv,
                 yv: this.human.yv,
                 tv: this.human.tv,
@@ -338,8 +340,9 @@ export default class ContinuousWorldDynamic extends React.Component {
         }
         var robotMaxLinearVelocity = this.humanSpecs.maxLinearVelocity /this.fps // max velocity allowed
         lvf = Math.max(-robotMaxLinearVelocity, Math.min(lvf, robotMaxLinearVelocity)) //cap velocity
-        var keysPressed = this.anyKeysPressed()
-        if (keysPressed === "" && Math.abs(lvf) < 0.0002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops
+        
+        if (!this.linear_vel_active && Math.abs(lvf) < 0.0002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops
+            console.log('ZERO LVF')
             lvf = 0.0
         }
         
@@ -351,16 +354,18 @@ export default class ContinuousWorldDynamic extends React.Component {
         
         //angular velocity dependent drag
         if (tvf > 0.0){
+            // console.log('Positive')
             tvf = tvf - this.humanSpecs.rotationMu / this.fps
         } else if (tvf < 0.0) {
+            // console.log('Negative')
             tvf = tvf + this.humanSpecs.rotationMu / this.fps
         }
         
         var robotMaxAngularVelocity = this.humanSpecs.maxAngularVelocity / this.fps
         tvf = Math.max(-robotMaxAngularVelocity, Math.min(tvf, robotMaxAngularVelocity)) //cap angular velocity
-        var keysPressed = this.anyKeysPressed()
-        console.log('TVF', tvf)
-        if (keysPressed === "" && Math.abs(tvf) < 0.0002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops rotating
+        
+        // console.log('TVF', tvf, this.angular_vel_active)
+        if (!this.angular_vel_active && Math.abs(tvf) < 0.002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops rotating
             console.log('ZERO TVF')
             tvf = 0.0
         }
@@ -375,11 +380,11 @@ export default class ContinuousWorldDynamic extends React.Component {
         var xvf = 0.0
         var yvf = 0.0
         if (tvf != 0.0){ //nonzero angular velocity
-            
+            console.log('TVF in UPDATE', tvf)
             xf = xi - (lvf/tvf)*Math.sin(ti) + (lvf/tvf)*Math.sin(ti + tvf)
             yf = yi + (lvf/tvf)*Math.cos(ti) - (lvf/tvf)*Math.cos(ti + tvf)
             tf = ti + tvf
-            
+            console.log('TF update', tf)
         } else if (tvf == 0.0) { // zero angular velocity
             xf = xi + lvf*Math.cos(ti) 
             yf = yi + lvf*Math.sin(ti)
@@ -393,7 +398,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         var finalPose = {xf, yf, tf, xvf, yvf, lvf, tvf} // collect all relevant return values into an object
         return finalPose
     }
-    update(progress){
+    update(progress){ // progress is the amount of time that has passed in ms
         if (!this.human) {
             return false
         }
@@ -405,9 +410,6 @@ export default class ContinuousWorldDynamic extends React.Component {
             console.log('IN')
             return false
         }
-
-        // progress is the amount of time that has passed in ms
-        
 
         var robotLinearAcceleration = this.humanSpecs.linearAcceleration / this.fps
         var robotAngularAcceleration = this.degreeToRad(this.humanSpecs.angularAcceleration /this.fps)
@@ -434,9 +436,10 @@ export default class ContinuousWorldDynamic extends React.Component {
         var lvi = this.human.lv // get current linear velocity
         var tvi = this.human.tv // get current angular velocity
         
+        
         var lvf = this.updateLinearVelocity(lvi, lvd) //linear velocity along the heading
         var tvf = this.updateAngularVelocity(tvi, tvd)
-
+    
         var ti = this.human.angle
         var xi = this.human.pos.x
         var yi = this.human.pos.y
@@ -535,6 +538,12 @@ export default class ContinuousWorldDynamic extends React.Component {
                         }
                     }
                 })
+                if (linearKeys.has(event.key)){
+                    this.linear_vel_active = true
+                }
+                if (angularKeys.has(event.key)){
+                    this.angular_vel_active = true
+                }
 
             }
         } else if (event.type === "keyup") {
@@ -550,6 +559,12 @@ export default class ContinuousWorldDynamic extends React.Component {
                     angle: this.human.angle,
                     angularVelocity: this.human.tv
                 }
+            }
+            if (linearKeys.has(event.key)){
+                this.linear_vel_active = false
+            }
+            if (angularKeys.has(event.key)){
+                this.angular_vel_active = false
             }
             // if (linearKeys.has(event.key)){
             // this.human.xv= 0.0
