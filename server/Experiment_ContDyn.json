@@ -10,22 +10,25 @@
                 {
                     "fps": 60,
                     "stimulusType": "continuous-world-dynamic",
-                    "worldWidth": 750,
-                    "worldHeight": 750,
+                    "worldWidth": 500,
+                    "worldHeight": 500,
                     "gridApproximation": 3,
                     "humanAgent": {
-                        "x": 400,
-                        "y": 300,
+                        "x": 250,
+                        "y": 250,
                         "angle":90,
                         "xv":0.0,
                         "yv":0.0,
+                        "lv":0.0,
                         "angularVelocity":0.0,
-                        "maxLinearVelocity": 250,
-                        "maxAngularVelocity": 120,
-                        "linearAcceleration": 2,
-                        "angularAcceleration": 2,
+                        "maxLinearVelocity": 100,
+                        "maxAngularVelocity": 50,
+                        "linearAcceleration": 10,
+                        "angularAcceleration": 10,
                         "width": 50,
-                        "height": 50
+                        "height": 50,
+                        "linearMu": 1,
+                        "rotationMu": 0.1
                         
                     },
                     "obstacles": [

@@ -2,8 +2,6 @@ import React from 'react'
 import TwoDWorld from "../components/TwoDWorld"
 import { Row, Col } from 'react-bootstrap'
 
-import AStarNode from '../../../services/AStarNode'
-import AStar from '../../../services/AStarPlanning'
 var SAT = require('sat');
 
 export default class ContinuousWorldDynamic extends React.Component {
@@ -19,7 +17,6 @@ export default class ContinuousWorldDynamic extends React.Component {
             height: data.worldHeight,
         }
 
-        var humanSpecs 
         var humanSpecs // these variables used for state of the human controlled robot
         var aaSpecs // these variables used for state for the autonomy controlled robot
         if (data.humanAgent) {
@@ -31,7 +28,9 @@ export default class ContinuousWorldDynamic extends React.Component {
                 linearAcceleration: data.humanAgent.linearAcceleration, //in pixels/second/second
                 maxAngularVelocity: data.humanAgent.maxAngularVelocity,
                 angularAcceleration: data.humanAgent.angularAcceleration,
-                halfDiagonal: data.humanAgent.width / 2 * Math.sqrt(2)
+                halfDiagonal: data.humanAgent.width / 2 * Math.sqrt(2),
+                linearMu: data.humanAgent.linearMu,
+                rotationMu: data.humanAgent.rotationMu
             }
 
             // contains variable values about the human robot, lives in state
@@ -41,9 +40,9 @@ export default class ContinuousWorldDynamic extends React.Component {
                 xv: data.humanAgent.xv,
                 yv: data.humanAgent.yv,
                 angle: data.humanAgent.angle,
-                angularVelocity: data.humanAgent.angularVelocity
+                angularVelocity: data.humanAgent.angularVelocity,
+                lv: data.humanAgent.lv
             }
-
 
         }
 
@@ -103,6 +102,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             this.human.xv = this.state.humanSpecs.xv //init velocity is zero
             this.human.yv = this.state.humanSpecs.yv //
             this.human.tv = this.state.humanSpecs.angularVelocity
+            this.human.lv = this.state.humanSpecs.lv
         }
 
         // specify goal from the bottom left corner + width and height
@@ -190,7 +190,8 @@ export default class ContinuousWorldDynamic extends React.Component {
                 angle: this.human.angle, //potentially add velocity info as well?
                 xv: this.human.xv,
                 yv: this.human.yv,
-                tv: this.human.tv
+                tv: this.human.tv,
+                lv: this.human.lv
             }
 
             var isObject = (object) => {
@@ -326,38 +327,95 @@ export default class ContinuousWorldDynamic extends React.Component {
      * Computes the new state of the game - but DOES NOT CHANGE REACT STATE
      * Returns whether the game is over or not.
      */
+    updateLinearVelocity(lvi, lvd){
+        var lvf = 0.0 // final linear velocity
+        lvf = lvi + lvd // update linear velocity, lvi - linear velocity initial, lvd - linear velocity delta
+        //apply velocity dependent drag (The param needs tuning)
+        if (lvf > 0.0){
+            lvf = lvf - this.humanSpecs.linearMu / this.fps
+        } else if (lvf < 0.0) {
+            lvf = lvf + this.humanSpecs.linearMu / this.fps
+        }
+        var robotMaxLinearVelocity = this.humanSpecs.maxLinearVelocity /this.fps // max velocity allowed
+        lvf = Math.max(-robotMaxLinearVelocity, Math.min(lvf, robotMaxLinearVelocity)) //cap velocity
+        var keysPressed = this.anyKeysPressed()
+        if (keysPressed === "" && Math.abs(lvf) < 0.0002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops
+            lvf = 0.0
+        }
+        
+        return lvf
+    }
+    updateAngularVelocity(tvi, tvd){
+        var tvf //final angular velocity
+        tvf = tvi + tvd // update angular velocity, tvi - angular velocity initial, tvd - angular velocity delta
+        
+        //angular velocity dependent drag
+        if (tvf > 0.0){
+            tvf = tvf - this.humanSpecs.rotationMu / this.fps
+        } else if (tvf < 0.0) {
+            tvf = tvf + this.humanSpecs.rotationMu / this.fps
+        }
+        
+        var robotMaxAngularVelocity = this.humanSpecs.maxAngularVelocity / this.fps
+        tvf = Math.max(-robotMaxAngularVelocity, Math.min(tvf, robotMaxAngularVelocity)) //cap angular velocity
+        var keysPressed = this.anyKeysPressed()
+        console.log('TVF', tvf)
+        if (keysPressed === "" && Math.abs(tvf) < 0.0002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops rotating
+            console.log('ZERO TVF')
+            tvf = 0.0
+        }
+        
+        return tvf
+    }
+    updateRobotPose(xi, yi, ti, lvf, tvf){
+        //ti is in radians
+        var xf = 0 // final pose and velocity variables
+        var yf = 0
+        var tf = 0
+        var xvf = 0.0
+        var yvf = 0.0
+        if (tvf != 0.0){ //nonzero angular velocity
+            
+            xf = xi - (lvf/tvf)*Math.sin(ti) + (lvf/tvf)*Math.sin(ti + tvf)
+            yf = yi + (lvf/tvf)*Math.cos(ti) - (lvf/tvf)*Math.cos(ti + tvf)
+            tf = ti + tvf
+            
+        } else if (tvf == 0.0) { // zero angular velocity
+            xf = xi + lvf*Math.cos(ti) 
+            yf = yi + lvf*Math.sin(ti)
+            tf = ti
+        }
+
+        //extract component along x and y
+        xvf = lvf*Math.cos(tf)
+        yvf = lvf*Math.sin(tf)
+
+        var finalPose = {xf, yf, tf, xvf, yvf, lvf, tvf} // collect all relevant return values into an object
+        return finalPose
+    }
     update(progress){
         if (!this.human) {
             return false
         }
 
         var keysPressed = this.anyKeysPressed()
-        if (keysPressed === "") {
+        
+        //THIS NEEDS FIXING. The reason why this is needed is because, we want to minimize the calls to update to reduce the size of the data being logged. When no interaction happens (measure by key pressed) and when the robot has completely come to a stop, then don't refresh anything
+        if (keysPressed === "" && Math.abs(this.human.lv) == 0.0 && Math.abs(this.human.tv) == 0.0) {
+            console.log('IN')
             return false
         }
 
         // progress is the amount of time that has passed in ms
-        // var robotVelocity = this.humanSpecs.velocity / this.fps // pixels/frame
-        // var robotAngularVelocity = this.degreeToRad(this.humanSpecs.angularVelocity / this.fps) // rad/frame
+        
 
         var robotLinearAcceleration = this.humanSpecs.linearAcceleration / this.fps
         var robotAngularAcceleration = this.degreeToRad(this.humanSpecs.angularAcceleration /this.fps)
 
-        var robotMaxLinearVelocity = this.humanSpecs.maxLinearVelocity /this.fps
-        var robotMaxAngularVelocity = this.degreeToRad(this.humanSpecs.maxAngularVelocity /this.fps)
-
         // theta, x, delta, initial
         
         var tvd = 0 //delta in angular velocity
-        var xvd = 0 //delta in linear velocity x
-        var yvd = 0 //delta in linear velocity y
-
-        var ti = this.human.angle
-        var xi = this.human.pos.x
-        var yi = this.human.pos.y
-        var xvi = this.human.xv
-        var yvi = this.human.yv
-        var tvi = this.human.tv
+        var lvd = 0 //delta in linear velocity (along the current heading)
 
         //update angular velocity
         if (this.keys["a"] || this.keys["ArrowLeft"]) {
@@ -365,52 +423,33 @@ export default class ContinuousWorldDynamic extends React.Component {
         } else if (this.keys["d"] || this.keys["ArrowRight"]) {
             tvd = -1 * robotAngularAcceleration
         }
-
-        var tvf = tvi + tvd
-        if (tvf > 0.0){
-            tvf = Math.min(robotMaxAngularVelocity, tvf)
-        }
-        if (tvf < 0.0){
-            tvf = Math.max(-robotMaxAngularVelocity, tvf)
-        }
-        //update angle
-        var tf = ti + (tvf + tvi)/2.0
         
         //update linear velocity
         if (this.keys["w"] || this.keys["ArrowUp"]) {
-            xvd = robotLinearAcceleration * Math.cos(tf)
-            yvd = robotLinearAcceleration * Math.sin(tf)
+            lvd = robotLinearAcceleration
         } else if (this.keys["s"] || this.keys["ArrowDown"]) {
-            xvd = robotLinearAcceleration * -1 * Math.cos(tf)
-            yvd = robotLinearAcceleration * -1 * Math.sin(tf)
+            lvd = robotLinearAcceleration * -1
         }
+        
+        var lvi = this.human.lv // get current linear velocity
+        var tvi = this.human.tv // get current angular velocity
+        
+        var lvf = this.updateLinearVelocity(lvi, lvd) //linear velocity along the heading
+        var tvf = this.updateAngularVelocity(tvi, tvd)
 
-        var xvf = xvi + xvd
-        var yvf = yvi + yvd
-        //limit velocities along each dimension
-        if (xvf > 0.0){
-            xvf = Math.min(robotMaxLinearVelocity, xvf) 
-        }
-        if (xvf < 0.0){
-            xvf = Math.max(-robotMaxLinearVelocity, xvf)
-        }
-        if (yvf > 0.0){
-            yvf = Math.min(robotMaxLinearVelocity, yvf) 
-        }
-        if (yvf < 0.0){
-            yvf = Math.max(-robotMaxLinearVelocity, yvf)
-        }
+        var ti = this.human.angle
+        var xi = this.human.pos.x
+        var yi = this.human.pos.y
+        
+        var finalPose = this.updateRobotPose(xi, yi, ti, lvf, tvf)
 
-        //update position
-        var xf = xi + (xvf + xvi)/2.0
-        var yf = yi + (yvf + yvi)/2.0
-
-        this.human.setAngle(tf)
-        this.human.pos.x = xf
-        this.human.pos.y = yf
-        this.human.xv = xvf
-        this.human.yv = yvf
-        this.human.tv = tvf
+        this.human.setAngle(finalPose.tf)
+        this.human.pos.x = finalPose.xf
+        this.human.pos.y = finalPose.yf
+        this.human.xv = finalPose.xvf
+        this.human.yv = finalPose.yvf
+        this.human.tv = finalPose.tvf
+        this.human.lv = finalPose.lvf
 
         // assume we don't collide to start
         var collisionObstacle = false
@@ -430,6 +469,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             this.human.xv = 0.0
             this.human.yv = 0.0
             this.human.tv = 0.0
+            this.human.lv = 0.0
         }
 
         // return whether we have reached the goal or not
@@ -453,6 +493,7 @@ export default class ContinuousWorldDynamic extends React.Component {
                 y: y_bl,
                 xv: this.human.xv,
                 yv: this.human.yv,
+                lv: this.human.lv,
                 angle: -1 * this.radToDegree(this.human.angle),
                 angularVelocity: this.human.tv
             }
@@ -488,6 +529,7 @@ export default class ContinuousWorldDynamic extends React.Component {
                             y: this.human.pos.y,
                             xv: this.human.xv,
                             yv: this.human.yv,
+                            lv: this.human.lv,
                             angle: this.human.angle,
                             angularVelocity: this.human.tv
                         }
@@ -504,17 +546,18 @@ export default class ContinuousWorldDynamic extends React.Component {
                     y: this.human.pos.y,
                     xv: this.human.xv,
                     yv: this.human.yv,
+                    lv: this.human.lv,
                     angle: this.human.angle,
                     angularVelocity: this.human.tv
                 }
             }
-            if (linearKeys.has(event.key)){
-            this.human.xv= 0.0
-            this.human.yv = 0.0
-            }
-            if (angularKeys.has(event.key)){
-                this.human.tv = 0.0
-            }
+            // if (linearKeys.has(event.key)){
+            // this.human.xv= 0.0
+            // this.human.yv = 0.0
+            // }
+            // if (angularKeys.has(event.key)){
+            //     this.human.tv = 0.0
+            // }
             
         }
 
