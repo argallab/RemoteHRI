@@ -36,6 +36,11 @@ np.authors           = "Authors";
 np.experimentName    = "Test Experiment";
 np.port              = 3003;
 
+// run command node server.js FILENAME
+const args = process.argv.slice(2) // slice out the first words in the command line string
+exp_json_file = args[0]
+console.log('Experiment JSON FILENAME - ', exp_json_file)
+
 // --------------------------------------------------------------------------------------------------
 // 2. Setup stimuli
 // --------------------------------------------------------------------------------------------------
@@ -48,9 +53,8 @@ np.port              = 3003;
 
 function setupStimuli(PID) // PID refers to ParticipantID
 {
-   var res    = JSON.parse(fs.readFileSync('./Experiment_ContDyn.json').toString());           // read the experiment design into CSV string
+   var res    = JSON.parse(fs.readFileSync(exp_json_file).toString());           // read the experiment design into CSV string
    // shuffle stimuli, if neccessary
-   console.log(res)
    if (res.experimentName)
       np.experimentName = res.experimentName // how to add checks for whether the field exists
 

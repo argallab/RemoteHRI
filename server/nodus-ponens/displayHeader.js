@@ -18,7 +18,7 @@ function displayHeader(experimentName, authors, port)
    if(hostname == "http://") { hostname += "localhost"; }
 
    console.reset = function () { return process.stdout.write('\033c'); }
-   console.reset();
+  //  console.reset();
    console.log("-----------------------------------------------------------------")
    console.log("Nodus Ponens: High-level cognitive science experiments in Node.js\n")
    console.log("   Designed by Sangeet Khemlani")

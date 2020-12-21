@@ -141,7 +141,7 @@ export default class ContinuousWorld extends React.Component {
 
         this.keys = {}
 
-        this.runGame = this.runGame.bind(this)
+        this.runGame = this.runGame.bind(this) // runGame is NOT an arrow function. Therefore, we have to use the bind() method. Refer to Why Arrow Functions in  https://www.w3schools.com/react/react_events.asp. If bind is not used inside runGame, the 'this' variable will be undefined.
         this.update = this.update.bind(this)
         this.draw = this.draw.bind(this)
         this.controllerUpdate = this.controllerUpdate.bind(this)
