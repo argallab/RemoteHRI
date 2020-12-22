@@ -24,6 +24,16 @@ body {
   position: absolute;
 }
 
+.radius {
+    position: absolute;
+    width: 50%;
+    height: 3px;
+    left: 50%;
+    top: 50%;
+    background: black;
+    transform-origin: left center;
+  }
+
 .grid-obstacle {
     background-color: black;
     margin: 0px;

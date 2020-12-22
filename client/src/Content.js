@@ -2,6 +2,8 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import VideoStimulus from './components/PassiveStimulus/VideoStimulus'
 import DiscreteGridWorld from './components/ActiveStimulus/DiscreteGridWorld'
+import DiscreteGridWorldModes from './components/ActiveStimulus/DiscreteGridWorldModes'
+import DiscreteGridWorldSE2Modes from './components/ActiveStimulus/DiscreteGridWorldSE2Modes'
 import Survey from './components/PassiveStimulus/Survey'
 import LoadingScreen from './components/LoadingScreen'
 import PreExperimentForm from './components/PreExperimentForm';
@@ -193,6 +195,14 @@ export default class Content extends React.Component {
                     if (this.state.trialData.stimulusType === "grid-world") {
                         return (
                             <DiscreteGridWorld key={this.state.trialData.trialIndex} data={this.state.trialData} submit={this.getNextTrial} />
+                        )
+                    } else if (this.state.trialData.stimulusType === "grid-world-modes") {
+                        return (
+                            <DiscreteGridWorldModes key={this.state.trialData.trialIndex} data={this.state.trialData} submit={this.getNextTrial} />
+                        )
+                    } else if (this.state.trialData.stimulusType === "grid-world-se2-modes") {
+                        return (
+                            <DiscreteGridWorldSE2Modes key={this.state.trialData.trialIndex} data={this.state.trialData} submit={this.getNextTrial} />
                         )
                     } else if (this.state.trialData.stimulusType === "survey") {
                         return (

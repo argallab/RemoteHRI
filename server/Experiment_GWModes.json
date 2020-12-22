@@ -1,0 +1,66 @@
+{
+    "experimentName": "Grid World bvADLAJ Experiment",
+    "shuffleBlocks": false,
+    "blocks": [
+        {
+            "blockName": "Testing Block 1",
+            "preTrials": [],
+            "shuffleTrials": false,
+            "trials": [
+                {
+                    "stimulusType": "grid-world-modes",
+                    "width": 8,
+                    "height": 8,
+                    "instructions": "This is a grid-world with obstacles.  You cannot go into the black squares.  Move the robot to the goal. Use WASD or the arrow keys to move.  (robot=gray circle, goal=green space)",
+                    "obstacles": [
+                        {
+                            "locationX": 6,
+                            "locationY": 3
+                        },
+                        {
+                            "locationX": 6,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 6,
+                            "locationY": 2
+                        },
+                        {
+                            "locationX": 5,
+                            "locationY": 2
+                        },
+                        {
+                            "locationX": 7,
+                            "locationY": 2
+                        },
+                        {
+                            "locationX": 3,
+                            "locationY": 1
+                        },
+                        {
+                            "locationX": 4,
+                            "locationY": 1
+                        }
+                    ],
+                    "goalLocationX": 0,
+                    "goalLocationY": 2,
+                    "humanAgent": {
+                        "y": 0,
+                        "x": 2
+                    },
+                    "currentMode": 1,
+                    "numModes": 2,
+                    "tickTime": 600,
+                    "visualizeGridLines": false,
+                    "postText": "Good job!  Press any key to continue."
+                }
+            ],
+            "postTrials": [
+                {
+                    "stimulusType": "text-display",
+                    "text": "<div><h3>Current block over. Press any key for next block</h3><hr/></div>"
+                }
+            ]
+        }
+    ]
+}
