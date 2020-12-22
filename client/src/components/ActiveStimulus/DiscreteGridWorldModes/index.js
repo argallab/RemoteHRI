@@ -267,7 +267,7 @@ export default class DiscreteGridWorldModes extends Component {
             keypress: this.keypresses,
             end: Date.now() // end time of the trial
         }
-        this.prop.submit(answer) //props.submit is essentially the submit function handle provided from Content.js which will call the next stimulus. 
+        this.props.submit(answer) //props.submit is essentially the submit function handle provided from Content.js which will call the next stimulus. 
 
     }
 
