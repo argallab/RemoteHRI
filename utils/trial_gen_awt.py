@@ -344,8 +344,8 @@ def generate_grid_world_trials(args):
             trial_dict['goalLocationX'] = goal_location[0]
             trial_dict['goalLocationY'] = goal_location[1]
             trial_dict['goalLocationAngle'] = goal_location[2] # TODO: add fn downstream to use this
-            trial_dict['goalWidth'] = 100
-            trial_dict['goalHeight'] = 100
+            trial_dict['goalWidth'] = 50
+            trial_dict['goalHeight'] = 50
             #
             #trial_dict['tickTime'] = 600
             #trial_dict['visualizeGridLines'] = True
@@ -376,10 +376,10 @@ def generate_grid_world_trials(args):
 ## main function + argument parsing
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--width', action='store', type=int, default=700, help="width of grid world")
-    parser.add_argument('--height', action='store', type=int, default=700, help="height of grid world")
-    parser.add_argument('--userWidth', action='store', type=int, default=700, help="width of user's vehicle")
-    parser.add_argument('--userHeight', action='store', type=int, default=700, help="height of user's vehicle")
+    parser.add_argument('--width', action='store', type=int, default=850, help="width of grid world")
+    parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
+    parser.add_argument('--userWidth', action='store', type=int, default=850, help="width of user's vehicle")
+    parser.add_argument('--userHeight', action='store', type=int, default=850, help="height of user's vehicle")
     parser.add_argument('--num_train_blocks', action='store', type=int, default=1, help="number of training blocks")
     parser.add_argument('--num_train_trials', action='store', type=int, default=8, help="number of trials per training block")
     parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")

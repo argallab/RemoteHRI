@@ -24,6 +24,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             this.humanSpecs = {
                 width: data.humanAgent.width,
                 height: data.humanAgent.height,
+                radius: Math.sqrt(Math.pow(data.humanAgent.width,2) + Math.pow(data.humanAgent.height,2)), // NOTE: CHECK THIS! -awt 1/16/2021
                 maxLinearVelocity: data.humanAgent.maxLinearVelocity, // in pixels/second
                 linearAcceleration: data.humanAgent.linearAcceleration, //in pixels/second/second
                 maxAngularVelocity: data.humanAgent.maxAngularVelocity,
@@ -31,6 +32,7 @@ export default class ContinuousWorldDynamic extends React.Component {
                 halfDiagonal: data.humanAgent.width / 2 * Math.sqrt(2),
                 linearMu: data.humanAgent.linearMu,
                 rotationMu: data.humanAgent.rotationMu
+
             }
 
             // contains variable values about the human robot, lives in state
@@ -47,14 +49,14 @@ export default class ContinuousWorldDynamic extends React.Component {
         }
 
         //skip autonomous agent for the time being
-
+        // CHECK -awt 1/16/2021
         this.goalSpecs = {
             width: data.goalWidth,
             height: data.goalHeight,
             x: data.goalLocationX,
-            y: data.goalLocationY
+            y: data.goalLocationY,
+            angle: data.angle
         }
-
         // obstacles is a list specified in the json. For eeach element in the obstacle list extracted the following object
         this.obstacleSpecs = data.obstacles.map((o) => {
             return (
@@ -72,6 +74,7 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         this.state = {
             humanSpecs: humanSpecs,
+            goalSpecs: this.goalSpecs,
             postText: "Good job!",
             didWin: false,
             obstacleSpecs: this.obstacleSpecs
@@ -104,9 +107,14 @@ export default class ContinuousWorldDynamic extends React.Component {
             this.human.tv = this.state.humanSpecs.angularVelocity
             this.human.lv = this.state.humanSpecs.lv
         }
-
         // specify goal from the bottom left corner + width and height
-        this.goal = new SAT.Box(this.point(this.goalSpecs.x, this.goalSpecs.y), this.goalSpecs.width, this.goalSpecs.height).toPolygon()
+        var g_deltax = this.state.goalSpecs.width / 2
+        var g_deltay = this.state.goalSpecs.height / 2
+        //this.goal = new SAT.Polygon(this.point(this.goalSpecs.x, this.goalSpecs.y), [this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
+        this.goal = new SAT.Box(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y), this.state.goalSpecs.width, this.state.goalSpecs.height).toPolygon()
+        this.goal.setAngle(-1 * this.degreeToRad(this.state.goalSpecs.angle))
+        
+        //this.goal = new SAT.Box(this.point(this.goalSpecs.x, this.goalSpecs.y), this.goalSpecs.width, this.goalSpecs.height).toPolygon()
         this.obstacles = this.obstacleSpecs.map((o) => {
             return new SAT.Box(this.point(o.x, o.y), o.width, o.height).toPolygon()
         })
@@ -130,7 +138,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         this.linear_vel_active = false
         this.angular_vel_active = false
     }
-
+a
     componentDidMount(){
         document.addEventListener("keydown", this.handleKeyPress, false);
         document.addEventListener("keyup", this.handleKeyPress, false)
@@ -405,6 +413,7 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         var keysPressed = this.anyKeysPressed()
         
+        
         //THIS NEEDS FIXING. The reason why this is needed is because, we want to minimize the calls to update to reduce the size of the data being logged. When no interaction happens (measure by key pressed) and when the robot has completely come to a stop, then don't refresh anything
         if (keysPressed === "" && Math.abs(this.human.lv) == 0.0 && Math.abs(this.human.tv) == 0.0) {
             console.log('IN')
@@ -418,6 +427,8 @@ export default class ContinuousWorldDynamic extends React.Component {
         
         var tvd = 0 //delta in angular velocity
         var lvd = 0 //delta in linear velocity (along the current heading)
+
+        // TODO: this might be a good place to look re: changing PWC image
 
         //update angular velocity
         if (this.keys["a"] || this.keys["ArrowLeft"]) {
@@ -444,6 +455,8 @@ export default class ContinuousWorldDynamic extends React.Component {
         var xi = this.human.pos.x
         var yi = this.human.pos.y
         
+        var ti_goal = this.goal.angle
+
         var finalPose = this.updateRobotPose(xi, yi, ti, lvf, tvf)
 
         this.human.setAngle(finalPose.tf)
@@ -476,8 +489,17 @@ export default class ContinuousWorldDynamic extends React.Component {
         }
 
         // return whether we have reached the goal or not
-        return SAT.testPolygonPolygon(this.human, this.goal)
-
+        var human_goal_response = new SAT.Response();
+        var collided = SAT.testPolygonPolygon(this.human, this.goal, human_goal_response)
+        var rv = Math.sqrt(Math.pow(this.human.xv,2) + Math.pow(this.human.yv,2))
+        // human_goal_response.overlap // <-- NOTE: can call this to return a percent overlap // NOTE: change in goal collision
+        if(collided){//this.human.radius){//} && rv < 20.0){
+        //if(human_goal_response.overlap > this.humanSpecs.radius/1.25 && Math.abs(ti_goal - ti) <= 5.0 && rv < 1.0){//this.human.radius){//} && rv < 20.0){
+            return collided
+        }
+        else{
+            return false
+        }
     }
 
     /**
@@ -503,7 +525,8 @@ export default class ContinuousWorldDynamic extends React.Component {
         }
         this.setState({
             humanSpecs,
-            obstacleSpecs: this.obstacleSpecs
+            obstacleSpecs: this.obstacleSpecs,
+            goalSpecs: this.goalSpecs
         })
     }
 
@@ -588,14 +611,16 @@ export default class ContinuousWorldDynamic extends React.Component {
                     <Row>
                         <Col xs={12} style={{ fontSize: 18 }}><p>{this.props.data.instructions}</p></Col>
                     </Row>
-                    <div className="centered-content">
-                        <TwoDWorld
+                    <div className="centered-content"> 
+                        <TwoDWorld // is this where props are stored (?) -> this.props.___ in index.js
                             human={this.humanSpecs}
                             humanState={this.state.humanSpecs}
+                            goal={this.goalSpecs}
                             goalLocationX={this.goalSpecs.x}
                             goalLocationY={this.goalSpecs.y}
                             goalWidth={this.goalSpecs.width}
                             goalHeight={this.goalSpecs.height}
+                            angle={this.goalSpecs.angle} // NOTE: CHECK THIS! -awt 1/16/2021
 
                             obstacles={this.state.obstacleSpecs}
                         />

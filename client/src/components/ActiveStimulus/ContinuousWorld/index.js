@@ -65,7 +65,8 @@ export default class ContinuousWorld extends React.Component {
             width: data.goalWidth,
             height: data.goalHeight,
             x: data.goalLocationX,
-            y: data.goalLocationY
+            y: data.goalLocationY,
+            angle: data.angle // NOTE: CHECK THIS! -awt 1/21/2021
         }
 
 

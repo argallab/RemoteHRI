@@ -35,15 +35,16 @@ body {
 }
 
 .grid-goal {
-    background-color: green;
+    background-color: whitesmoke;
     margin: 0px;
     padding: 0px;
+    position: absolute
 }
 
 .world-container {
     position: relative;
-    width: 750px;
-    height: 750px;
+    width: 850px;
+    height: 850px;
     border: 1px solid black;
     overflow: hidden;
 }
