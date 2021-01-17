@@ -48,7 +48,19 @@ def create_start_location(width, height, phase):
     start_state_dict = dict()
     start_state_dict['x'] = start_state[0]
     start_state_dict['y'] = start_state[1]
-    start_state_dict['theta'] = start_state[2]
+    start_state_dict['angle'] = start_state[2]
+    start_state_dict['xv'] = 0.0
+    start_state_dict['yv'] = 0.0
+    start_state_dict['lv'] = 0.0
+    start_state_dict['angularVelocity'] = 0.0
+    start_state_dict['maxLinearVelocity'] = 100
+    start_state_dict['maxAngularVelocity'] = 50
+    start_state_dict['linearAcceleration'] = 10
+    start_state_dict['angularAcceleration'] = 10
+    start_state_dict['width'] = 50
+    start_state_dict['height'] = 50
+    start_state_dict['linearMu'] = 1
+    start_state_dict['rotationMu'] = 0.1
     return start_state_dict
 
 #######################
@@ -65,9 +77,11 @@ def generate_mp_dict(pixel_scale, mp_list):
     mp_dict['bwl'] = [2.236, -2.236, 315] 
     mp_dict['cw'] = [0, 0, 295] 
     mp_dict['ccw'] = [0, 0, 245]
-    #for moprim in mp_list: # TODO: CHECK if this is the proper way to index
-    #    mp_dict[moprim][0] = mp_dict[moprim][0]*pixel_scale
-    #    mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale
+    for moprim in mp_list: # TODO: CHECK if this is the proper way to index
+        print(mp_dict[moprim])
+        mp_dict[moprim][0] = mp_dict[moprim][0]*pixel_scale
+        mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale
+        print(mp_dict[moprim])
     return mp_dict
 #
 def generate_mp_list():
@@ -81,7 +95,7 @@ def ego2world_tf(start_location, goal_location):
     goal_location_tf = [0, 0, 0]
     start_location_temp = np.array([start_location['x'], start_location['y']])
     matmul_tmp = np.matmul(tf_mat, start_location_temp)
-    tf_rot = start_location['theta'] + goal_location[2] # TODO: CHECK THIS
+    tf_rot = start_location['angle'] + goal_location[2] # TODO: CHECK THIS
     tf_rot_norm = normalizeAngle(tf_rot) # TODO: CHECK THIS AS WELL
     goal_location_tf = [matmul_tmp[0], matmul_tmp[1], tf_rot_norm]
     return goal_location_tf
@@ -160,8 +174,12 @@ def generate_grid_world_trials(args):
     is_shuffle_trials = args.is_shuffle_trials
 
     # Cartesian state-space dimensions
-    width = args.width
-    height = args.height
+    worldWidth = args.width
+    worldHeight = args.height
+
+    # user dimensions
+    userWidth = args.userWidth
+    userHeight = args.userHeight
 
     ## initialize the dictionary which contains all train and test
     experiment_dict = collections.OrderedDict()
@@ -172,24 +190,33 @@ def generate_grid_world_trials(args):
     
     ## generate motion primitive dictionary + list for indexing
     mp_list = generate_mp_list()
-    mp_dict = generate_mp_dict(5, mp_list)
+    mp_dict = generate_mp_dict(50, mp_list)
 
     ## populate trials in each block, for all blocks (train + test blocks)
     for block_num in range(num_blocks_total):
         current_block = collections.OrderedDict()
-        if block_num <= num_train_blocks: # (training block case)
+
+        #print(block_num)
+        #print(num_train_blocks)
+        #print(num_test_blocks)
+        #print(num_blocks_total)
+
+        if block_num < num_train_blocks: # (training block case)
             current_block['blockName'] = "Training Block {}".format(block_num)
             current_block['preTrials'] = []
-            training_block_intro_text_trial = collections.OrderedDict()
-            training_block_intro_text_trial['stimulusType'] = "test-display"
-            training_block_intro_text_trial['text'] = "<div><h3>Grid World Experiment</h3><hr /><p>This experiment consists of a training phase and a testing phase.</p><p>training_phase_placeholder_message_2</p><p>Once you have completed the training phase, you will be taken to the testing phase, PLACEHOLDER</p><p>When you are finished with the experiment, you may exit the webpage and your answers will be saved automatically.</p><div class=\"row\"><div class=\"col-md-6\"><p>Grid worlds will look like this. The gray robot is you and you must get the gray robot to the green square using WASD or arrow keys.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld3x3.png\" /></div><div class=\"col-md-6\"><p>Grid worlds with obstacles will look like this.  You are unable to move the robot into a black square.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld5x5.png\" /></div></div></div>"
-            current_block['preTrials'].append(training_block_intro_text_trial)
+            #training_block_intro_text_trial = collections.OrderedDict()
+            #training_block_intro_text_trial['stimulusType'] = "test-display"
+            #training_block_intro_text_trial['text'] = "<div><h3>Grid World Experiment</h3><hr /><p>This experiment consists of a training phase and a testing phase.</p><p>training_phase_placeholder_message_2</p><p>Once you have completed the training phase, you will be taken to the testing phase, PLACEHOLDER</p><p>When you are finished with the experiment, you may exit the webpage and your answers will be saved automatically.</p><div class=\"row\"><div class=\"col-md-6\"><p>Grid worlds will look like this. The gray robot is you and you must get the gray robot to the green square using WASD or arrow keys.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld3x3.png\" /></div><div class=\"col-md-6\"><p>Grid worlds with obstacles will look like this.  You are unable to move the robot into a black square.</p><img style=\"height:200px; width:auto;\" src=\"img/gridworld5x5.png\" /></div></div></div>"
+            #current_block['preTrials'].append(training_block_intro_text_trial)
             phase = "train" # (phase flag set)
-        elif block_num > num_train_blocks: # (testing block case)
+        elif block_num >= num_train_blocks: # (testing block case)
             current_block['blockName'] = "Testing Block {}".format(block_num-num_train_blocks)
             current_block['preTrials'] = []
             phase = "test" # (phase flag set)
         
+
+        print(current_block['blockName'])
+
         ## arguments to shuffle trials within a given block
         current_block['shuffleTrials'] = is_shuffle_trials
         current_block['trials'] = []
@@ -197,37 +224,51 @@ def generate_grid_world_trials(args):
         ## initialize empty goal list per block
         goal_list = []
 
+        ## trial range for trial_num
+        if block_num < num_train_trials:
+            trial_range = num_train_trials
+        elif block_num >= num_train_blocks:
+            trial_range = num_test_trials
+
         ## trial 
-        for trial_num in range(num_trials_total):
+        for trial_num in range(trial_range):
+            print(trial_num)
             trial_dict = collections.OrderedDict()
+            trial_dict['fps'] = 60
+            trial_dict['gridApproximation'] = 3
             trial_dict['stimulusType'] = "continuous-world-dynamic"
-            trial_dict['width'] = width
-            trial_dict['height'] = height
+            trial_dict['worldWidth'] = worldWidth
+            trial_dict['worldHeight'] = worldHeight
 
             if block_num == 0: # (training block case)
                 trial_dict['instructions'] = "TRIAL INSTRUCTIONS: This is a grid-world. Move the robot with WASD or the arrow keys in order to reach the goals as they appear."
-            elif block_num == num_train_blocks+1: # (testing block case)
+            elif block_num == num_train_blocks: # (testing block case)
                 trial_dict['instructions'] = "TEST INSTRUCTIONS: This is a grid-world. Move the robot with WASD or the arrow keys in order to reach the goals as they appear."
             #else:
             #    trial_dict['instructions'] = "Press any key to continue..." # CHECK
 
             ## TO-DO: FIGURE THIS OUT :^)
-            if block_num <= num_train_blocks: # (training block case)
-                start_state_dict = create_start_location(width, height, phase)
-            elif block_num > num_train_blocks: # (testing block case)
-                start_state_dict = create_start_location(width, height, phase)
+            if block_num < num_train_blocks: # (training block case)
+                start_state_dict = create_start_location(worldWidth, worldHeight, phase)
+            elif block_num >= num_train_blocks: # (testing block case)
+                start_state_dict = create_start_location(worldWidth, worldHeight, phase)
 
             goal_list, goal_location = generate_goal_list(mp_dict, mp_list, start_state_dict, phase, goal_list)
-            print(goal_list)
+            #print(goal_list)
             #
             trial_dict['humanAgent'] = start_state_dict
+            #print(trial_dict['humanAgent'])
+            #
+            trial_dict['obstacles'] = []
             #
             trial_dict['goalLocationX'] = goal_location[0]
             trial_dict['goalLocationY'] = goal_location[1]
-            trial_dict['goalLocationTheta'] = goal_location[2]
+            trial_dict['goalLocationAngle'] = goal_location[2] # TODO: add fn downstream to use this
+            trial_dict['goalWidth'] = 100
+            trial_dict['goalHeight'] = 100
             #
-            trial_dict['tickTime'] = 600
-            trial_dict['visualizeGridLines'] = True
+            #trial_dict['tickTime'] = 600
+            #trial_dict['visualizeGridLines'] = True
             trial_dict['postText'] = "You've reached the goal! Press any key to continue."
             #
             current_block['trials'].append(trial_dict)
@@ -244,7 +285,7 @@ def generate_grid_world_trials(args):
 
     ## save and export the experiment as a .json file
     
-    json_directory = os.path.join(os.path.dirname(__file__), 'exp_json_directory')
+    json_directory = os.path.join(os.path.dirname(__file__), '../server/')#exp_json_directory')
     if not os.path.exists(json_directory):
         os.makedirs(json_directory)
     full_path_to_json = os.path.join(json_directory, experiment_json_name)
@@ -255,14 +296,16 @@ def generate_grid_world_trials(args):
 ## main function + argument parsing
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--width', action='store', type=int, default=8, help="width of grid world")
-    parser.add_argument('--height', action='store', type=int, default=8, help="height of grid world")
-    parser.add_argument('--num_train_blocks', action='store', type=int, default=3, help="number of training blocks")
+    parser.add_argument('--width', action='store', type=int, default=700, help="width of grid world")
+    parser.add_argument('--height', action='store', type=int, default=700, help="height of grid world")
+    parser.add_argument('--userWidth', action='store', type=int, default=700, help="width of user's vehicle")
+    parser.add_argument('--userHeight', action='store', type=int, default=700, help="height of user's vehicle")
+    parser.add_argument('--num_train_blocks', action='store', type=int, default=1, help="number of training blocks")
     parser.add_argument('--num_train_trials', action='store', type=int, default=8, help="number of trials per training block")
-    parser.add_argument('--num_test_blocks', action='store', type=int, default=3, help="number of testing blocks")
+    parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
     parser.add_argument('--num_test_trials', action='store', type=int, default=8, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
-    parser.add_argument('--experiment_json_name', action='store', type=str, default="experiment_gw_cont.json", help="name of .json file which defines the experiment")
+    parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
     parser.add_argument('--is_shuffle_trials', action='store_true', default=False, help="flag for shuffling trials")
     parser.add_argument('--is_shuffle_blocks', action='store_true', default=False, help="flag for shuffling blocks")
     
