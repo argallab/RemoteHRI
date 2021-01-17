@@ -67,7 +67,7 @@ def create_start_location(width, height, phase):
 # NOTE: x, y values in pixels; include a scale factor; defined in vehicle ego frame
 # TODO: abs(5) -> abs(1)
 # TODO: transform to world coord. before adding to start loc.
-def generate_mp_dict(pixel_scale, mp_list):
+def generate_mp_dict(pixel_scale, mp_list, start_location):
     mp_dict = dict()
     mp_dict['fw'] = [0, 5, 90]
     mp_dict['bw'] = [0, -5, 90] 
@@ -78,25 +78,109 @@ def generate_mp_dict(pixel_scale, mp_list):
     mp_dict['cw'] = [0, 0, 295] 
     mp_dict['ccw'] = [0, 0, 245]
     for moprim in mp_list: # TODO: CHECK if this is the proper way to index
-        print(mp_dict[moprim])
+        print('\n')
+        #print(mp_dict[moprim])
+        #
         mp_dict[moprim][0] = mp_dict[moprim][0]*pixel_scale
         mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale
-        print(mp_dict[moprim])
+        #print(mp_dict[moprim])
+        #
+        mp_dict[moprim][0] = mp_dict[moprim][0]+start_location['x']
+        mp_dict[moprim][1] = mp_dict[moprim][1]+start_location['y']
+        #print(mp_dict[moprim])
+        #
+        if start_location['angle']-90 >= 0.01:
+            mp_dict[moprim] = ego2world(start_location, mp_dict[moprim])
+            print('\toutput from ego2world_rot fn:')
+            print(mp_dict[moprim])
+        #
+        else:
+            print(mp_dict[moprim])
+        
+        
+        print('\n')
+        #
     return mp_dict
 #
 def generate_mp_list():
     mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw']
     return mp_list
 
+
+def ego2world(start_location, goal_location):
+    
+    #tf_mat = np.array([[np.cos(deg2rad), -np.sin(deg2rad), 0, start_location['x']],
+    #                   [np.sin(deg2rad), np.cos(deg2rad), 0, start_location['y']],
+    #                   [0.0, 0.0, 1.0, 0.0],
+    #                   [0.0, 0.0, 0.0, 1.0]])
+
+    sx = start_location['x']
+    sy = start_location['y']
+    sang = start_location['angle']
+    gx = goal_location[0]
+    gy = goal_location[1]
+    gang = goal_location[2]
+
+    deg2rad = (sang/360)*(2*np.pi)
+
+    arb_point_transl_x = (-(sx*np.cos(deg2rad)) + sy*np.sin(deg2rad) + sx)
+    arb_point_transl_y = (-(sx*np.sin(deg2rad)) - sy*np.cos(deg2rad) + sy)
+
+    tf_mat = np.array([[np.cos(deg2rad), -np.sin(deg2rad), 0, arb_point_transl_x],
+                       [np.sin(deg2rad), np.cos(deg2rad), 0, arb_point_transl_y],
+                       [0.0, 0.0, 0.0, 1.0]])
+
+    goal_location_temp = np.array([gx, gy, 0.0, 1.0])
+    tf_goal = np.matmul(tf_mat, goal_location_temp)
+    print('\n')
+    print(tf_goal)
+    print('\n')
+    #recv_ang = recover_angle(tf_goal, goal_location, start_location)
+
+    # # TODO: CHECK THIS -> NOTE: seems to work; TODO: visual confirmation
+    tf_rot = (sang - 90) + gang
+    tf_rot_norm = normalizeAngle(tf_rot) 
+    #
+
+    goal_location_tf = np.array([tf_goal[0], tf_goal[1], tf_rot_norm])#_norm])
+
+
+    return goal_location_tf
+
+## TODO: if needed
+def recover_angle(tfg, goal_loc, start_loc):
+
+    pretfs_x = start_loc['x'] - goal_loc[0]
+    pretfs_y = start_loc['y'] - goal_loc[1]
+    posttfs_x = start_loc['x'] - tfg[0]
+    posttfs_y = start_loc['y'] - tfg[1]
+
+    pretf_slope = [pretfs_x, pretfs_y]
+    posttf_slope = [posttfs_x, posttfs_y]
+
+    recv_ang = 0.0
+
+    return recv_ang
+
+## TODO: URGENT (!) GOAL TRANSFORMATION NEEDS TO BE REPAIRED
 ## transforms a given goal location (specified in ego frame) into the world frame 
-def ego2world_tf(start_location, goal_location):
-    tf_mat = np.array([[np.cos(goal_location[2]), -np.sin(goal_location[2])],
-                       [np.sin(goal_location[2]), np.cos(goal_location[2])]])
-    goal_location_tf = [0, 0, 0]
-    start_location_temp = np.array([start_location['x'], start_location['y']])
-    matmul_tmp = np.matmul(tf_mat, start_location_temp)
-    tf_rot = start_location['angle'] + goal_location[2] # TODO: CHECK THIS
-    tf_rot_norm = normalizeAngle(tf_rot) # TODO: CHECK THIS AS WELL
+def ego2world_rot(start_location, goal_location):
+    #print('\tentering ego2world_rot fn:')
+    angle_for_matmul = (start_location['angle']/360)*(2*np.pi)
+    tf_mat = np.array([[np.cos(angle_for_matmul), -np.sin(angle_for_matmul)],
+                       [np.sin(angle_for_matmul), np.cos(angle_for_matmul)]])
+    
+    goal_location_temp = np.array([goal_location[0], goal_location[1]])
+    matmul_tmp = np.matmul(tf_mat, goal_location_temp)
+    #print(goal_location_temp)
+    #print(tf_mat)
+    #print(matmul_tmp)
+    
+    # # TODO: CHECK THIS 
+    tf_rot = (start_location['angle']- 90) + goal_location[2]
+    tf_rot_norm = normalizeAngle(tf_rot) 
+    #
+
     goal_location_tf = [matmul_tmp[0], matmul_tmp[1], tf_rot_norm]
     return goal_location_tf
 
@@ -138,12 +222,12 @@ def generate_goal_list(mp_dict, mp_list, start_state_dict, phase, goal_list):
 
     #while min(dist_to_goals) < START_DIST_THRESHOLD: # TODO: check if necessary; noise?
     if phase == "train":
-        rand_goal_loc = mp_dict[trial_type]
-        goal_choice = ego2world_tf(start_state_dict, rand_goal_loc)
-    elif phase == "test":
-        rand_goal_loc = mp_dict[trial_type]
-        goal_choice = ego2world_tf(start_state_dict, rand_goal_loc)
+        goal_choice = mp_dict[trial_type]
         
+    elif phase == "test":
+        goal_choice = mp_dict[trial_type]
+        
+ 
     goal_list = np.append(goal_list, goal_choice, 0)
 
     return goal_list, goal_choice
@@ -187,20 +271,11 @@ def generate_grid_world_trials(args):
     experiment_dict["shuffleBlocks"] = is_shuffle_blocks
     experiment_dict["blocks"] = []
     #
-    
-    ## generate motion primitive dictionary + list for indexing
-    mp_list = generate_mp_list()
-    mp_dict = generate_mp_dict(50, mp_list)
 
     ## populate trials in each block, for all blocks (train + test blocks)
     for block_num in range(num_blocks_total):
         current_block = collections.OrderedDict()
-
-        #print(block_num)
-        #print(num_train_blocks)
-        #print(num_test_blocks)
-        #print(num_blocks_total)
-
+        #
         if block_num < num_train_blocks: # (training block case)
             current_block['blockName'] = "Training Block {}".format(block_num)
             current_block['preTrials'] = []
@@ -253,6 +328,11 @@ def generate_grid_world_trials(args):
             elif block_num >= num_train_blocks: # (testing block case)
                 start_state_dict = create_start_location(worldWidth, worldHeight, phase)
 
+            ## generate motion primitive dictionary + list for indexing ## NOTE: PIXEL_SCALE HERE
+            pixel_scale = 50
+            mp_list = generate_mp_list()
+            mp_dict = generate_mp_dict(pixel_scale, mp_list, start_state_dict)
+
             goal_list, goal_location = generate_goal_list(mp_dict, mp_list, start_state_dict, phase, goal_list)
             #print(goal_list)
             #
@@ -289,7 +369,7 @@ def generate_grid_world_trials(args):
     if not os.path.exists(json_directory):
         os.makedirs(json_directory)
     full_path_to_json = os.path.join(json_directory, experiment_json_name)
-    #print('\nprint json file:\n\t'+str(__file__) + ' -> ' + str(full_path_to_json)) ### TODO
+    print('\nprint json file:\n\t'+str(__file__) + ' -> ' + str(full_path_to_json)) ### TODO
     with open(full_path_to_json, 'w') as fp:
         json.dump(experiment_dict, fp)
 
