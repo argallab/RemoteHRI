@@ -142,9 +142,12 @@ export default class ContinuousWorldDynamic extends React.Component {
         this.linear_vel_active = false
         this.angular_vel_active = false
     }
-a
+
+    // NOTE: nice reference for preventing scrolling in browser window
+    // https://stackoverflow.com/questions/8916620/disable-arrow-key-scrolling-in-users-browser
     componentDidMount(){
         document.addEventListener("keydown", this.handleKeyPress, false);
+        
         document.addEventListener("keyup", this.handleKeyPress, false)
         
         window.requestAnimationFrame(this.runGame)
@@ -586,7 +589,7 @@ a
                     yv: this.human.yv,
                     lv: this.human.lv,
                     angle: this.human.angle,
-                    angularVelocity: this.human.tv
+                    angularVelocity: this.human.tv // NOTE: CHECK (!) these are edits to fix crash when holding key during trial transition
                 }
             }
             if (linearKeys.has(event.key)){

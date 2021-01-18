@@ -33,38 +33,17 @@ export default class TwoDWorld extends React.Component {
         //{this.props.goal && <img id="worldgoal" style={worldgoalPosition} src="png/robot_cw.png" />}
         //{this.props.goal && <img id="worldgoal" style={worldgoalPosition} src="png/robot_cw.png" className="circle" />}
         if (test_bool) {
-            if (this.props.human.angularVelocity > 1){
+            // cw case
+            if (this.props.human.angularVelocity > 1 && Math.abs(this.props.human.lv) <= 1){
                 return (
                     
                     <div className="world-container">
                         
-                        
-                        <div>
-                        
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_ccw.png" />}
-                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_ccw.png"  className="grid-goal"/>                      
-                        </div>
-                        
-                        
-
-                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
-                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
-                        
-                        
-                        {worldObstacles}
-                    </div>
-            
-            )
-            }
-            else if (this.props.human.angularVelocity <= 1){
-                return (
-                    
-                    <div className="world-container">
                         
                         <div>
                         
                             {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_cw.png" />}
-                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_cw.png"  className="grid-goal"/>                      
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_cw.png"  alt="goal_cell" className="grid-goal"/>                      
                         </div>
                         
                         
@@ -78,60 +57,17 @@ export default class TwoDWorld extends React.Component {
             
             )
             }
-            else if (this.props.human.angularVelocity > 1 && this.props.human.lv > 1){
+            // fwr case
+            if (this.props.human.angularVelocity > 1 && this.props.human.lv > 1){
                 return (
                     
                     <div className="world-container">
                         
-                        <div>
-                        
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
-                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fwr.png"  className="grid-goal"/>                      
-                        </div>
-                        
-                        
-
-                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
-                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
-                        
-                        
-                        {worldObstacles}
-                    </div>
-            
-            )
-            }
-            else if (this.props.human.angularVelocity > 1 && this.props.human.lv < -1){
-                return (
-                    
-                    <div className="world-container">
                         
                         <div>
                         
                             {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
-                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png"  className="grid-goal"/>                      
-                        </div>
-                        
-                        
-
-                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
-                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
-                        
-                        
-                        {worldObstacles}
-                    </div>
-            
-            )
-            }
-            
-            else if(this.props.human.angularVelocity > -1 && this.props.human.lv < 1){
-                return (
-                    
-                    <div className="world-container">
-                        
-                        <div>
-                        
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
-                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png"  className="grid-goal"/>                      
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fwr_bwl.png" alt="goal_cell" className="grid-goal"/>                      
                         </div>
                         
                         
@@ -145,38 +81,164 @@ export default class TwoDWorld extends React.Component {
             
             )
             }
-            else {//if(this.props.human.angularVelocity <= 5 && this.props.human.lv <= 5){
+            // bwr case
+            if (this.props.human.angularVelocity > 1 && this.props.human.lv < -1){
                 return (
                     
                     <div className="world-container">
                         
+                        
                         <div>
                         
                             {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
-                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png"  className="grid-goal"/>                      
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw" alt="goal_cell" className="grid-goal"/>                      
                         </div>
-                        
-                        
 
-                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
-                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
-                        
-                        
-                        {worldObstacles}
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fwl_bwr.png" alt="user_icon"/>}
+        
                     </div>
             
             )
+            }
+            // ccw case
+            if (this.props.human.angularVelocity < -1 && Math.abs(this.props.human.lv) <= 1){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw" alt="goal_cell" className="grid-goal"/>                      
+                        </div>
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_ccw.png" alt="user_icon" />}
+
+                    </div>
+            
+            )
+            }
+            // fwl case
+            else if (this.props.human.angularVelocity < -1 && this.props.human.lv > 1){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png" alt="goal_cell" className="grid-goal"/>                      
+                        </div>
+
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fwl_bwr.png" alt="user_icon"/>}
+
+                    </div>
+            
+            )
+            }
+            // bwl case
+            else if (this.props.human.angularVelocity < -1 && this.props.human.lv < -1){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png" alt="goal_cell" className="grid-goal"/>                      
+                        </div>
+                        
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fwr_bwl.png" alt="user_icon"/>}
+
+                    </div>
+            
+            )
+            }
+            // fw case
+            else if (Math.abs(this.props.human.angularVelocity) <= 1 && this.props.human.lv < -1){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png" alt="goal_cell" className="grid-goal"/>                      
+                        </div>
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" alt="user_icon"/>}
+
+                    </div>
+            
+            )
+            }
+            // bw case
+            else if (Math.abs(this.props.human.angularVelocity) <= 1 && this.props.human.lv < -1){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png" alt="goal_cell" className="grid-goal"/>                      
+                        </div> 
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" alt="user_icon"/>}
+
+                    </div>
+            
+            )
+            }
+            // stationary case
+            else if (Math.abs(this.props.human.angularVelocity <= 1 && Math.abs(this.props.human.lv) <= 1)) {
+                return (
+                    <div className="world-container">
+                        
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bwpng" alt="goal_cell" className="grid-goal"/>                      
+                        </div>
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" alt="user_icon"/>}
+
+                    </div>
+                )
+            }
+            // catch-all case; currently defaults to worldrobot.png for easy visualization
+            else {
+                return (
+                    <div className="world-container">
+                        
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="worldrobot.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_ccw.png" alt="goal_cell" className="grid-goal"/>                      
+                        </div>                                              
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" alt="user_icon"/>}
+
+                    </div>
+                )
             }
         }
         else {
             return (
                 <div className="world-container">
-                    {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="worldrobot.png" />}
-                    {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
+                    {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="worldrobot.png" alt="user_icon"/>}
                     <div id="worldgoal" style={worldgoalPosition} src="worldauto.png"  className="grid-goal"></div>
-                    {worldObstacles}
                 </div>
             )
         }
+    
     }
 }

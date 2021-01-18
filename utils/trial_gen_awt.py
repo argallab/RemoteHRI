@@ -44,7 +44,7 @@ def create_start_location(width, height, phase):
         rand_heading = np.random.randint(0, 360) ## CHECK THIS [1/16/2021]
         start_state = [(width/2), (height/2), rand_heading]
     elif phase == "test":
-        start_state = [(width/2), (height/2), 90] # TO-DO: CHECK IF THIS IS PROPER FORMAT
+        start_state = [(width/2), (height/2), -90] # TO-DO: CHECK IF THIS IS PROPER FORMAT
     start_state_dict = dict()
     start_state_dict['x'] = start_state[0]
     start_state_dict['y'] = start_state[1]
@@ -69,14 +69,14 @@ def create_start_location(width, height, phase):
 # TODO: transform to world coord. before adding to start loc.
 def generate_mp_dict(pixel_scale, mp_list, start_location):
     mp_dict = dict()
-    mp_dict['fw'] = [0, 5, 90]
-    mp_dict['bw'] = [0, -5, 90] 
-    mp_dict['fwr'] = [2.236, 2.236, 45] 
-    mp_dict['fwl'] = [-2.236, 2.236, 135] 
-    mp_dict['bwr'] = [-2.236, -2.236, 225] 
-    mp_dict['bwl'] = [2.236, -2.236, 315] 
-    mp_dict['cw'] = [0, 0, 295] 
-    mp_dict['ccw'] = [0, 0, 245]
+    mp_dict['fw'] = [0, 5, -90]
+    mp_dict['bw'] = [0, -5, -90] 
+    mp_dict['fwr'] = [2.236, 2.236, 315]  # TODO: FWR is being rendered strangely; collision bounds do not align with image
+    mp_dict['fwl'] = [-2.236, 2.236, 225] 
+    mp_dict['bwr'] = [-2.236, -2.236, 315] 
+    mp_dict['bwl'] = [2.236, -2.236, 225] 
+    mp_dict['cw'] = [0, 0, 245] 
+    mp_dict['ccw'] = [0, 0, 295]
     for moprim in mp_list: # TODO: CHECK if this is the proper way to index
         print('\n')
         #print(mp_dict[moprim])
@@ -91,7 +91,10 @@ def generate_mp_dict(pixel_scale, mp_list, start_location):
         #
         if start_location['angle']-90 >= 0.01:
             mp_dict[moprim] = ego2world(start_location, mp_dict[moprim])
+            print('\toutput from ego2world fn:')
+            mp_dict[moprim] = ego2world_rot(start_location, mp_dict[moprim])
             print('\toutput from ego2world_rot fn:')
+            
             print(mp_dict[moprim])
         #
         else:
@@ -127,11 +130,11 @@ def ego2world(start_location, goal_location):
     arb_point_transl_y = (-(sx*np.sin(deg2rad)) - sy*np.cos(deg2rad) + sy)
 
     tf_mat = np.array([[np.cos(deg2rad), -np.sin(deg2rad), 0, arb_point_transl_x],
-                       [np.sin(deg2rad), np.cos(deg2rad), 0, arb_point_transl_y],
+                       [-np.sin(deg2rad), np.cos(deg2rad), 0, arb_point_transl_y],
                        [0.0, 0.0, 0.0, 1.0]])
 
     goal_location_temp = np.array([gx, gy, 0.0, 1.0])
-    tf_goal = np.matmul(tf_mat, goal_location_temp)
+    tf_goal = np.dot(tf_mat, goal_location_temp) #np.matmul(tf_mat, goal_location_temp)
     print('\n')
     print(tf_goal)
     print('\n')
@@ -230,7 +233,7 @@ def generate_goal_list(mp_dict, mp_list, start_state_dict, phase, goal_list):
  
     goal_list = np.append(goal_list, goal_choice, 0)
 
-    return goal_list, goal_choice
+    return goal_list, goal_choice, trial_type
 
 #####################################
 def generate_grid_world_trials(args):
@@ -310,17 +313,20 @@ def generate_grid_world_trials(args):
             print(trial_num)
             trial_dict = collections.OrderedDict()
             trial_dict['fps'] = 60
-            trial_dict['gridApproximation'] = 3
+            trial_dict['gridApproximation'] = 3 # TODO: get a better sense of this parameter's effect
             trial_dict['stimulusType'] = "continuous-world-dynamic"
             trial_dict['worldWidth'] = worldWidth
             trial_dict['worldHeight'] = worldHeight
 
-            if block_num == 0: # (training block case)
-                trial_dict['instructions'] = "TRIAL INSTRUCTIONS: This is a grid-world. Move the robot with WASD or the arrow keys in order to reach the goals as they appear."
-            elif block_num == num_train_blocks: # (testing block case)
-                trial_dict['instructions'] = "TEST INSTRUCTIONS: This is a grid-world. Move the robot with WASD or the arrow keys in order to reach the goals as they appear."
-            #else:
-            #    trial_dict['instructions'] = "Press any key to continue..." # CHECK
+            if num_train_blocks != 0:
+                if block_num == 0: # (training block case)
+                    trial_dict['instructions'] = "TRIAL INSTRUCTIONS: This is a grid-world. Move the robot with WASD or the arrow keys in order to reach the goals as they appear."
+                elif block_num == num_train_blocks: # (testing block case)
+                    trial_dict['instructions'] = "TEST INSTRUCTIONS: This is a grid-world. Move the robot with WASD or the arrow keys in order to reach the goals as they appear."
+                #else:
+                #    trial_dict['instructions'] = "Press any key to continue..." # CHECK
+            elif num_train_blocks == 0:
+                trial_dict['instructions'] = "TEST INSTRUCTIONS: Move the robot with WASD or the arrow keys in order to reach the goals as they appear; mp type = "
 
             ## TO-DO: FIGURE THIS OUT :^)
             if block_num < num_train_blocks: # (training block case)
@@ -330,10 +336,10 @@ def generate_grid_world_trials(args):
 
             ## generate motion primitive dictionary + list for indexing ## NOTE: PIXEL_SCALE HERE
             pixel_scale = 50
-            mp_list = generate_mp_list()
+            mp_list = generate_mp_list() 
             mp_dict = generate_mp_dict(pixel_scale, mp_list, start_state_dict)
 
-            goal_list, goal_location = generate_goal_list(mp_dict, mp_list, start_state_dict, phase, goal_list)
+            goal_list, goal_location, trial_type = generate_goal_list(mp_dict, mp_list, start_state_dict, phase, goal_list)
             #print(goal_list)
             #
             trial_dict['humanAgent'] = start_state_dict
@@ -341,11 +347,15 @@ def generate_grid_world_trials(args):
             #
             trial_dict['obstacles'] = []
             #
-            trial_dict['goalLocationX'] = goal_location[0]
-            trial_dict['goalLocationY'] = goal_location[1]
-            trial_dict['goalLocationAngle'] = goal_location[2] # TODO: add fn downstream to use this
+            
+            
+
             trial_dict['goalWidth'] = 50
             trial_dict['goalHeight'] = 50
+            trial_dict['goalLocationX'] = goal_location[0] - trial_dict['goalWidth']/2
+            trial_dict['goalLocationY'] = goal_location[1] - trial_dict['goalHeight']/2
+            trial_dict['goalLocationAngle'] = goal_location[2] # TODO: add fn downstream to use this
+            trial_dict['instructions'] = "TEST INSTRUCTIONS: Move the robot with WASD or the arrow keys in order to reach the goals as they appear; \nFOR TESTING: mp type = " + str(trial_type)
             #
             #trial_dict['tickTime'] = 600
             #trial_dict['visualizeGridLines'] = True
@@ -369,7 +379,7 @@ def generate_grid_world_trials(args):
     if not os.path.exists(json_directory):
         os.makedirs(json_directory)
     full_path_to_json = os.path.join(json_directory, experiment_json_name)
-    print('\nprint json file:\n\t'+str(__file__) + ' -> ' + str(full_path_to_json)) ### TODO
+    print('\nprint json file:\n\t'+str(__file__) + ' -> ' + str(full_path_to_json))
     with open(full_path_to_json, 'w') as fp:
         json.dump(experiment_dict, fp)
 
@@ -380,7 +390,7 @@ if __name__ == "__main__":
     parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
     parser.add_argument('--userWidth', action='store', type=int, default=850, help="width of user's vehicle")
     parser.add_argument('--userHeight', action='store', type=int, default=850, help="height of user's vehicle")
-    parser.add_argument('--num_train_blocks', action='store', type=int, default=1, help="number of training blocks")
+    parser.add_argument('--num_train_blocks', action='store', type=int, default=0, help="number of training blocks")
     parser.add_argument('--num_train_trials', action='store', type=int, default=8, help="number of trials per training block")
     parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
     parser.add_argument('--num_test_trials', action='store', type=int, default=8, help="number of trials per testing block")
