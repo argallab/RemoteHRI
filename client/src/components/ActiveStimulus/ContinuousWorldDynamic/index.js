@@ -55,7 +55,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             height: data.goalHeight,
             x: data.goalLocationX,
             y: data.goalLocationY,
-            angle: data.angle
+            angle: data.goalLocationAngle
         }
         // obstacles is a list specified in the json. For eeach element in the obstacle list extracted the following object
         this.obstacleSpecs = data.obstacles.map((o) => {
@@ -77,7 +77,8 @@ export default class ContinuousWorldDynamic extends React.Component {
             goalSpecs: this.goalSpecs,
             postText: "Good job!",
             didWin: false,
-            obstacleSpecs: this.obstacleSpecs
+            obstacleSpecs: this.obstacleSpecs,
+            keys: this.keys
         }
 
         this.lastRender = 0
@@ -107,13 +108,16 @@ export default class ContinuousWorldDynamic extends React.Component {
             this.human.tv = this.state.humanSpecs.angularVelocity
             this.human.lv = this.state.humanSpecs.lv
         }
-        // specify goal from the bottom left corner + width and height
-        var g_deltax = this.state.goalSpecs.width / 2
-        var g_deltay = this.state.goalSpecs.height / 2
-        //this.goal = new SAT.Polygon(this.point(this.goalSpecs.x, this.goalSpecs.y), [this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
-        this.goal = new SAT.Box(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y), this.state.goalSpecs.width, this.state.goalSpecs.height).toPolygon()
-        this.goal.setAngle(-1 * this.degreeToRad(this.state.goalSpecs.angle))
-        
+
+        if (this.goalSpecs) {
+            // specify goal from the bottom left corner + width and height
+            var g_deltax = this.state.goalSpecs.width / 2
+            var g_deltay = this.state.goalSpecs.height / 2
+            //this.goal = new SAT.Polygon(this.point(this.goalSpecs.x, this.goalSpecs.y), [this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
+            this.goal = new SAT.Box(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y), this.state.goalSpecs.width, this.state.goalSpecs.height).toPolygon()
+            this.goal.setAngle(-1 * this.degreeToRad(this.state.goalSpecs.angle))
+        }
+
         //this.goal = new SAT.Box(this.point(this.goalSpecs.x, this.goalSpecs.y), this.goalSpecs.width, this.goalSpecs.height).toPolygon()
         this.obstacles = this.obstacleSpecs.map((o) => {
             return new SAT.Box(this.point(o.x, o.y), o.width, o.height).toPolygon()
@@ -509,6 +513,7 @@ a
         var x_bl
         var y_bl
         var humanSpecs
+        var goalSpecs
 
         if (this.human) {
             x_bl = this.human.pos.x - this.humanSpecs.width * 0.5
@@ -523,6 +528,7 @@ a
                 angularVelocity: this.human.tv
             }
         }
+
         this.setState({
             humanSpecs,
             obstacleSpecs: this.obstacleSpecs,

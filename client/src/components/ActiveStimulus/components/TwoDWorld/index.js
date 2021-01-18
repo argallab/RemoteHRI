@@ -3,6 +3,8 @@ import React from 'react'
 let test_bool = true
 
 export default class TwoDWorld extends React.Component {
+    
+
     render() {
         var worldrobotPosition
         if (this.props.human) {
@@ -22,20 +24,149 @@ export default class TwoDWorld extends React.Component {
         //var worldgoalPosition = {width: this.props.goal.width, height: this.props.goal.height, bottom: this.props.goal.y, left: this.props.goal.x, transform: `rotate(${this.props.goal.angle}deg)`}
 
         var worldgoalPosition = {position: "absolute", bottom: this.props.goalLocationY, left: this.props.goalLocationX, width: this.props.goalWidth, height: this.props.goalHeight, transform: `rotate(${this.props.angle}deg)`}
+        var worldgoalPositionVar = {bottom: this.props.goalLocationY, left: this.props.goalLocationX, width: this.props.goalWidth, height: this.props.goalHeight, transform: `rotate(${this.props.angle}deg)`}
+
         var worldObstacles = this.props.obstacles.map((o) => <div style={{position: "absolute", width: o.width, height: o.height, bottom: o.y, left: o.x}} className="grid-goal"></div>)
+        
+        
         //<div id="worldgoal" style={worldgoalPosition} src="worldauto.png"  className="grid-goal"></div> (from line 32)
         //{this.props.goal && <img id="worldgoal" style={worldgoalPosition} src="png/robot_cw.png" />}
-        if(test_bool) {
-            return (
-                <div className="world-container">
-                    {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
-                    {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
-                    {this.props.goal && <img id="worldgoal" style={worldgoalPosition} src="png/robot_cw.png" />}
-                    <div id="worldgoal" style={worldgoalPosition} src="png/robot_cw.png"  className="circles"></div>
+        //{this.props.goal && <img id="worldgoal" style={worldgoalPosition} src="png/robot_cw.png" className="circle" />}
+        if (test_bool) {
+            if (this.props.human.angularVelocity > 1){
+                return (
                     
-                    {worldObstacles}
-                </div>
+                    <div className="world-container">
+                        
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_ccw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_ccw.png"  className="grid-goal"/>                      
+                        </div>
+                        
+                        
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
+                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
+                        
+                        
+                        {worldObstacles}
+                    </div>
+            
             )
+            }
+            else if (this.props.human.angularVelocity <= 1){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_cw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_cw.png"  className="grid-goal"/>                      
+                        </div>
+                        
+                        
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
+                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
+                        
+                        
+                        {worldObstacles}
+                    </div>
+            
+            )
+            }
+            else if (this.props.human.angularVelocity > 1 && this.props.human.lv > 1){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fwr.png"  className="grid-goal"/>                      
+                        </div>
+                        
+                        
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
+                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
+                        
+                        
+                        {worldObstacles}
+                    </div>
+            
+            )
+            }
+            else if (this.props.human.angularVelocity > 1 && this.props.human.lv < -1){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png"  className="grid-goal"/>                      
+                        </div>
+                        
+                        
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
+                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
+                        
+                        
+                        {worldObstacles}
+                    </div>
+            
+            )
+            }
+            
+            else if(this.props.human.angularVelocity > -1 && this.props.human.lv < 1){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png"  className="grid-goal"/>                      
+                        </div>
+                        
+                        
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fwr_bwl.png" />}
+                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
+                        
+                        
+                        {worldObstacles}
+                    </div>
+            
+            )
+            }
+            else {//if(this.props.human.angularVelocity <= 5 && this.props.human.lv <= 5){
+                return (
+                    
+                    <div className="world-container">
+                        
+                        <div>
+                        
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fw_bw.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fw_bw.png"  className="grid-goal"/>                      
+                        </div>
+                        
+                        
+
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" />}
+                        {this.props.aa && <img id="worldauto" style={worldautoPosition} src="worldauto.png" />}
+                        
+                        
+                        {worldObstacles}
+                    </div>
+            
+            )
+            }
         }
         else {
             return (

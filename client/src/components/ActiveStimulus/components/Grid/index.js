@@ -77,7 +77,7 @@ export default class Grid extends Component {
                 } else if (this.props.grid[i][j] === "G") {
                     row.push(
                         <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-cell">
-                            <div style={circleStyle.goal} className="circle"></div>
+                            <div style={circleStyle.goal} className="grid-cell"></div>
                         </div>
                     )
                 } else if (this.props.grid[i][j] === "X") {
@@ -89,7 +89,7 @@ export default class Grid extends Component {
                     row.push(
                         <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-cell">
                             <div style={this.props.grid[i][j] === "WA" ? circleStyle.auto : circleStyle.human} className="circle"></div>
-                            <div style={circleStyle.goal} className="circle"></div>
+                            <div style={circleStyle.goal} className="grid-cell"></div>
                         </div>
                     )
                 } else if (this.props.grid[i][j] === "WAH") {
@@ -97,7 +97,7 @@ export default class Grid extends Component {
                         <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-cell">
                             <div style={circleStyleWin.human} className="circle"></div>
                             <div style={circleStyleWin.auto} className="circle"></div>
-                            <div style={circleStyleWin.goal} className="circle"></div>
+                            <div style={circleStyleWin.goal} className="grid-cell"></div>
                         </div>
                     )
                 }
