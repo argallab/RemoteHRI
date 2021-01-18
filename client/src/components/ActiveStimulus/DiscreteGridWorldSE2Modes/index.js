@@ -135,13 +135,8 @@ export default class DiscreteGridWorldSE2Modes extends Component {
             }
         })
         var oldLocation = this.state.humanAgent
-        var oldMode = this.state.currentMode
-
         var newLocation
-        var newAngle
         var newMode = this.state.currentMode
-        var robotColor = this.state.robotColor
-        console.log(this.state.currentMode)
         if (event.key === "1" && !event.repeat){ 
             newMode = this.state.currentMode - 1 // wrap mode around, decreasing
             if (newMode === 0){
@@ -244,7 +239,7 @@ export default class DiscreteGridWorldSE2Modes extends Component {
     }
     computeGrid() {
         var didWin = false
-        if (this.state.humanAgent && this.state.humanAgent.x === this.state.goalLocationX && this.state.humanAgent.y === this.state.goalLocationY) {
+        if (this.state.humanAgent && this.state.humanAgent.x === this.state.goalLocationX && this.state.humanAgent.y === this.state.goalLocationY && this.state.humanAgent.angle === this.state.goalAngle) {
             didWin = true
         }
 
@@ -268,13 +263,19 @@ export default class DiscreteGridWorldSE2Modes extends Component {
         }
 
         if (this.state.humanAgent) {
-            grid[this.state.humanAgent.y][this.state.humanAgent.x] = "0"
+            if (this.state.humanAgent.x === this.state.goalLocationX && this.state.humanAgent.y === this.state.goalLocationY){
+                grid[this.state.humanAgent.y][this.state.humanAgentx] = "0G"
+            }
+            else {
+                grid[this.state.humanAgent.y][this.state.humanAgent.x] = "0"
+            }   
+            
         }
 
-        if (didWin) {
-            grid[this.state.goalLocationY][this.state.goalLocationX] = "WH"
-        }
-
+        // if (didWin) {
+        //     grid[this.state.goalLocationY][this.state.goalLocationX] = "WH"
+        // }
+        console.log(grid[this.state.goalLocationY][this.state.goalLocationX])
         this.setState({
             grid,
             numRows: this.height,
@@ -282,7 +283,7 @@ export default class DiscreteGridWorldSE2Modes extends Component {
         })
     }
     onSubmit() {
-        console.log("onSubmit called from DiscreteGridWorldModes")
+        console.log("onSubmit called from DiscreteGridWorldSE2Modes")
 
         var answer = {
             start: this.start, //start time of the trial
@@ -293,7 +294,7 @@ export default class DiscreteGridWorldSE2Modes extends Component {
     }
 
     render() {
-        // https://stackoverflow.com/questions/38249183/draw-radius-lines-in-circle-with-css
+        
         if(this.state.loaded){
             const cellSize = this.calculateCellSize()
             return (
@@ -317,6 +318,7 @@ export default class DiscreteGridWorldSE2Modes extends Component {
                             visualizeGridLines={this.visualizeGridLines}
                             robotColor={this.state.robotColor}
                             angle={this.state.humanAgent.angle}
+                            goalAngle={this.state.goalAngle}
                         />
                     </div>
                     <hr />

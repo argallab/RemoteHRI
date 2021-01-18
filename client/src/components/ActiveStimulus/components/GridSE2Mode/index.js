@@ -37,7 +37,8 @@ export default class GridMode extends Component {
                 zIndex: 100
             },
         }
-
+        // https://stackoverflow.com/questions/38249183/draw-radius-lines-in-circle-with-css
+        // https://www.internetingishard.com/html-and-css/ 
         var gridJsx = []
         for (var i = 0; i < this.props.numRows; i++) {
             var row = []
@@ -50,8 +51,23 @@ export default class GridMode extends Component {
                 } else if (this.props.grid[i][j] === "G") {
                     row.push(
                         <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-goal">
+                            <div key={`cellline${i}${j}`} style={{transform:`rotate(${this.props.goalAngle}deg)`}} className="radius">
+                            </div> 
                         </div>
                     )
+                } else if (this.props.grid[i][j] === "0G"){
+                    row.push(
+                        <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-goal">
+                            <div style={circleStyle.human} className="circle">
+                                <div key={`cellline${i}${j}`} style={{transform:`rotate(${this.props.angle}deg)`}} className="radius">
+                                </div>
+                            </div>
+                            <div key={`cellline${i}${j}`} style={{transform:`rotate(${this.props.goalAngle}deg)`}} className="radius">
+                            </div> 
+                            
+                        </div>
+                    )
+
                 } else if (this.props.grid[i][j] === "X") {
                     row.push(
                         <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-empty">
@@ -77,8 +93,8 @@ export default class GridMode extends Component {
                     row.push(
                         <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-empty">
                             <div style={circleStyle.human} className="circle">
-                                <div key={`cellline${i}${j}`} style={{transform:`rotate(${this.props.angle}deg)`}} className="radius">
-                            </div>
+                                <div key={`cellline${i}${j}`} style={{transform:`rotate(${this.props.angle}deg)`}} className="radius"> 
+                                </div>
                             
                             </div>
                         </div>

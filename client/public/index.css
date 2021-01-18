@@ -48,6 +48,7 @@ body {
     background-color: green;
     margin: 0px;
     padding: 0px;
+    z-index: -100;
 }
 
 .world-container {

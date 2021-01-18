@@ -596,7 +596,6 @@ export default class ContinuousWorldDynamic extends React.Component {
                             goalLocationY={this.goalSpecs.y}
                             goalWidth={this.goalSpecs.width}
                             goalHeight={this.goalSpecs.height}
-
                             obstacles={this.state.obstacleSpecs}
                         />
                     </div>
