@@ -56,7 +56,7 @@ export default class DiscreteGridWorldSE2Modes extends Component {
 
         this.numModes = json.numModes //if 2 then 1d control. 
         this.currentMode = json.currentMode //starting mode
-        this.modeToColor = {1: "red", 2:"#7FFFD4", 3:"green"} //(x,y,theta) modes
+        this.modeToColor = {1: "red", 2:"#7FFFD4", 3:"yellow"} //(x,y,theta) modes
 
         this.setState({
             goalLocationX: json.goalLocationX,
@@ -264,7 +264,7 @@ export default class DiscreteGridWorldSE2Modes extends Component {
 
         if (this.state.humanAgent) {
             if (this.state.humanAgent.x === this.state.goalLocationX && this.state.humanAgent.y === this.state.goalLocationY){
-                grid[this.state.humanAgent.y][this.state.humanAgentx] = "0G"
+                grid[this.state.humanAgent.y][this.state.humanAgent.x] = "0G"
             }
             else {
                 grid[this.state.humanAgent.y][this.state.humanAgent.x] = "0"
@@ -272,10 +272,9 @@ export default class DiscreteGridWorldSE2Modes extends Component {
             
         }
 
-        // if (didWin) {
-        //     grid[this.state.goalLocationY][this.state.goalLocationX] = "WH"
-        // }
-        console.log(grid[this.state.goalLocationY][this.state.goalLocationX])
+        if (didWin) {
+            grid[this.state.goalLocationY][this.state.goalLocationX] = "WH"
+        }
         this.setState({
             grid,
             numRows: this.height,
