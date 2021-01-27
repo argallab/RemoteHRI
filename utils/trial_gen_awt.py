@@ -110,6 +110,20 @@ def generate_mp_list():
     return mp_list
 
 
+def generate_boundary_dict():
+
+    boundary_dict = {}
+    boundary_dict['fw'] = "png/fw.png"
+    boundary_dict['bw'] = "png/bw.png"
+    boundary_dict['fwr'] = "png/fwr.png"
+    boundary_dict['fwl'] = "png/fwl.png"
+    boundary_dict['bwr'] = "png/bwr.png"
+    boundary_dict['bwl'] = "png/bwl.png"
+    boundary_dict['ccw'] = "png/ccw.png"
+    boundary_dict['cw'] = "png/cw.png"
+
+    return boundary_dict
+
 def ego2world(start_location, goal_location):
     
     #tf_mat = np.array([[np.cos(deg2rad), -np.sin(deg2rad), 0, start_location['x']],
@@ -275,6 +289,10 @@ def generate_grid_world_trials(args):
     experiment_dict["blocks"] = []
     #
 
+    ## initialize the boundary dict (maps 'trial_type' to client/public/png/x.png files for moprim boundaries)
+    boundary_dict = generate_boundary_dict()
+    #
+
     ## populate trials in each block, for all blocks (train + test blocks)
     for block_num in range(num_blocks_total):
         current_block = collections.OrderedDict()
@@ -352,10 +370,12 @@ def generate_grid_world_trials(args):
 
             trial_dict['goalWidth'] = 50
             trial_dict['goalHeight'] = 50
-            trial_dict['goalLocationX'] = goal_location[0] - trial_dict['goalWidth']/2
-            trial_dict['goalLocationY'] = goal_location[1] - trial_dict['goalHeight']/2
             trial_dict['goalLocationAngle'] = goal_location[2] # TODO: add fn downstream to use this
+            trial_dict['goalLocationX'] = goal_location[0] - (trial_dict['goalWidth']/2)*np.cos((90)+trial_dict['goalLocationAngle'])
+            trial_dict['goalLocationY'] = goal_location[1] - (trial_dict['goalHeight']/2)*np.sin((90)+trial_dict['goalLocationAngle'])
             trial_dict['instructions'] = "TEST INSTRUCTIONS: Move the robot with WASD or the arrow keys in order to reach the goals as they appear; \nFOR TESTING: mp type = " + str(trial_type)
+            trial_dict['trial_type'] = trial_type
+            trial_dict['boundary'] = boundary_dict[trial_dict['trial_type']]
             #
             #trial_dict['tickTime'] = 600
             #trial_dict['visualizeGridLines'] = True

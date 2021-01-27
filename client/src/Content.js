@@ -171,6 +171,7 @@ export default class Content extends React.Component {
 
     render() {
 
+        
         /**
          * If the experiment is done, show the done screen.
          * 
