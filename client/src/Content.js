@@ -72,6 +72,7 @@ export default class Content extends React.Component {
         // Refer to onSubmit() in PreExperimentForm
         fetch(url, this.fetchConfig)
             .then((response) => {
+                console.log('RESPONSE', response)
                 if (response.status === 200) { //response.status === 200 means that the server successfully answered the request.
                     return response.json()
                 } else {
@@ -129,6 +130,7 @@ export default class Content extends React.Component {
         params["body"] = JSON.stringify(body)
         fetch("/getNextStimulus", params)
             .then((response) => {
+                console.log('First block', response)
                 if (response.status === 200) {
                     return response.json()
                 } else {
@@ -136,8 +138,7 @@ export default class Content extends React.Component {
                 }
             })
             .then((data) => {
-                console.log("/getNextStimulus response:")
-                console.log(data)
+                console.log('Second Block')
                 if (data.data.Data === "Done") {
                     this.setState({
                         trialData: {},

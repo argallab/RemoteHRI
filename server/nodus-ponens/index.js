@@ -103,6 +103,7 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       var sess = req.session;
       sess.sessdata.ExperimentInformationHeader = "ExperimentInformation";
       np.participantID = np.updateParticipantID();
+      debugger
       sess.sessdata.ParticipantID = "P" + np.participantID;
       
 
@@ -138,7 +139,6 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       var sess = req.session;
       var nextStimulus = {};
       var progress = false
-   
       if (req.body === undefined)
       {
          res.status(400).json({"message": "Invalid request - no body."})

@@ -322,6 +322,7 @@ export default class DiscreteGridWorld extends Component {
         this.setState({
             didWin: true
         })
+    
         this.onSubmit()
     }
 
