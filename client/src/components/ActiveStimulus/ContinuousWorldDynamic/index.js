@@ -15,8 +15,10 @@ export default class ContinuousWorldDynamic extends React.Component {
         this.worldSpecs = {
             width: data.worldWidth,
             height: data.worldHeight,
+            //trial_type: data.trial_type // CHECK -awt 1/26/2021
         }
 
+        var boundSpecs // these variables used for updating the trajectory
         var humanSpecs // these variables used for state of the human controlled robot
         var aaSpecs // these variables used for state for the autonomy controlled robot
         if (data.humanAgent) {
@@ -24,6 +26,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             this.humanSpecs = {
                 width: data.humanAgent.width,
                 height: data.humanAgent.height,
+                radius: Math.sqrt(Math.pow(data.humanAgent.width,2) + Math.pow(data.humanAgent.height,2)), // NOTE: CHECK THIS! -awt 1/16/2021
                 maxLinearVelocity: data.humanAgent.maxLinearVelocity, // in pixels/second
                 linearAcceleration: data.humanAgent.linearAcceleration, //in pixels/second/second
                 maxAngularVelocity: data.humanAgent.maxAngularVelocity,
@@ -31,6 +34,7 @@ export default class ContinuousWorldDynamic extends React.Component {
                 halfDiagonal: data.humanAgent.width / 2 * Math.sqrt(2),
                 linearMu: data.humanAgent.linearMu,
                 rotationMu: data.humanAgent.rotationMu
+
             }
 
             // contains variable values about the human robot, lives in state
@@ -46,15 +50,23 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         }
 
-        //skip autonomous agent for the time being
+        // set up variable values for boundaries
+        this.boundSpecs = {
+            bound2plot: data.boundary
+        }
 
+        console.log(this.bound2plot)
+
+        //skip autonomous agent for the time being
+        // CHECK -awt 1/16/2021
         this.goalSpecs = {
             width: data.goalWidth,
             height: data.goalHeight,
             x: data.goalLocationX,
-            y: data.goalLocationY
+            y: data.goalLocationY,
+            angle: data.goalLocationAngle,
+            trial_type: data.trial_type 
         }
-
         // obstacles is a list specified in the json. For eeach element in the obstacle list extracted the following object
         this.obstacleSpecs = data.obstacles.map((o) => {
             return (
@@ -72,9 +84,12 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         this.state = {
             humanSpecs: humanSpecs,
+            goalSpecs: this.goalSpecs,
+            boundSpecs: this.boundSpecs,
             postText: "Good job!",
             didWin: false,
-            obstacleSpecs: this.obstacleSpecs
+            obstacleSpecs: this.obstacleSpecs,
+            keys: this.keys
         }
 
         this.lastRender = 0
@@ -93,7 +108,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         this.world = new SAT.Box(this.point(0, 0), this.worldSpecs.width, this.worldSpecs.height).toPolygon()
 
         if (this.humanSpecs) {
-            console.log('in HUMAN')
+            //console.log('in HUMAN')
             var h_deltax = this.humanSpecs.width / 2
             var h_deltay = this.humanSpecs.height / 2
             // specify human robot from the center, and then four points
@@ -105,8 +120,20 @@ export default class ContinuousWorldDynamic extends React.Component {
             this.human.lv = this.state.humanSpecs.lv
         }
 
-        // specify goal from the bottom left corner + width and height
-        this.goal = new SAT.Box(this.point(this.goalSpecs.x, this.goalSpecs.y), this.goalSpecs.width, this.goalSpecs.height).toPolygon()
+        if (this.goalSpecs) {
+            // specify goal from the bottom left corner + width and height
+            var g_deltax = this.state.goalSpecs.width / 2
+            var g_deltay = this.state.goalSpecs.height / 2
+            //this.goal = new SAT.Polygon(this.point(this.goalSpecs.x, this.goalSpecs.y), [this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
+            this.goal = new SAT.Box(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y), this.state.goalSpecs.width, this.state.goalSpecs.height).toPolygon()
+            this.goal.setAngle(-1 * this.degreeToRad(this.state.goalSpecs.angle))
+        }
+
+        //if (this.boundSpecs) {
+        //    this.bound = new SAT.Box(this.point(this.worldHeight/2, this.worldWidth/2), 50, 50).toPolygon()
+        //}
+
+        //this.goal = new SAT.Box(this.point(this.goalSpecs.x, this.goalSpecs.y), this.goalSpecs.width, this.goalSpecs.height).toPolygon()
         this.obstacles = this.obstacleSpecs.map((o) => {
             return new SAT.Box(this.point(o.x, o.y), o.width, o.height).toPolygon()
         })
@@ -129,10 +156,14 @@ export default class ContinuousWorldDynamic extends React.Component {
         this.started = false
         this.linear_vel_active = false
         this.angular_vel_active = false
+        console.log(this.started)
     }
 
+    // NOTE: nice reference for preventing scrolling in browser window
+    // https://stackoverflow.com/questions/8916620/disable-arrow-key-scrolling-in-users-browser
     componentDidMount(){
         document.addEventListener("keydown", this.handleKeyPress, false);
+        
         document.addEventListener("keyup", this.handleKeyPress, false)
         
         window.requestAnimationFrame(this.runGame)
@@ -342,7 +373,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         lvf = Math.max(-robotMaxLinearVelocity, Math.min(lvf, robotMaxLinearVelocity)) //cap velocity
         
         if (!this.linear_vel_active && Math.abs(lvf) < 0.0002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops
-            console.log('ZERO LVF')
+            //console.log('ZERO LVF')
             lvf = 0.0
         }
         
@@ -366,7 +397,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         
         // console.log('TVF', tvf, this.angular_vel_active)
         if (!this.angular_vel_active && Math.abs(tvf) < 0.002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops rotating
-            console.log('ZERO TVF')
+            // console.log('ZERO TVF')
             tvf = 0.0
         }
         
@@ -380,11 +411,11 @@ export default class ContinuousWorldDynamic extends React.Component {
         var xvf = 0.0
         var yvf = 0.0
         if (tvf != 0.0){ //nonzero angular velocity
-            console.log('TVF in UPDATE', tvf)
+            // console.log('TVF in UPDATE', tvf)
             xf = xi - (lvf/tvf)*Math.sin(ti) + (lvf/tvf)*Math.sin(ti + tvf)
             yf = yi + (lvf/tvf)*Math.cos(ti) - (lvf/tvf)*Math.cos(ti + tvf)
             tf = ti + tvf
-            console.log('TF update', tf)
+            // console.log('TF update', tf)
         } else if (tvf == 0.0) { // zero angular velocity
             xf = xi + lvf*Math.cos(ti) 
             yf = yi + lvf*Math.sin(ti)
@@ -405,9 +436,10 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         var keysPressed = this.anyKeysPressed()
         
+        
         //THIS NEEDS FIXING. The reason why this is needed is because, we want to minimize the calls to update to reduce the size of the data being logged. When no interaction happens (measure by key pressed) and when the robot has completely come to a stop, then don't refresh anything
         if (keysPressed === "" && Math.abs(this.human.lv) == 0.0 && Math.abs(this.human.tv) == 0.0) {
-            console.log('IN')
+            // console.log('IN')
             return false
         }
 
@@ -418,6 +450,8 @@ export default class ContinuousWorldDynamic extends React.Component {
         
         var tvd = 0 //delta in angular velocity
         var lvd = 0 //delta in linear velocity (along the current heading)
+
+        // TODO: this might be a good place to look re: changing PWC image
 
         //update angular velocity
         if (this.keys["a"] || this.keys["ArrowLeft"]) {
@@ -444,6 +478,8 @@ export default class ContinuousWorldDynamic extends React.Component {
         var xi = this.human.pos.x
         var yi = this.human.pos.y
         
+        var ti_goal = this.goal.angle
+
         var finalPose = this.updateRobotPose(xi, yi, ti, lvf, tvf)
 
         this.human.setAngle(finalPose.tf)
@@ -476,8 +512,18 @@ export default class ContinuousWorldDynamic extends React.Component {
         }
 
         // return whether we have reached the goal or not
-        return SAT.testPolygonPolygon(this.human, this.goal)
-
+        var human_goal_response = new SAT.Response();
+        var collided = SAT.testPolygonPolygon(this.human, this.goal, human_goal_response)
+        var rv = Math.sqrt(Math.pow(this.human.xv,2) + Math.pow(this.human.yv,2))
+        var olap = human_goal_response.overlap // <-- NOTE: can call this to return a percent overlap // NOTE: change in goal collision
+        // TODO : make changes to interpretation of ti angles
+        if(collided){//} && Math.abs(ti_goal - ti) <= 5.0){//this.human.radius){//} && rv < 20.0){
+        //if(olap > this.humanSpecs.radius/3.0){// && Math.abs(ti_goal - ti) <= 5.0){//} && rv < 1.0){//this.human.radius){//} && rv < 20.0){
+            return collided
+        }
+        else{
+            return false
+        }
     }
 
     /**
@@ -487,6 +533,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         var x_bl
         var y_bl
         var humanSpecs
+        var goalSpecs
 
         if (this.human) {
             x_bl = this.human.pos.x - this.humanSpecs.width * 0.5
@@ -501,9 +548,11 @@ export default class ContinuousWorldDynamic extends React.Component {
                 angularVelocity: this.human.tv
             }
         }
+
         this.setState({
             humanSpecs,
-            obstacleSpecs: this.obstacleSpecs
+            obstacleSpecs: this.obstacleSpecs,
+            goalSpecs: this.goalSpecs
         })
     }
 
@@ -546,7 +595,7 @@ export default class ContinuousWorldDynamic extends React.Component {
                 }
 
             }
-        } else if (event.type === "keyup") {
+        } else if (event.type === "keyup" && this.started === true) {
             if (!this.eventLog[event.key]) return
             this.eventLog[event.key][this.eventLog[event.key].length - 1].end = {
                 time: Date.now(),
@@ -557,7 +606,7 @@ export default class ContinuousWorldDynamic extends React.Component {
                     yv: this.human.yv,
                     lv: this.human.lv,
                     angle: this.human.angle,
-                    angularVelocity: this.human.tv
+                    angularVelocity: this.human.tv // NOTE: CHECK (!) these are edits to fix crash when holding key during trial transition
                 }
             }
             if (linearKeys.has(event.key)){
@@ -588,14 +637,18 @@ export default class ContinuousWorldDynamic extends React.Component {
                     <Row>
                         <Col xs={12} style={{ fontSize: 18 }}><p>{this.props.data.instructions}</p></Col>
                     </Row>
-                    <div className="centered-content">
-                        <TwoDWorld
+                    <div className="centered-content"> 
+                        <TwoDWorld // is this where props are stored (?) -> this.props.___ in index.js
                             human={this.humanSpecs}
                             humanState={this.state.humanSpecs}
+                            bound={this.boundSpecs}
+                            goal={this.goalSpecs}
                             goalLocationX={this.goalSpecs.x}
                             goalLocationY={this.goalSpecs.y}
                             goalWidth={this.goalSpecs.width}
                             goalHeight={this.goalSpecs.height}
+                            angle={this.goalSpecs.angle} // NOTE: CHECK THIS! -awt 1/16/2021
+
                             obstacles={this.state.obstacleSpecs}
                         />
                     </div>

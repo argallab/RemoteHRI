@@ -30,6 +30,13 @@ export default class Grid extends Component {
                 top: 0.2*this.props.cellSize,
                 right: 0.2*this.props.cellSize,
                 backgroundColor: "red"
+            },
+            goal: { // NOTE: added 1/16/2021
+                width: 0.6*this.props.cellSize,
+                height: 0.6*this.props.cellSize,
+                top: 0.2*this.props.cellSize,
+                left: 0.2*this.props.cellSize,
+                backgroundColor: "#aaa"
             }
         }
 
@@ -48,6 +55,13 @@ export default class Grid extends Component {
                 top: 0.2*this.props.cellSize,
                 right: 0.07*this.props.cellSize,
                 backgroundColor: "red"
+            },
+            goal: { // NOTE: added 1/16/2021
+                width: 0.6*this.props.cellSize,
+                height: 0.6*this.props.cellSize,
+                top: 0.2*this.props.cellSize,
+                left: 0.2*this.props.cellSize,
+                backgroundColor: "#aaa"
             }
         }
 
@@ -62,7 +76,8 @@ export default class Grid extends Component {
                     )
                 } else if (this.props.grid[i][j] === "G") {
                     row.push(
-                        <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-goal">
+                        <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-cell">
+                            <div style={circleStyle.goal} className="grid-cell"></div>
                         </div>
                     )
                 } else if (this.props.grid[i][j] === "X") {
@@ -72,15 +87,17 @@ export default class Grid extends Component {
                     )
                 } else if (this.props.grid[i][j] === "WA" || this.props.grid[i][j] === "WH") {
                     row.push(
-                        <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-goal">
+                        <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-cell">
                             <div style={this.props.grid[i][j] === "WA" ? circleStyle.auto : circleStyle.human} className="circle"></div>
+                            <div style={circleStyle.goal} className="grid-cell"></div>
                         </div>
                     )
                 } else if (this.props.grid[i][j] === "WAH") {
                     row.push(
-                        <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-goal">
+                        <div key={`cell${i}${j}`} style={rectangleStyle} className="rectangle grid-cell">
                             <div style={circleStyleWin.human} className="circle"></div>
                             <div style={circleStyleWin.auto} className="circle"></div>
+                            <div style={circleStyleWin.goal} className="grid-cell"></div>
                         </div>
                     )
                 }

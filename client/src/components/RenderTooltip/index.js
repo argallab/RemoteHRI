@@ -8,6 +8,7 @@ export default class RenderTooltip extends Component {
             <Tooltip id="button-tooltip" {...this.props}>
                 {this.props.tooltipText}
             </Tooltip>
+            
         )
     }
 }

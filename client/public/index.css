@@ -45,16 +45,17 @@ body {
 }
 
 .grid-goal {
-    background-color: green;
+    background-color: rgba(255, 255, 255, 0);
     margin: 0px;
     padding: 0px;
     z-index: -100;
+    position: absolute
 }
 
 .world-container {
     position: relative;
-    width: 750px;
-    height: 750px;
+    width: 850px;
+    height: 850px;
     border: 1px solid black;
     overflow: hidden;
 }
@@ -65,11 +66,15 @@ body {
 
 #worldgoal {
     position: absolute;
-    z-index: -100;
+    z-index: -1000;
 }
 
 #robotControlButtons button {
     margin: 10px;
     margin-left: 10px;
     margin-right: 10px;
+}
+
+#worldboundary {
+    position: absolute;
 }
