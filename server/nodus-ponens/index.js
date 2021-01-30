@@ -103,7 +103,6 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
       var sess = req.session;
       sess.sessdata.ExperimentInformationHeader = "ExperimentInformation";
       np.participantID = np.updateParticipantID();
-      debugger
       sess.sessdata.ParticipantID = "P" + np.participantID;
       
 

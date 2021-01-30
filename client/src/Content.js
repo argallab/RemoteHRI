@@ -72,7 +72,6 @@ export default class Content extends React.Component {
         // Refer to onSubmit() in PreExperimentForm
         fetch(url, this.fetchConfig)
             .then((response) => {
-                console.log('RESPONSE', response)
                 if (response.status === 200) { //response.status === 200 means that the server successfully answered the request.
                     return response.json()
                 } else {
