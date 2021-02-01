@@ -78,7 +78,7 @@ def generate_mp_dict(pixel_scale, mp_list, start_location):
     mp_dict['cw'] = [0, 0, 245] 
     mp_dict['ccw'] = [0, 0, 295]
     for moprim in mp_list: # TODO: CHECK if this is the proper way to index
-        print('\n')
+        print(' ')
         #print(mp_dict[moprim])
         #
         mp_dict[moprim][0] = mp_dict[moprim][0]*pixel_scale
@@ -91,23 +91,35 @@ def generate_mp_dict(pixel_scale, mp_list, start_location):
         #
         if start_location['angle']-90 >= 0.01:
             mp_dict[moprim] = ego2world(start_location, mp_dict[moprim])
-            print('\toutput from ego2world fn:')
+            #print('\toutput from ego2world fn:')
             mp_dict[moprim] = ego2world_rot(start_location, mp_dict[moprim])
-            print('\toutput from ego2world_rot fn:')
+            #print('\toutput from ego2world_rot fn:')
             
-            print(mp_dict[moprim])
+            #print(mp_dict[moprim])
         #
         else:
-            print(mp_dict[moprim])
+            #print(mp_dict[moprim])
+            print(' ')
         
-        
-        print('\n')
+        print(' ')
         #
     return mp_dict
 #
 def generate_mp_list():
     mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw']
     return mp_list
+
+def generate_mp_tf_dict():
+    mp_tf = dict()
+    mp_tf ['fw'] = [0.0, 0.0]
+    mp_tf ['bw'] = [0.0, 0.0] 
+    mp_tf ['fwr'] = [-1.0, 1.0]
+    mp_tf ['fwl'] = [1.0, -1.0] 
+    mp_tf ['bwr'] = [1.0, -1.0] 
+    mp_tf ['bwl'] = [-1.0, 1.0] 
+    mp_tf ['cw'] = [0.0, 0.0] 
+    mp_tf ['ccw'] = [0.0, 0.0]
+    return mp_tf
 
 
 def generate_boundary_dict():
@@ -292,6 +304,8 @@ def generate_grid_world_trials(args):
     ## initialize the boundary dict (maps 'trial_type' to client/public/png/x.png files for moprim boundaries)
     boundary_dict = generate_boundary_dict()
     #
+    mp_tf = generate_mp_tf_dict()
+    #
 
     ## populate trials in each block, for all blocks (train + test blocks)
     for block_num in range(num_blocks_total):
@@ -366,13 +380,32 @@ def generate_grid_world_trials(args):
             trial_dict['obstacles'] = []
             #
             
-            
+            tf_tmp = mp_tf[trial_type]            
+            tf_x = tf_tmp[0]
+            tf_y = tf_tmp[1]            
 
             trial_dict['goalWidth'] = 50
             trial_dict['goalHeight'] = 50
-            trial_dict['goalLocationAngle'] = goal_location[2] # TODO: add fn downstream to use this
-            trial_dict['goalLocationX'] = goal_location[0] - (trial_dict['goalWidth']/2)*np.cos((90)+trial_dict['goalLocationAngle'])
-            trial_dict['goalLocationY'] = goal_location[1] - (trial_dict['goalHeight']/2)*np.sin((90)+trial_dict['goalLocationAngle'])
+
+            w_tmp = trial_dict['goalWidth']
+            h_tmp = trial_dict['goalHeight']
+            diagonal = w_tmp*np.sqrt(2) # calculates diagonal of goal (square footprint)
+            halfdiag = diagonal/2 # half diagonal for translation 
+            trial_dict['goalLocationAngle'] = goal_location[2] # TODO: add fn downstream to use this  
+
+            print(tf_tmp)
+            print(tf_x)
+            print(tf_y)
+            print(goal_location[0])
+            print(goal_location[1])
+            print(goal_location[0] + tf_x*halfdiag*np.cos((45)+trial_dict['goalLocationAngle']) - w_tmp/2)
+            print(goal_location[1] + tf_y*halfdiag*np.sin((45)+trial_dict['goalLocationAngle']) - h_tmp/2)
+
+                      
+            #trial_dict['goalLocationX'] = goal_location[0] + (trial_dict['goalWidth']/2)*np.cos((45)+trial_dict['goalLocationAngle'])
+            #trial_dict['goalLocationY'] = goal_location[1] + (trial_dict['goalHeight']/2)*np.sin((45)+trial_dict['goalLocationAngle'])
+            trial_dict['goalLocationX'] = goal_location[0] - w_tmp/2 #+ tf_x*halfdiag*np.cos((45)+trial_dict['goalLocationAngle']) 
+            trial_dict['goalLocationY'] = goal_location[1] - h_tmp/2 #+ tf_y*halfdiag*np.sin((45)+trial_dict['goalLocationAngle']) 
             trial_dict['instructions'] = "TEST INSTRUCTIONS: Move the robot with WASD or the arrow keys in order to reach the goals as they appear; \nFOR TESTING: mp type = " + str(trial_type)
             trial_dict['trial_type'] = trial_type
             trial_dict['boundary'] = boundary_dict[trial_dict['trial_type']]

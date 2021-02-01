@@ -1,6 +1,6 @@
 import React from 'react'
 
-let test_bool = 2
+let test_bool = 3
 
 export default class TwoDWorld extends React.Component {
     
@@ -18,15 +18,15 @@ export default class TwoDWorld extends React.Component {
 
         //var worldBoundaryPosition
         //if (this.props.bound) {
-        var worldBoundaryPosition = {position: "center", width: 250, height: 250, bottom: 800/2 , left: 800/2}
+        var worldBoundaryPosition = {position: "center", width: 400, height: 400, bottom: 450/2 , left: 450/2}
         var trial_type_bound = this.props.trial_type
 
-        var src_bound=this.props.bound
+        var src_bound=this.props.bound.bound2plot
 
         let boundary2plot = src_bound
         
-        console.log(src_bound)
-        console.log(boundary2plot)
+        //console.log(src_bound)
+        //console.log(boundary2plot)
         //console.log({String}, src_bound)
         //}   
 
