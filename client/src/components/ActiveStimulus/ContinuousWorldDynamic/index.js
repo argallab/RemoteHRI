@@ -55,7 +55,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             bound2plot: data.boundary
         }
 
-        console.log(this.bound2plot)
+        // console.log(this.bound2plot)
 
         //skip autonomous agent for the time being
         // CHECK -awt 1/16/2021
@@ -162,6 +162,7 @@ export default class ContinuousWorldDynamic extends React.Component {
     // NOTE: nice reference for preventing scrolling in browser window
     // https://stackoverflow.com/questions/8916620/disable-arrow-key-scrolling-in-users-browser
     componentDidMount(){
+        console.log('COMPONENT DID MOUNT (!!!)')
         document.addEventListener("keydown", this.handleKeyPress, false);
         
         document.addEventListener("keyup", this.handleKeyPress, false)
@@ -173,7 +174,7 @@ export default class ContinuousWorldDynamic extends React.Component {
     }
 
     radToDegree(theta) {
-        return theta * 180 / Math.PI
+        return (theta * 180 / Math.PI)%360
     }
 
     point(x, y) {
@@ -283,12 +284,16 @@ export default class ContinuousWorldDynamic extends React.Component {
                 if (this.eventList.length > 0) {
                     this.props.batchSubmit({answer: this.eventList}, true)
                 }
+                ////// TODO
                 this.onWin()
+                console.log('made past .onWin()')
                 return
             }
 
         }
-        window.requestAnimationFrame(this.runGame)
+        //console.log('REQUEST animation frame:')
+        window.requestAnimationFrame(this.runGame);
+        //console.log('requested animation frame successfully returned.')
     }
 
     onWin(){
@@ -301,7 +306,7 @@ export default class ContinuousWorldDynamic extends React.Component {
     }
 
     onSubmit(){
-        console.log("onSubmit called from ContinuousWorld")
+        console.log('onSubmit called from ContinuousWorld')
 
         var answer = {
             start: this.start,
@@ -514,11 +519,27 @@ export default class ContinuousWorldDynamic extends React.Component {
         // return whether we have reached the goal or not
         var human_goal_response = new SAT.Response();
         var collided = SAT.testPolygonPolygon(this.human, this.goal, human_goal_response)
-        var rv = Math.sqrt(Math.pow(this.human.xv,2) + Math.pow(this.human.yv,2))
+        //var rv = Math.sqrt(Math.pow(this.human.pos.x,2) + Math.pow(this.human.pos.y,2))
+        
+        var r2g_x = Math.pow(this.human.pos.x - this.goalSpecs.x, 2)
+        var r2g_y = Math.pow(this.human.pos.y - this.goalSpecs.y, 2)
+        var r2g = Math.sqrt(r2g_x + r2g_y)
         var olap = human_goal_response.overlap // <-- NOTE: can call this to return a percent overlap // NOTE: change in goal collision
+        var dtheta = Math.abs(this.radToDegree(ti) - this.radToDegree(ti_goal))
+        //var dtheta = Math.atan2(ti_goal, ti)
         // TODO : make changes to interpretation of ti angles
-        if(collided){//} && Math.abs(ti_goal - ti) <= 5.0){//this.human.radius){//} && rv < 20.0){
-        //if(olap > this.humanSpecs.radius/3.0){// && Math.abs(ti_goal - ti) <= 5.0){//} && rv < 1.0){//this.human.radius){//} && rv < 20.0){
+        //console.log('distance from origin: %f', rv)
+        //console.log('percent overlap: %i', olap) % NOTE: the .overlap property returns strange values
+        //console.log('user heading: %f; goal heading: %f', ti, ti_goal)
+        //console.log(collided)
+        //console.log('ti_goal)
+        //console.log('human: (%f, %f); goal: (%f, %f)', this.human.pos.x,this.human.pos.y,this.goalSpecs.x,this.goalSpecs.y)
+        //console.log('distance2goalx: %f', r2g_x)
+        //console.log('distance2goaly: %f', r2g_y)
+        console.log('ang2goal: %f; distance2goal: %f; %i', dtheta, r2g, collided)
+        if (collided && r2g <= 50 && dtheta <= 10){
+        //if(collided){// && Math.abs(ti_goal - ti) <= 0.1){//this.human.radius){//} && rv < 20.0){
+        //f(olap > this.humanSpecs.radius/3.0){// && Math.abs(ti_goal - ti) <= 5.0){//} && rv < 1.0){//this.human.radius){//} && rv < 20.0){
             return collided
         }
         else{
@@ -535,6 +556,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         var humanSpecs
         var goalSpecs
 
+        //console.log(this.human.tv)
         if (this.human) {
             x_bl = this.human.pos.x - this.humanSpecs.width * 0.5
             y_bl = this.human.pos.y - this.humanSpecs.height * 0.5
@@ -545,7 +567,13 @@ export default class ContinuousWorldDynamic extends React.Component {
                 yv: this.human.yv,
                 lv: this.human.lv,
                 angle: -1 * this.radToDegree(this.human.angle),
-                angularVelocity: this.human.tv
+                _angularVelocity: this.human.tv,
+                get angularVelocity() {
+                    return this._angularVelocity;
+                },
+                set angularVelocity(value) {
+                    this._angularVelocity = value;
+                },
             }
         }
 
@@ -557,6 +585,7 @@ export default class ContinuousWorldDynamic extends React.Component {
     }
 
     componentWillUnmount() {
+        console.log('COMPONENT DID MOUNT (!!!)')
         document.removeEventListener("keydown", this.handleKeyPress, false);
         document.removeEventListener("keyup", this.handleKeyPress, false);
     }
@@ -566,6 +595,9 @@ export default class ContinuousWorldDynamic extends React.Component {
         var linearKeys = new Set(["w", "s", "ArrowUp", "ArrowDown"])
         var angularKeys = new Set(["a","d","ArrowLeft", "ArrowRight"])
         if (validKeys.has(event.key)) this.keys[event.key] = event.type === "keydown"
+        //console.log(this.human.pos.x)
+        //console.log(this.worldSpecs.width/2)
+        //if (event.type === "keydown" && this.human.pos.x  == this.worldSpecs.width/2) this.started = true
         if (event.type === "keydown") this.started = true
 
         if (event.type === "keydown") {
@@ -598,6 +630,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             }
         } else if (event.type === "keyup" && this.started === true) {
             if (!this.eventLog[event.key]) return
+            if (this.eventLog[event.key] = []) return // NOTE: added 2/1/2021 (awt)
             this.eventLog[event.key][this.eventLog[event.key].length - 1].end = {
                 time: Date.now(),
                 robot: {
@@ -607,7 +640,7 @@ export default class ContinuousWorldDynamic extends React.Component {
                     yv: this.human.yv,
                     lv: this.human.lv,
                     angle: this.human.angle,
-                    angularVelocity: this.human.tv // NOTE: CHECK (!) these are edits to fix crash when holding key during trial transition
+                    tv: this.human.tv // NOTE: CHECK (!) these are edits to fix crash when holding key during trial transition
                 }
             }
             if (linearKeys.has(event.key)){
