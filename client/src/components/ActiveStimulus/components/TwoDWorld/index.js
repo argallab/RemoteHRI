@@ -25,8 +25,8 @@ export default class TwoDWorld extends React.Component {
 
         let boundary2plot = src_bound
         
-        console.log(src_bound)
-        console.log(boundary2plot)
+        // console.log(src_bound)
+        // console.log(boundary2plot)
         //console.log({String}, src_bound)
         //}   
 

@@ -9,7 +9,7 @@
         "request": "launch",
         "name": "Launch Program",
         "program": "${workspaceFolder}/server/server.js",
-        "args": ["--json_file", "/home/deepak/Desktop/Code/RemoteHRI/server/Experiment_GWSE2Modes.json"],
+        "args": ["--json_file", "/home/deepak/Desktop/Code/RemoteHRI/server/Experiment_ContDyn_awt.json"],
         "skipFiles": [
             "<node_internals>/**"
         ]

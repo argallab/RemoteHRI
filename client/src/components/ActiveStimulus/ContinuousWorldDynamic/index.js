@@ -569,9 +569,10 @@ export default class ContinuousWorldDynamic extends React.Component {
         if (event.type === "keydown") this.started = true
 
         if (event.type === "keydown") {
-
+            console.log('ENTERED KEYDOWN')
             if (!this.eventLog[event.key]) this.eventLog[event.key] = []
             if (event.repeat) {
+                console.log('REPEAT')
             } else {
                 this.eventLog[event.key].push({
                     start: {
