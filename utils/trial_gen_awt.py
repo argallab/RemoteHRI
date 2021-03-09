@@ -69,20 +69,41 @@ def create_start_location(width, height, phase):
 # TODO: transform to world coord. before adding to start loc.
 def generate_mp_dict(pixel_scale, mp_list, start_location):
     mp_dict = dict()
-    mp_dict['fw'] = [0, 5, -90]
-    mp_dict['bw'] = [0, -5, -90] 
-    mp_dict['fwr'] = [2.236, 2.236, 315]  # TODO: FWR is being rendered strangely; collision bounds do not align with image
-    mp_dict['fwl'] = [-2.236, 2.236, 225] 
-    mp_dict['bwr'] = [-2.236, -2.236, 315] 
-    mp_dict['bwl'] = [2.236, -2.236, 225] 
+    mp_dict['fw'] = [0, 1, -90]
+    mp_dict['bw'] = [0, -1, -90] 
+    #mp_dict['fwr'] = [2.236, 2.236, 315]  # TODO: FWR is being rendered strangely; collision bounds do not align with image
+    #mp_dict['fwl'] = [-2.236, 2.236, 225] 
+    #mp_dict['bwr'] = [-2.236, -2.236, 315] 
+    #mp_dict['bwl'] = [2.236, -2.236, 225] 
+    #mp_dict['fwr'] = [1/2, np.sqrt(3)/2, 315]  # TODO: FWR is being rendered strangely; collision bounds do not align with image
+    #mp_dict['fwl'] = [-1/2, np.sqrt(3)/2, 225] 
+    #mp_dict['bwr'] = [-1/2, -np.sqrt(3)/2, 315] 
+    #mp_dict['bwl'] = [1/2, -np.sqrt(3)/2, 225] 
+    mp_dict['fwr'] = [np.sqrt(2)/2, np.sqrt(2)/2, 315]
+    mp_dict['fwl'] = [-np.sqrt(2)/2, np.sqrt(2)/2, 225] 
+    mp_dict['bwr'] = [-np.sqrt(2)/2, -np.sqrt(2)/2, 315] 
+    mp_dict['bwl'] = [np.sqrt(2)/2, -np.sqrt(2)/2, 225] 
     mp_dict['cw'] = [0, 0, 245] 
     mp_dict['ccw'] = [0, 0, 295]
     for moprim in mp_list: # TODO: CHECK if this is the proper way to index
         print(' ')
         #print(mp_dict[moprim])
         #
-        mp_dict[moprim][0] = mp_dict[moprim][0]*pixel_scale
-        mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale
+        if moprim != 'fw' and moprim != 'bw' and moprim != 'cw' and moprim != 'ccw':
+            mp_dict[moprim][0] = mp_dict[moprim][0]*pixel_scale
+            mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale
+        elif moprim == 'fw':
+            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
+            mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale#(0.2*pixel_scale)#75
+        elif moprim == 'bw':
+            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
+            mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale#*(0.2*pixel_scale)#*75
+        elif moprim == 'cw':
+            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
+            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*50) # 50 is hardcoded user height
+        elif moprim == 'ccw':
+            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
+            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*50) # 50 is hardcoded user height
         #print(mp_dict[moprim])
         #
         mp_dict[moprim][0] = mp_dict[moprim][0]+start_location['x']
@@ -136,10 +157,24 @@ def generate_boundary_dict():
 
     return boundary_dict
 
+def generate_goal_dict():
+
+    goal_dict = {}
+    goal_dict['fw'] = "png/goal_icon_v2_fwbw.png"
+    goal_dict['bw'] = "png/goal_icon_v2_fwbw.png"
+    goal_dict['fwr'] = "png/goal_icon_v2_fwrbwl.png"
+    goal_dict['fwl'] = "png/goal_icon_v2_fwlbwr.png"
+    goal_dict['bwr'] = "png/goal_icon_v2_fwrbwl.png" #
+    goal_dict['bwl'] = "png/goal_icon_v2_fwlbwr.png" #
+    goal_dict['ccw'] = "png/goal_icon_v2_ccw.png"
+    goal_dict['cw'] = "png/goal_icon_v2_cw.png"
+
+    return goal_dict
+
 def ego2world(start_location, goal_location):
     
     #tf_mat = np.array([[np.cos(deg2rad), -np.sin(deg2rad), 0, start_location['x']],
-    #                   [np.sin(deg2rad), np.cos(deg2rad), 0, start_location['y']],
+    #                   [np.sin(deg2rad),  np.cos(deg2rad), 0, start_location['y']],
     #                   [0.0, 0.0, 1.0, 0.0],
     #                   [0.0, 0.0, 0.0, 1.0]])
 
@@ -197,7 +232,7 @@ def ego2world_rot(start_location, goal_location):
     #print('\tentering ego2world_rot fn:')
     angle_for_matmul = (start_location['angle']/360)*(2*np.pi)
     tf_mat = np.array([[np.cos(angle_for_matmul), -np.sin(angle_for_matmul)],
-                       [np.sin(angle_for_matmul), np.cos(angle_for_matmul)]])
+                       [np.sin(angle_for_matmul),  np.cos(angle_for_matmul)]])
     
     goal_location_temp = np.array([goal_location[0], goal_location[1]])
     matmul_tmp = np.matmul(tf_mat, goal_location_temp)
@@ -303,6 +338,7 @@ def generate_grid_world_trials(args):
 
     ## initialize the boundary dict (maps 'trial_type' to client/public/png/x.png files for moprim boundaries)
     boundary_dict = generate_boundary_dict()
+    goal_dict = generate_goal_dict()
     #
     mp_tf = generate_mp_tf_dict()
     #
@@ -323,7 +359,6 @@ def generate_grid_world_trials(args):
             current_block['blockName'] = "Testing Block {}".format(block_num-num_train_blocks)
             current_block['preTrials'] = []
             phase = "test" # (phase flag set)
-        
 
         print(current_block['blockName'])
 
@@ -367,7 +402,7 @@ def generate_grid_world_trials(args):
                 start_state_dict = create_start_location(worldWidth, worldHeight, phase)
 
             ## generate motion primitive dictionary + list for indexing ## NOTE: PIXEL_SCALE HERE
-            pixel_scale = 50
+            pixel_scale = 350#190
             mp_list = generate_mp_list() 
             mp_dict = generate_mp_dict(pixel_scale, mp_list, start_state_dict)
 
@@ -401,14 +436,19 @@ def generate_grid_world_trials(args):
             print(goal_location[0] + tf_x*halfdiag*np.cos((45)+trial_dict['goalLocationAngle']) - w_tmp/2)
             print(goal_location[1] + tf_y*halfdiag*np.sin((45)+trial_dict['goalLocationAngle']) - h_tmp/2)
 
-                      
+            trial_dict['goalLocationX'] = goal_location[0] #+ (trial_dict['goalWidth']/2)*np.cos((45)+trial_dict['goalLocationAngle'])
+            trial_dict['goalLocationY'] = goal_location[1] #+ (trial_dict['goalHeight']/2)*np.sin((45)+trial_dict['goalLocationAngle'])
+            
             #trial_dict['goalLocationX'] = goal_location[0] + (trial_dict['goalWidth']/2)*np.cos((45)+trial_dict['goalLocationAngle'])
             #trial_dict['goalLocationY'] = goal_location[1] + (trial_dict['goalHeight']/2)*np.sin((45)+trial_dict['goalLocationAngle'])
-            trial_dict['goalLocationX'] = goal_location[0] - w_tmp/2 #+ tf_x*halfdiag*np.cos((45)+trial_dict['goalLocationAngle']) 
-            trial_dict['goalLocationY'] = goal_location[1] - h_tmp/2 #+ tf_y*halfdiag*np.sin((45)+trial_dict['goalLocationAngle']) 
+            #trial_dict['goalLocationX'] = goal_location[0] - w_tmp/2 + tf_x*w_tmp/2*np.cos((45)+trial_dict['goalLocationAngle']) 
+            #trial_dict['goalLocationY'] = goal_location[1] - h_tmp/2 + tf_y*h_tmp/2*np.sin((45)+trial_dict['goalLocationAngle'])
+            #trial_dict['goalLocationX'] = goal_location[0] - w_tmp/2 + tf_x*w_tmp/2*np.cos((45)+trial_dict['goalLocationAngle']) 
+            #trial_dict['goalLocationY'] = goal_location[1] - h_tmp/2 + tf_y*h_tmp/2*np.sin((45)+trial_dict['goalLocationAngle'])  
             trial_dict['instructions'] = "TEST INSTRUCTIONS: Move the robot with WASD or the arrow keys in order to reach the goals as they appear; \nFOR TESTING: mp type = " + str(trial_type)
             trial_dict['trial_type'] = trial_type
             trial_dict['boundary'] = boundary_dict[trial_dict['trial_type']]
+            trial_dict['goal_img'] = goal_dict[trial_dict['trial_type']]
             #
             #trial_dict['tickTime'] = 600
             #trial_dict['visualizeGridLines'] = True

@@ -65,8 +65,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             x: data.goalLocationX,
             y: data.goalLocationY,
             angle: data.goalLocationAngle,
-            trial_type: data.trial_type,
-            goal2plot: data.goal_img
+            trial_type: data.trial_type 
         }
         // obstacles is a list specified in the json. For eeach element in the obstacle list extracted the following object
         this.obstacleSpecs = data.obstacles.map((o) => {
@@ -117,22 +116,12 @@ export default class ContinuousWorldDynamic extends React.Component {
             var h_deltay = this.humanSpecs.width / 2            
             // specify human robot from the center, and then four points
             //this.human = new SAT.Polygon(this.point(this.state.humanSpecs.x, this.state.humanSpecs.y), [this.point(-1 * h_deltax, -1 * h_deltay), this.point(h_deltax, -1 * h_deltay), this.point(h_deltax, h_deltay), this.point(-1 * h_deltax, h_deltay)])
-            
-            this.human = new SAT.Polygon(this.point(this.state.humanSpecs.x, this.state.humanSpecs.y))
-            this.human.setPoints([this.point(-1 * h_deltax, -1 * h_deltay), this.point(h_deltax, -1 * h_deltay), this.point(h_deltax, h_deltay), this.point(-1 * h_deltax, h_deltay)])
-            
-
-            //this.human = new SAT.Polygon(this.point(this.state.humanSpecs.x, this.state.humanSpecs.y), [
-            //    new SAT.Vector(this.state.humanSpecs.x - h_deltax, this.state.humanSpecs.y - h_deltay),
-            //    new SAT.Vector(this.state.humanSpecs.x + h_deltax, this.state.humanSpecs.y - h_deltay),
-            //    new SAT.Vector(this.state.humanSpecs.x + h_deltax, this.state.humanSpecs.y + h_deltay),
-            //    new SAT.Vector(this.state.humanSpecs.x - h_deltax, this.state.humanSpecs.y + h_deltay)
-            //])
-
+            this.human = this.humanSpecs
+            this.human.poly = new SAT.Polygon(this.point(this.state.humanSpecs.x, this.state.humanSpecs.y))
+            this.human.poly.setPoints([this.point(-1 * h_deltax, -1 * h_deltay), this.point(h_deltax, -1 * h_deltay), this.point(h_deltax, h_deltay), this.point(-1 * h_deltax, h_deltay)])
             //this.human.setPoints()
             //this.human.setOffset((0.0, 0.0))
-            this.human.setAngle(-1 * this.degreeToRad(this.state.humanSpecs.angle))
-            this.human.rotate(-1 * this.degreeToRad(this.state.humanSpecs.angle))
+            this.human.poly.setAngle(-1 * this.degreeToRad(this.state.humanSpecs.angle))
             this.human.xv = this.state.humanSpecs.xv //init velocity is zero
             this.human.yv = this.state.humanSpecs.yv //
             this.human.tv = this.state.humanSpecs.angularVelocity
@@ -144,24 +133,13 @@ export default class ContinuousWorldDynamic extends React.Component {
             var g_deltax = this.state.goalSpecs.width / 2
             var g_deltay = this.state.goalSpecs.height / 2
             var diag_r = Math.sqrt(this.state.goalSpecs.height)
-            this.goal = new SAT.Polygon(this.point(this.goalSpecs.x, this.goalSpecs.y), [this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
+            this.goal = this.goalSpecs
+            //this.goal = new SAT.Polygon(this.point(this.goalSpecs.x, this.goalSpecs.y), [this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
             //this.goal = new SAT.Box(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y), this.state.goalSpecs.width, this.state.goalSpecs.height).toPolygon()
-            
-
-            //this.goal = new SAT.Polygon(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y))
-            //this.goal = new SAT.Polygon(new SAT.Vector(this.state.goalSpecs.x, this.state.goalSpecs.y), [
-            //    new SAT.Vector(this.state.goalSpecs.x - g_deltax, this.state.goalSpecs.y - g_deltay),
-            //    new SAT.Vector(this.state.goalSpecs.x + g_deltax, this.state.goalSpecs.y - g_deltay),
-            //    new SAT.Vector(this.state.goalSpecs.x + g_deltax, this.state.goalSpecs.y + g_deltay),
-            //    new SAT.Vector(this.state.goalSpecs.x - g_deltax, this.state.goalSpecs.y + g_deltay)
-            //])
-
-            //this.goal.setPoints([this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
-            //this.goal.setOffset(new SAT.Vector(diag_r, diag_r))
-            this.goal.setAngle(-1 * this.degreeToRad(this.state.goalSpecs.angle))
-            //this.goal.rotate(-1 * this.degreeToRad(this.state.goalSpecs.angle))
-            this.goal2 = new SAT.Circle(new SAT.Vector(this.state.goalSpecs.x, this.state.goalSpecs.y), g_deltax)
-            
+            this.goal.poly = new SAT.Polygon(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y))
+            this.goal.poly.setPoints([this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
+            this.goal.poly.setOffset(new SAT.Vector(g_deltax, g_deltax))
+            this.goal.poly.setAngle(-1 * this.degreeToRad(this.state.goalSpecs.angle))
             
         }
 
@@ -255,9 +233,9 @@ export default class ContinuousWorldDynamic extends React.Component {
             var event = {}
 
             if (this.human) event["human"] = {
-                x: this.human.pos.x,
-                y: this.human.pos.y,
-                angle: this.human.angle,
+                x: this.human.poly.pos.x,
+                y: this.human.poly.pos.y,
+                angle: this.human.poly.angle,
                 xv: this.human.xv,
                 yv: this.human.yv,
                 tv: this.human.tv,
@@ -381,7 +359,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             }
 
             // if the obstacle will collide with a human or autonomous robot, move it back
-            if (this.human && SAT.testPolygonPolygon(this.obstacles[i], this.human)) {
+            if (this.human.poly && SAT.testPolygonPolygon(this.obstacles[i], this.human)) {
                 this.obstacles[i].pos.x = oldPos.x
                 this.obstacles[i].pos.y = oldPos.y
                 this.obstacleSpecs[i].x = oldPos.x
@@ -414,7 +392,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         lvf = Math.max(-robotMaxLinearVelocity, Math.min(lvf, robotMaxLinearVelocity)) //cap velocity
         
         // NOTE: changed lvf threshold from 0.0002 -> 0.002 (2/1/2021)
-        if (!this.linear_vel_active && Math.abs(lvf) < 0.002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops
+        if (!this.linear_vel_active && Math.abs(lvf) < 0.0002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops
             // console.log('ZERO LVF')
             lvf = 0.0
         }
@@ -439,7 +417,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         
         // NOTE: changed tvf threshold from 0.002 -> 0.02 (2/1/2021)
         // console.log('TVF', tvf, this.angular_vel_active)
-        if (!this.angular_vel_active && Math.abs(tvf) < 0.02){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops rotating
+        if (!this.angular_vel_active && Math.abs(tvf) < 0.002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops rotating
             // console.log('ZERO TVF')
             tvf = 0.0
         }
@@ -517,18 +495,17 @@ export default class ContinuousWorldDynamic extends React.Component {
         var lvf = this.updateLinearVelocity(lvi, lvd) //linear velocity along the heading
         var tvf = this.updateAngularVelocity(tvi, tvd)
     
-        var ti = this.human.angle
-        var xi = this.human.pos.x
-        var yi = this.human.pos.y
+        var ti = this.human.poly.angle
+        var xi = this.human.poly.pos.x
+        var yi = this.human.poly.pos.y
         
         var ti_goal = this.goal.angle
 
         var finalPose = this.updateRobotPose(xi, yi, ti, lvf, tvf)
 
-        this.human.setAngle(finalPose.tf)
-        this.human.rotate(finalPose.tf)
-        this.human.pos.x = finalPose.xf
-        this.human.pos.y = finalPose.yf
+        this.human.poly.setAngle(finalPose.tf)
+        this.human.poly.pos.x = finalPose.xf
+        this.human.poly.pos.y = finalPose.yf
         this.human.xv = finalPose.xvf
         this.human.yv = finalPose.yvf
         this.human.tv = finalPose.tvf
@@ -537,19 +514,18 @@ export default class ContinuousWorldDynamic extends React.Component {
         // assume we don't collide to start
         var collisionObstacle = false
         for (var o in this.obstacles) {
-            collisionObstacle = collisionObstacle || SAT.testPolygonPolygon(this.human, this.obstacles[o])
+            collisionObstacle = collisionObstacle || SAT.testPolygonPolygon(this.human.poly, this.obstacles[o])
         }
 
         var insideBoundary = true
         var response = new SAT.Response()
-        var insideBoundary = SAT.testPolygonPolygon(this.human, this.world, response)
+        var insideBoundary = SAT.testPolygonPolygon(this.human.poly, this.world, response)
 
         if (!(insideBoundary && response.aInB) || collisionObstacle) {
             // if we have collided or outside the boundaries, reject the movement (revert changes in reverse order)
-            this.human.pos.y = yi
-            this.human.pos.x = xi
-            this.human.setAngle(ti)
-            this.human.rotate(ti)
+            this.human.poly.pos.y = yi
+            this.human.poly.pos.x = xi
+            this.human.poly.setAngle(ti)
             this.human.xv = 0.0
             this.human.yv = 0.0
             this.human.tv = 0.0
@@ -557,22 +533,13 @@ export default class ContinuousWorldDynamic extends React.Component {
         }
 
         // NOTE: added 2/2/2021 (awt)
-        var h_centroid = this.human.getCentroid(this.human.points) // .getCentroid method returns incorrect values for human and goal
-        var g_centroid = this.goal.getCentroid(this.goal)
-        //var g_centroid = this.goal.getCentroid()
-        //var hg = this.goal.getCentroid(this.human.points)
-        //console.log(h_centroid)
-        //console.log(g_centroid)
-        
-        //console.log(this.goalSpecs.center)
-        console.log(h_centroid)
-        console.log(g_centroid)
-
+        var h_centroid = this.human.poly.getCentroid(this.human.poly)
+        var g_centroid = this.goal.poly.getCentroid(this.goal.poly)
 
         // return whether we have reached the goal or not
         var human_goal_response = new SAT.Response();
         //var collided = SAT.testPolygonPolygon(this.human, this.goal, human_goal_response)
-        var collided = SAT.testPolygonPolygon(this.human, this.goal, human_goal_response)
+        var collided = SAT.testPolygonPolygon(this.human.poly, this.goal.poly, human_goal_response)
         //var rv = Math.sqrt(Math.pow(this.human.pos.x,2) + Math.pow(this.human.pos.y,2))
         
         //console.log(this.goalSpecs.height)
@@ -600,26 +567,19 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         //var r2g_x = Math.pow(this.human.pos.x - (this.goalSpecs.x+Math.sqrt(this.goalSpecs.width)*Math.cos(ti_goal)), 2)
         //var r2g_y = Math.pow(this.human.pos.y - (this.goalSpecs.y+Math.sqrt(this.goalSpecs.height)*Math.sin(ti_goal)), 2)
-        var r2g_x = Math.pow(this.human.pos.x - (this.goalSpecs.x), 2)
-        var r2g_y = Math.pow(this.human.pos.y - (this.goalSpecs.y), 2)
+        var r2g_x = Math.pow(this.human.poly.pos.x - (this.goal.poly.pos.x), 2)
+        var r2g_y = Math.pow(this.human.poly.pos.y - (this.goal.poly.pos.y), 2)
         //onsole.log(r2g_x)
         //console.log(r2g_y)
 
-        var r2g_x2 = Math.pow(this.human.pos.x  - g_centroid.y, 2)
-        var r2g_y2 = Math.pow(this.human.pos.y - g_centroid.x, 2)           
+        var r2g_x2 = Math.pow(h_centroid.x - g_centroid.x, 2)
+        var r2g_y2 = Math.pow(h_centroid.y - g_centroid.y, 2)           
         //console.log(r2g_x2)
         //console.log(r2g_y2)
 
-        var rg = Math.sqrt(Math.pow(g_centroid.x, 2) + Math.pow(g_centroid.y, 2))
-        var rh = Math.sqrt(Math.pow(this.human.pos.x + this.humanSpecs.radius*Math.cos(ti), 2) + Math.pow(this.human.pos.y + this.humanSpecs.radius*Math.sin(ti), 2))
-        var dist2gr = Math.abs(rg-rh)
-
-
         var r2g = Math.sqrt(r2g_x + r2g_y)
         var r2g2 = Math.sqrt(r2g_x2 + r2g_y2)
-
-        var olap = human_goal_response.overlap // <-- NOTE: can call this to return a percent overlap // NOTE: change in goal collision
-        //console.log(olap)
+        var olap = human_goal_response.overlapV // <-- NOTE: can call this to return a percent overlap // NOTE: change in goal collision
         var dtheta = Math.abs(this.radToDegree(ti) - this.radToDegree(ti_goal))
         //var dtheta = Math.atan2(ti_goal, ti)
         // TODO : make changes to interpretation of ti angles
@@ -631,20 +591,14 @@ export default class ContinuousWorldDynamic extends React.Component {
         //console.log('human: (%f, %f); goal: (%f, %f)', this.human.pos.x,this.human.pos.y,this.goalSpecs.x,this.goalSpecs.y)
         //console.log('distance2goalx: %f', r2g_x)
         //console.log('distance2goaly: %f', r2g_y)
-        //console.log('goal@: (%f, %f); human@: (%f, %f)', g_centroid.x, g_centroid.y, this.human.pos.x, this.human.pos.y)
-        //console.log('goal@: (%f, %f); human@: (%f, %f); dist: ', g_centroid.x, g_centroid.y, this.human.pos.x, this.human.pos.y, dist2gr)
-
-        //console.log('goal@: (%f, %f); human@: (%f, %f); dist: ', this.goal.pos.x, this.goal.pos.y, this.human.pos.x, this.human.pos.y, dist2gr)
-        //console.log('ang2goal: %f; distance2goal: %f; %i', dtheta, r2g, collided)
-
-        //console.log('ang2goal: %f; distance2goal: %f; %i', dtheta, r2g, collided)
+        console.log('ang2goal_centroid: %f; distance2goal_centroid: %f; %i', dtheta, r2g2, collided)
+        console.log('ang2goal: %f; distance2goal: %f; %i', dtheta, r2g, collided)
         console.log('\n')
         //if (collided && r2g <= 50 && dtheta <= 10){
-        //if (r2g <= 36 && r2g >= 20 && dtheta <= 10){
-        if(collided){// && Math.abs(ti_goal - ti) <= 0.1){//this.human.radius){//} && rv < 20.0){
-        //if(olap > this.humanSpecs.radius/3.0){// && Math.abs(ti_goal - ti) <= 5.0){//} && rv < 1.0){//this.human.radius){//} && rv < 20.0){
+        if (r2g <= 35 && dtheta <= 10){
+        //if(collided){// && Math.abs(ti_goal - ti) <= 0.1){//this.human.radius){//} && rv < 20.0){
+        //f(olap > this.humanSpecs.radius/3.0){// && Math.abs(ti_goal - ti) <= 5.0){//} && rv < 1.0){//this.human.radius){//} && rv < 20.0){
             return collided = true
-            //return collided = false // TODO: this is for testing! Do not forget this
         }
         else{
             return false
@@ -662,8 +616,8 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         //console.log(this.human.tv)
         if (this.human) {
-            x_bl = this.human.pos.x - this.humanSpecs.width * 0.5
-            y_bl = this.human.pos.y - this.humanSpecs.height * 0.5
+            x_bl = this.human.poly.pos.x - this.humanSpecs.width * 0.5
+            y_bl = this.human.poly.pos.y - this.humanSpecs.height * 0.5
             humanSpecs = {
                 x: x_bl,
                 y: y_bl,
@@ -713,12 +667,12 @@ export default class ContinuousWorldDynamic extends React.Component {
                     start: {
                         time: Date.now(),
                         robot: {
-                            x: this.human.pos.x,
-                            y: this.human.pos.y,
+                            x: this.human.poly.pos.x,
+                            y: this.human.poly.pos.y,
                             xv: this.human.xv,
                             yv: this.human.yv,
                             lv: this.human.lv,
-                            angle: this.human.angle,
+                            angle: this.human.poly.angle,
                             angularVelocity: this.human.tv
                         }
                     }
