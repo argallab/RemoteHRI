@@ -8,7 +8,7 @@ export default class TwoDWorld extends React.Component {
     render() {
         var worldrobotPosition
         if (this.props.human) {
-            var worldrobotPosition = {width: this.props.human.width, height: this.props.human.height, bottom: this.props.humanState.y, left: this.props.humanState.x, transform: `rotate(${this.props.humanState.angle}deg)`}
+            var worldrobotPosition = {width: this.props.human.width, height: this.props.human.height, bottom: this.props.humanState.y, left: this.props.humanState.x, transform: `rotate(${this.props.humanState.angle}deg)`, 'transform-origin': 'center'}
         }
 
         var worldautoPosition
@@ -18,12 +18,15 @@ export default class TwoDWorld extends React.Component {
 
         //var worldBoundaryPosition
         //if (this.props.bound) {
-        var worldBoundaryPosition = {position: "center", width: 400, height: 400, bottom: 450/2 , left: 450/2}
+        //var worldBoundaryPosition = {position: "center", width: 400, height: 400, bottom: 450/2 , left: 450/2}
+        var worldBoundaryPosition = {position: "center", width: 850, height: 850, bottom: 0, left: 0}//bottom: this.props.human.width/2, left: this.props.human.width/2}
         var trial_type_bound = this.props.trial_type
 
-        var src_bound=this.props.bound.bound2plot
-
+        var src_bound = this.props.bound.bound2plot
         let boundary2plot = src_bound
+
+        var src_goal = this.props.goal.goal2plot
+        let goal2plot = src_goal
         
         //console.log(src_bound)
         //console.log(boundary2plot)
@@ -39,7 +42,7 @@ export default class TwoDWorld extends React.Component {
 
         //var worldgoalPosition = {width: this.props.goal.width, height: this.props.goal.height, bottom: this.props.goal.y, left: this.props.goal.x, transform: `rotate(${this.props.goal.angle}deg)`}
 
-        var worldgoalPosition = {position: "absolute", bottom: this.props.goalLocationY, left: this.props.goalLocationX, width: this.props.goalWidth, height: this.props.goalHeight, transform: `rotate(${this.props.angle}deg)`}
+        var worldgoalPosition = {position: "absolute", bottom: this.props.goalLocationY, left: this.props.goalLocationX, width: this.props.goalWidth, height: this.props.goalHeight}//, transform: `rotate(${this.props.angle}deg)`, 'transform-origin': 'center'}
         var worldgoalPositionVar = {bottom: this.props.goalLocationY, left: this.props.goalLocationX, width: this.props.goalWidth, height: this.props.goalHeight, transform: `rotate(${this.props.angle}deg)`}
 
         var worldObstacles = this.props.obstacles.map((o) => <div style={{position: "absolute", width: o.width, height: o.height, bottom: o.y, left: o.x}} className="grid-goal"></div>)
@@ -215,8 +218,8 @@ export default class TwoDWorld extends React.Component {
                         
                         <div>
                         
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot_fwbw.png" />}
-                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot_fwbw.png" alt="goal_cell" className="grid-goal"/>                      
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/robot.png" />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src="png/robot.png" alt="goal_cell" className="grid-goal"/>                      
                         </div>
 
                         {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" alt="user_icon"/>}
@@ -233,7 +236,7 @@ export default class TwoDWorld extends React.Component {
                         <div>
                         
                             {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="worldrobot.png" />}
-                            <img id="worldgoalcell" style={worldgoalPosition} src="worldrobot.png.png" alt="goal_cell" className="grid-goal"/>                      
+                            <img id="worldgoalcell" style={worldgoalPosition} src="worldrobot.png" alt="goal_cell" className="grid-goal"/>                      
                         </div>                                              
 
                         {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_fw_bw.png" alt="user_icon"/>}
@@ -246,10 +249,10 @@ export default class TwoDWorld extends React.Component {
             if (trial_type_bound =='fw'){
                 return (
                     <div className="world-container">
-                        <img id="worldboundary" style={worldBoundaryPosition} src="png/fw.png"/>
+                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
                         <div>
                             
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/goal_icon_v2.png" />}
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPosition} src="png/goal_icon_v2.png" />}
                             <img id="worldgoalcell" style={worldgoalPosition} src="png/goal_icon_v2.png" alt="goal_cell" className="grid-goal"/>   
                                 
                         </div>
@@ -260,10 +263,10 @@ export default class TwoDWorld extends React.Component {
             else if (trial_type_bound = 'bw'){
                 return (
                     <div className="world-container">
-                        <img id="worldboundary" style={worldBoundaryPosition} src="png/bw.png"/>
+                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
                         <div>
                             
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/goal_icon_v2.png" />}
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPosition} src="png/goal_icon_v2.png" />}
                             <img id="worldgoalcell" style={worldgoalPosition} src="png/goal_icon_v2.png" alt="goal_cell" className="grid-goal"/>   
                                 
                         </div>
@@ -275,10 +278,10 @@ export default class TwoDWorld extends React.Component {
             else if (trial_type_bound = 'fwr'){
                 return (
                     <div className="world-container">
-                        <img id="worldboundary" style={worldBoundaryPosition} src="png/fwr.png"/>
+                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
                         <div>
                             
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/goal_icon_v2.png" />}
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPosition} src="png/goal_icon_v2.png" />}
                             <img id="worldgoalcell" style={worldgoalPosition} src="png/goal_icon_v2.png" alt="goal_cell" className="grid-goal"/>   
                                 
                         </div>
@@ -290,12 +293,12 @@ export default class TwoDWorld extends React.Component {
             else if (trial_type_bound == 'fwl'){
                 return (
                     <div className="world-container">
-                        <img id="worldboundary" style={worldBoundaryPosition} src="png/fwl.png"/>
+                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
                         <div>
                             
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/goal_icon_v2.png" />}
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPosition} src="png/goal_icon_v2.png" />}
                             <img id="worldgoalcell" style={worldgoalPosition} src="png/goal_icon_v2.png" alt="goal_cell" className="grid-goal"/>   
-                                
+                            
                         </div>
                         {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v2.png" />}
                     </div>
@@ -305,10 +308,10 @@ export default class TwoDWorld extends React.Component {
             else if (trial_type_bound == 'bwr'){
                 return (
                     <div className="world-container">
-                        <img id="worldboundary" style={worldBoundaryPosition} src="png/bwr.png"/>
+                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
                         <div>
                             
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/goal_icon_v2.png" />}
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPosition} src="png/goal_icon_v2.png" />}
                             <img id="worldgoalcell" style={worldgoalPosition} src="png/goal_icon_v2.png" alt="goal_cell" className="grid-goal"/>   
                                 
                         </div>
@@ -320,10 +323,10 @@ export default class TwoDWorld extends React.Component {
             else if (trial_type_bound == 'bwl'){
                 return (
                     <div className="world-container">
-                        <img id="worldboundary" style={worldBoundaryPosition} src="png/bwl.png"/>
+                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
                         <div>
                             
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/goal_icon_v2.png" />}
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPosition} src="png/goal_icon_v2.png" />}
                             <img id="worldgoalcell" style={worldgoalPosition} src="png/goal_icon_v2.png" alt="goal_cell" className="grid-goal"/>   
                                 
                         </div>
@@ -335,10 +338,10 @@ export default class TwoDWorld extends React.Component {
             else if (this.props.trial_type == 'ccw'){
                 return (
                     <div className="world-container">
-                        <img id="worldboundary" style={worldBoundaryPosition} src="png/ccw.png"/>
+                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
                         <div>
                             
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/goal_icon_v2.png" />}
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPosition} src="png/goal_icon_v2.png" />}
                             <img id="worldgoalcell" style={worldgoalPosition} src="png/goal_icon_v2.png" alt="goal_cell" className="grid-goal"/>   
                                 
                         </div>
@@ -350,10 +353,10 @@ export default class TwoDWorld extends React.Component {
             else if (this.props.trial_type == 'cw'){
                 return (
                     <div className="world-container">
-                        <img id="worldboundary" style={worldBoundaryPosition} src="png/cw.png"/>
+                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
                         <div>
                             
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/goal_icon_v2.png" />}
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPosition} src="png/goal_icon_v2.png" />}
                             <img id="worldgoalcell" style={worldgoalPosition} src="png/goal_icon_v2.png" alt="goal_cell" className="grid-goal"/>   
                                 
                         </div>
@@ -368,7 +371,7 @@ export default class TwoDWorld extends React.Component {
                     <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
                     <div>
                         
-                        {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src="png/goal_icon_v2.png" />}
+                        {this.props.goals && <img id="worldgoal" style={worldgoalPosition} src="png/goal_icon_v2.png" />}
                         <img id="worldgoalcell" style={worldgoalPosition} src="png/goal_icon_v2.png" alt="goal_cell" className="grid-goal"/>   
                               
                     </div>
@@ -378,6 +381,20 @@ export default class TwoDWorld extends React.Component {
             }
 
 
+        }
+        else if (test_bool == 3){
+            return (
+                <div className="world-container">
+                    <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
+                    <div>
+                        
+                        {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
+                        <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
+                              
+                    </div>
+                    {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v2.png" />}
+                </div>
+            )
         }
         else {
             return (

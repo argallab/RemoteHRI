@@ -69,8 +69,8 @@ def create_start_location(width, height, phase):
 # TODO: transform to world coord. before adding to start loc.
 def generate_mp_dict(pixel_scale, mp_list, start_location):
     mp_dict = dict()
-    mp_dict['fw'] = [0, 1, -90]
-    mp_dict['bw'] = [0, -1, -90] 
+    mp_dict['fw'] = [0, 1, 270]
+    mp_dict['bw'] = [0, -1, 270] 
     #mp_dict['fwr'] = [2.236, 2.236, 315]  # TODO: FWR is being rendered strangely; collision bounds do not align with image
     #mp_dict['fwl'] = [-2.236, 2.236, 225] 
     #mp_dict['bwr'] = [-2.236, -2.236, 315] 
@@ -481,11 +481,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--width', action='store', type=int, default=850, help="width of grid world")
     parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
-    parser.add_argument('--userWidth', action='store', type=int, default=850, help="width of user's vehicle")
-    parser.add_argument('--userHeight', action='store', type=int, default=850, help="height of user's vehicle")
+    parser.add_argument('--userWidth', action='store', type=int, default=50, help="width of user's vehicle")
+    parser.add_argument('--userHeight', action='store', type=int, default=50, help="height of user's vehicle")
     parser.add_argument('--num_train_blocks', action='store', type=int, default=0, help="number of training blocks")
     parser.add_argument('--num_train_trials', action='store', type=int, default=8, help="number of trials per training block")
-    parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
+    parser.add_argument('--num_test_blocks', action='store', type=int, default=3, help="number of testing blocks")
     parser.add_argument('--num_test_trials', action='store', type=int, default=8, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")

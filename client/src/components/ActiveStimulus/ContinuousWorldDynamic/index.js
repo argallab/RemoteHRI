@@ -56,7 +56,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         }
 
         // console.log(this.bound2plot)
-
+        
         //skip autonomous agent for the time being
         // CHECK -awt 1/16/2021
         this.goalSpecs = {
@@ -144,8 +144,8 @@ export default class ContinuousWorldDynamic extends React.Component {
             var g_deltax = this.state.goalSpecs.width / 2
             var g_deltay = this.state.goalSpecs.height / 2
             var diag_r = Math.sqrt(this.state.goalSpecs.height)
-            this.goal = new SAT.Polygon(this.point(this.goalSpecs.x, this.goalSpecs.y), [this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
-            //this.goal = new SAT.Box(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y), this.state.goalSpecs.width, this.state.goalSpecs.height).toPolygon()
+            //this.goal = new SAT.Polygon(this.point(this.goalSpecs.x, this.goalSpecs.y), [this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
+            this.goal = new SAT.Box(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y), this.state.goalSpecs.width, this.state.goalSpecs.height).toPolygon()
             
 
             //this.goal = new SAT.Polygon(this.point(this.state.goalSpecs.x, this.state.goalSpecs.y))
@@ -158,7 +158,7 @@ export default class ContinuousWorldDynamic extends React.Component {
 
             //this.goal.setPoints([this.point(-1 * g_deltax, -1 * g_deltay), this.point(g_deltax, -1 * g_deltay), this.point(g_deltax, g_deltay), this.point(-1 * g_deltax, g_deltay)])
             //this.goal.setOffset(new SAT.Vector(diag_r, diag_r))
-            this.goal.setAngle(-1 * this.degreeToRad(this.state.goalSpecs.angle))
+            //this.goal.setAngle(-1 * this.degreeToRad(this.state.goalSpecs.angle)) // NOTE: is this necessary? [03/09/2021]
             //this.goal.rotate(-1 * this.degreeToRad(this.state.goalSpecs.angle))
             this.goal2 = new SAT.Circle(new SAT.Vector(this.state.goalSpecs.x, this.state.goalSpecs.y), g_deltax)
             
@@ -498,9 +498,13 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         //update angular velocity
         if (this.keys["a"] || this.keys["ArrowLeft"]) {
-            tvd = robotAngularAcceleration
+            if (this.goalSpecs.trial_type != 'cw'){
+                tvd = robotAngularAcceleration
+            }
         } else if (this.keys["d"] || this.keys["ArrowRight"]) {
-            tvd = -1 * robotAngularAcceleration
+            if (this.goalSpecs.trial_type != 'ccw'){
+                tvd = -1 * robotAngularAcceleration
+            }
         }
         
         //update linear velocity
@@ -521,7 +525,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         var xi = this.human.pos.x
         var yi = this.human.pos.y
         
-        var ti_goal = this.goal.angle
+        var ti_goal = this.goalSpecs.angle // NOTE: changed goal to goalSpecs to reflected severed reliance on goal image rotations
 
         var finalPose = this.updateRobotPose(xi, yi, ti, lvf, tvf)
 
@@ -557,17 +561,28 @@ export default class ContinuousWorldDynamic extends React.Component {
         }
 
         // NOTE: added 2/2/2021 (awt)
-        var h_centroid = this.human.getCentroid(this.human.points) // .getCentroid method returns incorrect values for human and goal
-        var g_centroid = this.goal.getCentroid(this.goal)
+        //var h_centroid = this.human.getCentroid(this.human.points) // .getCentroid method returns incorrect values for human and goal
+        //var g_centroid = this.goal.getCentroid(this.goal)
         //var g_centroid = this.goal.getCentroid()
         //var hg = this.goal.getCentroid(this.human.points)
         //console.log(h_centroid)
         //console.log(g_centroid)
         
+        //var h_centroid = [this.human.pos.x + (this.humanSpecs.width/2)*Math.cos(ti + 4.71239), this.human.pos.y + (this.humanSpecs.height/2)*Math.sin(ti + 4.71239)] // TODO: incorporate rotation components
+        //var h_centroid = [this.human.pos.x + (this.humanSpecs.width/2), this.human.pos.y + (this.humanSpecs.height/2)]
+        var h_centroid = [this.human.pos.x, this.human.pos.y]
+        var g_centroid = [this.goal.pos.x + this.goalSpecs.width/2, this.goal.pos.y + this.goalSpecs.height/2]
+        var d_centroid = [(h_centroid[0] - g_centroid[0]), (h_centroid[1] - g_centroid[1])]
+        var d2g = Math.sqrt(Math.pow(d_centroid[0], 2) + Math.pow(d_centroid[1], 2))
+
+
         //console.log(this.goalSpecs.center)
         console.log(h_centroid)
         console.log(g_centroid)
-
+        console.log(d_centroid)
+        console.log(d2g)
+        console.log(this.radToDegree(ti)) // TODO: fix angular displacement metric error
+        console.log(360-ti_goal)
 
         // return whether we have reached the goal or not
         var human_goal_response = new SAT.Response();
@@ -620,7 +635,8 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         var olap = human_goal_response.overlap // <-- NOTE: can call this to return a percent overlap // NOTE: change in goal collision
         //console.log(olap)
-        var dtheta = Math.abs(this.radToDegree(ti) - this.radToDegree(ti_goal))
+        var dtheta = Math.abs(this.radToDegree(ti) - (360-ti_goal))
+        console.log(dtheta)
         //var dtheta = Math.atan2(ti_goal, ti)
         // TODO : make changes to interpretation of ti angles
         //console.log('distance from origin: %f', rv)
@@ -641,8 +657,9 @@ export default class ContinuousWorldDynamic extends React.Component {
         console.log('\n')
         //if (collided && r2g <= 50 && dtheta <= 10){
         //if (r2g <= 36 && r2g >= 20 && dtheta <= 10){
-        if(collided){// && Math.abs(ti_goal - ti) <= 0.1){//this.human.radius){//} && rv < 20.0){
+        //if(collided){// && Math.abs(ti_goal - ti) <= 0.1){//this.human.radius){//} && rv < 20.0){
         //if(olap > this.humanSpecs.radius/3.0){// && Math.abs(ti_goal - ti) <= 5.0){//} && rv < 1.0){//this.human.radius){//} && rv < 20.0){
+        if (d2g <= 10 && dtheta <= 3){
             return collided = true
             //return collided = false // TODO: this is for testing! Do not forget this
         }

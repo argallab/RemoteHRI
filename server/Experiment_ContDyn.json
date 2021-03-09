@@ -10,8 +10,8 @@
                 {
                     "fps": 60,
                     "stimulusType": "continuous-world-dynamic",
-                    "worldWidth": 500,
-                    "worldHeight": 500,
+                    "worldWidth": 700,
+                    "worldHeight": 700,
                     "gridApproximation": 3,
                     "humanAgent": {
                         "x": 250,
@@ -34,13 +34,45 @@
                     "obstacles": [
                     ],
                     "goalLocationX": 600,
-                    "goalLocationY": 50,
+                    "goalLocationY": 0,
+                    "goalWidth": 100,
+                    "goalHeight": 100,
+                    "instructions": "Move the robot to the green square.",
+                    "postText": "Great job!"
+                },
+                {
+                    "fps": 60,
+                    "stimulusType": "continuous-world-dynamic",
+                    "worldWidth": 700,
+                    "worldHeight": 700,
+                    "gridApproximation": 3,
+                    "humanAgent": {
+                        "x": 250,
+                        "y": 250,
+                        "angle":90,
+                        "xv":0.0,
+                        "yv":0.0,
+                        "lv":0.0,
+                        "angularVelocity":0.0,
+                        "maxLinearVelocity": 100,
+                        "maxAngularVelocity": 50,
+                        "linearAcceleration": 10,
+                        "angularAcceleration": 10,
+                        "width": 50,
+                        "height": 50,
+                        "linearMu": 1,
+                        "rotationMu": 0.3
+                        
+                    },
+                    "obstacles": [
+                    ],
+                    "goalLocationX": 0,
+                    "goalLocationY": 600,
                     "goalWidth": 100,
                     "goalHeight": 100,
                     "instructions": "Move the robot to the green square.",
                     "postText": "Great job!"
                 }
-                
                 
             ],
             "postTrials": []
