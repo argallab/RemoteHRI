@@ -560,108 +560,33 @@ export default class ContinuousWorldDynamic extends React.Component {
             this.human.lv = 0.0
         }
 
-        // NOTE: added 2/2/2021 (awt)
-        //var h_centroid = this.human.getCentroid(this.human.points) // .getCentroid method returns incorrect values for human and goal
-        //var g_centroid = this.goal.getCentroid(this.goal)
-        //var g_centroid = this.goal.getCentroid()
-        //var hg = this.goal.getCentroid(this.human.points)
-        //console.log(h_centroid)
-        //console.log(g_centroid)
-        
-        //var h_centroid = [this.human.pos.x + (this.humanSpecs.width/2)*Math.cos(ti + 4.71239), this.human.pos.y + (this.humanSpecs.height/2)*Math.sin(ti + 4.71239)] // TODO: incorporate rotation components
-        //var h_centroid = [this.human.pos.x + (this.humanSpecs.width/2), this.human.pos.y + (this.humanSpecs.height/2)]
+        // NOTE: added 2/2/2021, revised 3/9/2021 (awt)
         var h_centroid = [this.human.pos.x, this.human.pos.y]
         var g_centroid = [this.goal.pos.x + this.goalSpecs.width/2, this.goal.pos.y + this.goalSpecs.height/2]
         var d_centroid = [(h_centroid[0] - g_centroid[0]), (h_centroid[1] - g_centroid[1])]
         var d2g = Math.sqrt(Math.pow(d_centroid[0], 2) + Math.pow(d_centroid[1], 2))
 
 
-        //console.log(this.goalSpecs.center)
-        console.log(h_centroid)
-        console.log(g_centroid)
-        console.log(d_centroid)
-        console.log(d2g)
-        console.log(this.radToDegree(ti)) // TODO: fix angular displacement metric error
-        console.log(360-ti_goal)
-
         // return whether we have reached the goal or not
         var human_goal_response = new SAT.Response();
-        //var collided = SAT.testPolygonPolygon(this.human, this.goal, human_goal_response)
         var collided = SAT.testPolygonPolygon(this.human, this.goal, human_goal_response)
-        //var rv = Math.sqrt(Math.pow(this.human.pos.x,2) + Math.pow(this.human.pos.y,2))
-        
-        //console.log(this.goalSpecs.height)
-        //console.log(this.goalSpecs.width)
-        //console.log(ti_goal)
-        //console.log(Math.cos(ti_goal))
-        //console.log(Math.sin(ti_goal))
-
-        //var r2g_x_tmp1 = this.human.pos.x
-        //var r2g_x_tmp2 = Math.sqrt(this.goalSpecs.width)
-        //var r2g_x_tmp3 = Math.cos(ti_goal)
-
-        //var r2g_y_tmp1 = this.human.pos.y
-        //var r2g_y_tmp2 = Math.sqrt(this.goalSpecs.height)
-        //var r2g_y_tmp3 = Math.sin(ti_goal)
-        
-        
-        
-        //console.log(h_centroid)
-        //console.log(h_centroid.x)
-        //console.log(h_centroid.y)
-        //console.log(g_centroid)
-        //console.log(g_centroid.x)
-        //console.log(g_centroid.y)
-
-        //var r2g_x = Math.pow(this.human.pos.x - (this.goalSpecs.x+Math.sqrt(this.goalSpecs.width)*Math.cos(ti_goal)), 2)
-        //var r2g_y = Math.pow(this.human.pos.y - (this.goalSpecs.y+Math.sqrt(this.goalSpecs.height)*Math.sin(ti_goal)), 2)
-        var r2g_x = Math.pow(this.human.pos.x - (this.goalSpecs.x), 2)
-        var r2g_y = Math.pow(this.human.pos.y - (this.goalSpecs.y), 2)
-        //onsole.log(r2g_x)
-        //console.log(r2g_y)
-
-        var r2g_x2 = Math.pow(this.human.pos.x  - g_centroid.y, 2)
-        var r2g_y2 = Math.pow(this.human.pos.y - g_centroid.x, 2)           
-        //console.log(r2g_x2)
-        //console.log(r2g_y2)
-
-        var rg = Math.sqrt(Math.pow(g_centroid.x, 2) + Math.pow(g_centroid.y, 2))
-        var rh = Math.sqrt(Math.pow(this.human.pos.x + this.humanSpecs.radius*Math.cos(ti), 2) + Math.pow(this.human.pos.y + this.humanSpecs.radius*Math.sin(ti), 2))
-        var dist2gr = Math.abs(rg-rh)
-
-
-        var r2g = Math.sqrt(r2g_x + r2g_y)
-        var r2g2 = Math.sqrt(r2g_x2 + r2g_y2)
-
-        var olap = human_goal_response.overlap // <-- NOTE: can call this to return a percent overlap // NOTE: change in goal collision
-        //console.log(olap)
+   
         var dtheta = Math.abs(this.radToDegree(ti) - (360-ti_goal))
-        console.log(dtheta)
-        //var dtheta = Math.atan2(ti_goal, ti)
-        // TODO : make changes to interpretation of ti angles
-        //console.log('distance from origin: %f', rv)
-        //console.log('percent overlap: %i', olap) % NOTE: the .overlap property returns strange values
-        //console.log('user heading: %f; goal heading: %f', ti, ti_goal)
-        //console.log(collided)
-        //console.log('ti_goal)
-        //console.log('human: (%f, %f); goal: (%f, %f)', this.human.pos.x,this.human.pos.y,this.goalSpecs.x,this.goalSpecs.y)
-        //console.log('distance2goalx: %f', r2g_x)
-        //console.log('distance2goaly: %f', r2g_y)
-        //console.log('goal@: (%f, %f); human@: (%f, %f)', g_centroid.x, g_centroid.y, this.human.pos.x, this.human.pos.y)
-        //console.log('goal@: (%f, %f); human@: (%f, %f); dist: ', g_centroid.x, g_centroid.y, this.human.pos.x, this.human.pos.y, dist2gr)
 
-        //console.log('goal@: (%f, %f); human@: (%f, %f); dist: ', this.goal.pos.x, this.goal.pos.y, this.human.pos.x, this.human.pos.y, dist2gr)
-        //console.log('ang2goal: %f; distance2goal: %f; %i', dtheta, r2g, collided)
-
-        //console.log('ang2goal: %f; distance2goal: %f; %i', dtheta, r2g, collided)
+        // these are for testing:
+        //console.log(h_centroid)
+        //console.log(g_centroid)
+        //console.log(d_centroid)
+        //console.log(d2g)
+        //console.log(this.radToDegree(ti))
+        //console.log(360-ti_goal)
+        //console.log(dtheta)
+        
         console.log('\n')
-        //if (collided && r2g <= 50 && dtheta <= 10){
-        //if (r2g <= 36 && r2g >= 20 && dtheta <= 10){
-        //if(collided){// && Math.abs(ti_goal - ti) <= 0.1){//this.human.radius){//} && rv < 20.0){
-        //if(olap > this.humanSpecs.radius/3.0){// && Math.abs(ti_goal - ti) <= 5.0){//} && rv < 1.0){//this.human.radius){//} && rv < 20.0){
+
         if (d2g <= 10 && dtheta <= 3){
             return collided = true
-            //return collided = false // TODO: this is for testing! Do not forget this
+            //return collided = false // TODO: this is for testing! Do not forget to switch back to 'true' case
         }
         else{
             return false

@@ -33,18 +33,18 @@ import numpy as np
 #########################
 START_DIST_THRESHOLD = 2  
 INTER_GOAL_THRESHOLD = 10
+global ab
 
 # NOTE: 0,0 -> bottom left
 
 ###########################################################
-# TODO: 90 or 0 -> which is 'up' (?)
 def create_start_location(width, height, phase):
     #all_cell_coords = list(itertools.product(range(width), range(height)))
     if phase == "train":
         rand_heading = np.random.randint(0, 360) ## CHECK THIS [1/16/2021]
         start_state = [(width/2), (height/2), rand_heading]
     elif phase == "test":
-        start_state = [(width/2), (height/2), -90] # TO-DO: CHECK IF THIS IS PROPER FORMAT
+        start_state = [(width/2), (height/2), -90] # TO-DO: CHECK IF THIS IS PROPER FORMAT; TODO: change -90 -> 270 (?)
     start_state_dict = dict()
     start_state_dict['x'] = start_state[0]
     start_state_dict['y'] = start_state[1]
@@ -70,25 +70,14 @@ def create_start_location(width, height, phase):
 def generate_mp_dict(pixel_scale, mp_list, start_location):
     mp_dict = dict()
     mp_dict['fw'] = [0, 1, 270]
-    mp_dict['bw'] = [0, -1, 270] 
-    #mp_dict['fwr'] = [2.236, 2.236, 315]  # TODO: FWR is being rendered strangely; collision bounds do not align with image
-    #mp_dict['fwl'] = [-2.236, 2.236, 225] 
-    #mp_dict['bwr'] = [-2.236, -2.236, 315] 
-    #mp_dict['bwl'] = [2.236, -2.236, 225] 
-    #mp_dict['fwr'] = [1/2, np.sqrt(3)/2, 315]  # TODO: FWR is being rendered strangely; collision bounds do not align with image
-    #mp_dict['fwl'] = [-1/2, np.sqrt(3)/2, 225] 
-    #mp_dict['bwr'] = [-1/2, -np.sqrt(3)/2, 315] 
-    #mp_dict['bwl'] = [1/2, -np.sqrt(3)/2, 225] 
+    mp_dict['bw'] = [0, -1, 270]
     mp_dict['fwr'] = [np.sqrt(2)/2, np.sqrt(2)/2, 315]
     mp_dict['fwl'] = [-np.sqrt(2)/2, np.sqrt(2)/2, 225] 
     mp_dict['bwr'] = [-np.sqrt(2)/2, -np.sqrt(2)/2, 315] 
     mp_dict['bwl'] = [np.sqrt(2)/2, -np.sqrt(2)/2, 225] 
-    mp_dict['cw'] = [0, 0, 245] 
-    mp_dict['ccw'] = [0, 0, 295]
-    for moprim in mp_list: # TODO: CHECK if this is the proper way to index
-        print(' ')
-        #print(mp_dict[moprim])
-        #
+    mp_dict['cw'] = [0, 0, 245] # TODO: proper angle?
+    mp_dict['ccw'] = [0, 0, 295] # TODO: proper angle?
+    for moprim in mp_list:
         if moprim != 'fw' and moprim != 'bw' and moprim != 'cw' and moprim != 'ccw':
             mp_dict[moprim][0] = mp_dict[moprim][0]*pixel_scale
             mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale
@@ -104,26 +93,15 @@ def generate_mp_dict(pixel_scale, mp_list, start_location):
         elif moprim == 'ccw':
             mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
             mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*50) # 50 is hardcoded user height
-        #print(mp_dict[moprim])
-        #
         mp_dict[moprim][0] = mp_dict[moprim][0]+start_location['x']
         mp_dict[moprim][1] = mp_dict[moprim][1]+start_location['y']
-        #print(mp_dict[moprim])
-        #
         if start_location['angle']-90 >= 0.01:
             mp_dict[moprim] = ego2world(start_location, mp_dict[moprim])
-            #print('\toutput from ego2world fn:')
             mp_dict[moprim] = ego2world_rot(start_location, mp_dict[moprim])
-            #print('\toutput from ego2world_rot fn:')
-            
-            #print(mp_dict[moprim])
-        #
         else:
-            #print(mp_dict[moprim])
-            print(' ')
-        
-        print(' ')
-        #
+            continue
+            
+        #print('\n')
     return mp_dict
 #
 def generate_mp_list():
@@ -196,9 +174,9 @@ def ego2world(start_location, goal_location):
 
     goal_location_temp = np.array([gx, gy, 0.0, 1.0])
     tf_goal = np.dot(tf_mat, goal_location_temp) #np.matmul(tf_mat, goal_location_temp)
-    print('\n')
-    print(tf_goal)
-    print('\n')
+    #print('\n')
+    #print(tf_goal)
+    #print('\n')
     #recv_ang = recover_angle(tf_goal, goal_location, start_location)
 
     # # TODO: CHECK THIS -> NOTE: seems to work; TODO: visual confirmation
@@ -312,7 +290,10 @@ def generate_grid_world_trials(args):
     #
     num_trials_total = num_train_trials + num_test_trials
     num_blocks_total = num_train_blocks + num_test_blocks
-
+    print('\n')
+    print(num_trials_total)
+    print(num_blocks_total)
+    print('\n')
     # experimental information (for logging to .json)
     experiment_name = args.experiment_name
     experiment_json_name = args.experiment_json_name
@@ -344,10 +325,14 @@ def generate_grid_world_trials(args):
     #
 
     ## populate trials in each block, for all blocks (train + test blocks)
+    ab = 0
+    a = 0
+    b = 0
     for block_num in range(num_blocks_total):
         current_block = collections.OrderedDict()
         #
         if block_num < num_train_blocks: # (training block case)
+            a = a + 1
             current_block['blockName'] = "Training Block {}".format(block_num)
             current_block['preTrials'] = []
             #training_block_intro_text_trial = collections.OrderedDict()
@@ -356,12 +341,14 @@ def generate_grid_world_trials(args):
             #current_block['preTrials'].append(training_block_intro_text_trial)
             phase = "train" # (phase flag set)
         elif block_num >= num_train_blocks: # (testing block case)
+            b = b + 1
             current_block['blockName'] = "Testing Block {}".format(block_num-num_train_blocks)
             current_block['preTrials'] = []
             phase = "test" # (phase flag set)
 
         print(current_block['blockName'])
-
+        ab = a + b
+        
         ## arguments to shuffle trials within a given block
         current_block['shuffleTrials'] = is_shuffle_trials
         current_block['trials'] = []
@@ -386,14 +373,16 @@ def generate_grid_world_trials(args):
             trial_dict['worldHeight'] = worldHeight
 
             if num_train_blocks != 0:
+                print('\ntraining block case 1')
                 if block_num == 0: # (training block case)
-                    trial_dict['instructions'] = "TRIAL INSTRUCTIONS: This is a grid-world. Move the robot with WASD or the arrow keys in order to reach the goals as they appear."
+                    print(' -> training block case 2')
+                    trial_dict['instructions'] = "[0] TRIAL INSTRUCTIONS: ."
                 elif block_num == num_train_blocks: # (testing block case)
-                    trial_dict['instructions'] = "TEST INSTRUCTIONS: This is a grid-world. Move the robot with WASD or the arrow keys in order to reach the goals as they appear."
+                    trial_dict['instructions'] = "[1] TEST INSTRUCTIONS: ."
                 #else:
                 #    trial_dict['instructions'] = "Press any key to continue..." # CHECK
             elif num_train_blocks == 0:
-                trial_dict['instructions'] = "TEST INSTRUCTIONS: Move the robot with WASD or the arrow keys in order to reach the goals as they appear; mp type = "
+                trial_dict['instructions'] = "TEST INSTRUCTIONS:  mp type = "
 
             ## TO-DO: FIGURE THIS OUT :^)
             if block_num < num_train_blocks: # (training block case)
@@ -476,6 +465,8 @@ def generate_grid_world_trials(args):
     with open(full_path_to_json, 'w') as fp:
         json.dump(experiment_dict, fp)
 
+    print('\n>> total number of trials: ' + str(ab) + '; with ' + str(a) + ' training blocks, ' + str(b) + ' test blocks.')
+
 ## main function + argument parsing
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -484,9 +475,9 @@ if __name__ == "__main__":
     parser.add_argument('--userWidth', action='store', type=int, default=50, help="width of user's vehicle")
     parser.add_argument('--userHeight', action='store', type=int, default=50, help="height of user's vehicle")
     parser.add_argument('--num_train_blocks', action='store', type=int, default=0, help="number of training blocks")
-    parser.add_argument('--num_train_trials', action='store', type=int, default=8, help="number of trials per training block")
-    parser.add_argument('--num_test_blocks', action='store', type=int, default=3, help="number of testing blocks")
-    parser.add_argument('--num_test_trials', action='store', type=int, default=8, help="number of trials per testing block")
+    parser.add_argument('--num_train_trials', action='store', type=int, default=1, help="number of trials per training block")
+    parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
+    parser.add_argument('--num_test_trials', action='store', type=int, default=3, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
     parser.add_argument('--is_shuffle_trials', action='store_true', default=False, help="flag for shuffling trials")
