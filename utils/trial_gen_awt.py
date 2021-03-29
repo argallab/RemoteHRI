@@ -41,8 +41,8 @@ global ab
 def create_start_location(width, height, phase):
     #all_cell_coords = list(itertools.product(range(width), range(height)))
     if phase == "train":
-        rand_heading = np.random.randint(0, 360) ## CHECK THIS [1/16/2021]
-        start_state = [(width/2), (height/2), rand_heading]
+        rand_heading = np.random.randint(0, 360) ## CHECK THIS [1/16/2021] 
+        start_state = [(width/2), (height/2), -90]
     elif phase == "test":
         start_state = [(width/2), (height/2), -90] # TO-DO: CHECK IF THIS IS PROPER FORMAT; TODO: change -90 -> 270 (?)
     start_state_dict = dict()
@@ -334,6 +334,7 @@ def generate_grid_world_trials(args):
         if block_num < num_train_blocks: # (training block case)
             a = a + 1
             current_block['blockName'] = "Training Block {}".format(block_num)
+            current_block['block_type'] = 'train'
             current_block['preTrials'] = []
             #training_block_intro_text_trial = collections.OrderedDict()
             #training_block_intro_text_trial['stimulusType'] = "test-display"
@@ -343,6 +344,7 @@ def generate_grid_world_trials(args):
         elif block_num >= num_train_blocks: # (testing block case)
             b = b + 1
             current_block['blockName'] = "Testing Block {}".format(block_num-num_train_blocks)
+            current_block['block_type'] = 'test'
             current_block['preTrials'] = []
             phase = "test" # (phase flag set)
 
@@ -376,9 +378,9 @@ def generate_grid_world_trials(args):
                 print('\ntraining block case 1')
                 if block_num == 0: # (training block case)
                     print(' -> training block case 2')
-                    trial_dict['instructions'] = "[0] TRIAL INSTRUCTIONS: ."
+                    trial_dict['instructions'] = "[0] TRAINING INSTRUCTIONS: ."
                 elif block_num == num_train_blocks: # (testing block case)
-                    trial_dict['instructions'] = "[1] TEST INSTRUCTIONS: ."
+                    trial_dict['instructions'] = "[1] TRAINING INSTRUCTIONS: ."
                 #else:
                 #    trial_dict['instructions'] = "Press any key to continue..." # CHECK
             elif num_train_blocks == 0:
@@ -474,10 +476,10 @@ if __name__ == "__main__":
     parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
     parser.add_argument('--userWidth', action='store', type=int, default=50, help="width of user's vehicle")
     parser.add_argument('--userHeight', action='store', type=int, default=50, help="height of user's vehicle")
-    parser.add_argument('--num_train_blocks', action='store', type=int, default=0, help="number of training blocks")
-    parser.add_argument('--num_train_trials', action='store', type=int, default=1, help="number of trials per training block")
+    parser.add_argument('--num_train_blocks', action='store', type=int, default=1, help="number of training blocks")
+    parser.add_argument('--num_train_trials', action='store', type=int, default=8, help="number of trials per training block")
     parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
-    parser.add_argument('--num_test_trials', action='store', type=int, default=3, help="number of trials per testing block")
+    parser.add_argument('--num_test_trials', action='store', type=int, default=8, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
     parser.add_argument('--is_shuffle_trials', action='store_true', default=False, help="flag for shuffling trials")

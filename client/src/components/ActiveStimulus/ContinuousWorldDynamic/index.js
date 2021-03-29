@@ -9,6 +9,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         super(props)
 
         var data = this.props.data
+        //var block_type = data.blockType
 
         // width and height of the world
         // eventually should be converted to percentages to allow for variable width and height depending on window size
@@ -66,6 +67,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             y: data.goalLocationY,
             angle: data.goalLocationAngle,
             trial_type: data.trial_type,
+            block_type: data.block_type,
             goal2plot: data.goal_img
         }
         // obstacles is a list specified in the json. For eeach element in the obstacle list extracted the following object
@@ -581,8 +583,8 @@ export default class ContinuousWorldDynamic extends React.Component {
         //console.log(this.radToDegree(ti))
         //console.log(360-ti_goal)
         //console.log(dtheta)
-        
-        console.log('\n')
+        console.log(this.goal.block_type)
+        //console.log('\n')
 
         if (d2g <= 10 && dtheta <= 3){
             return collided = true

@@ -21,6 +21,9 @@ export default class TwoDWorld extends React.Component {
         //var worldBoundaryPosition = {position: "center", width: 400, height: 400, bottom: 450/2 , left: 450/2}
         var worldBoundaryPosition = {position: "center", width: 850, height: 850, bottom: 0, left: 0}//bottom: this.props.human.width/2, left: this.props.human.width/2}
         var trial_type_bound = this.props.trial_type
+        var block_type_check = this.props.block_type
+        //console.log(block_type_check)
+
 
         var src_bound = this.props.bound.bound2plot
         let boundary2plot = src_bound
@@ -48,6 +51,8 @@ export default class TwoDWorld extends React.Component {
         var worldObstacles = this.props.obstacles.map((o) => <div style={{position: "absolute", width: o.width, height: o.height, bottom: o.y, left: o.x}} className="grid-goal"></div>)
         
         
+        //if trial_type_bound === 
+
         //<div id="worldgoal" style={worldgoalPosition} src="worldauto.png"  className="grid-goal"></div> (from line 32)
         //{this.props.goal && <img id="worldgoal" style={worldgoalPosition} src="png/robot_cw.png" />}
         //{this.props.goal && <img id="worldgoal" style={worldgoalPosition} src="png/robot_cw.png" className="circle" />}
@@ -383,18 +388,20 @@ export default class TwoDWorld extends React.Component {
 
         }
         else if (test_bool == 3){
-            return (
-                <div className="world-container">
-                    <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
-                    <div>
-                        
-                        {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
-                        <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
-                              
+            
+                return (
+                    <div className="world-container">
+                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
+                        <div>
+                            
+                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
+                            <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
+                                
+                        </div>
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v2.png" />}
                     </div>
-                    {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v2.png" />}
-                </div>
-            )
+                )
+            
         }
         else {
             return (
