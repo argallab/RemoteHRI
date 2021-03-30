@@ -9,13 +9,14 @@ export default class ContinuousWorldDynamic extends React.Component {
         super(props)
 
         var data = this.props.data
-        //var block_type = data.blockType
+        
 
         // width and height of the world
         // eventually should be converted to percentages to allow for variable width and height depending on window size
         this.worldSpecs = {
             width: data.worldWidth,
             height: data.worldHeight,
+            
             //trial_type: data.trial_type // CHECK -awt 1/26/2021
         }
 
@@ -53,7 +54,8 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         // set up variable values for boundaries
         this.boundSpecs = {
-            bound2plot: data.boundary
+            bound2plot: data.boundary,
+            boundbool: data.blockType // if "train" -> no boundaries; if "test" -> show boundaries
         }
 
         // console.log(this.bound2plot)
@@ -67,7 +69,7 @@ export default class ContinuousWorldDynamic extends React.Component {
             y: data.goalLocationY,
             angle: data.goalLocationAngle,
             trial_type: data.trial_type,
-            block_type: data.block_type,
+            //block_type: data.blockType,
             goal2plot: data.goal_img
         }
         // obstacles is a list specified in the json. For eeach element in the obstacle list extracted the following object
@@ -583,10 +585,16 @@ export default class ContinuousWorldDynamic extends React.Component {
         //console.log(this.radToDegree(ti))
         //console.log(360-ti_goal)
         //console.log(dtheta)
-        console.log(this.goal.block_type)
+        //console.log(this.goal.blockType)
         //console.log('\n')
+    
+        // set thresholds for 'goal reached' condition
+        var d2g_thresh = 10
+        var dt_thresh = 25
+        var lv_thresh = 3
+        var tv_thresh = 2
 
-        if (d2g <= 10 && dtheta <= 3){
+        if (d2g <= d2g_thresh && dtheta <= dt_thresh && this.human.lv < lv_thresh && this.human.tv < tv_thresh){
             return collided = true
             //return collided = false // TODO: this is for testing! Do not forget to switch back to 'true' case
         }

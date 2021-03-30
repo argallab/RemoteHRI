@@ -21,8 +21,18 @@ export default class TwoDWorld extends React.Component {
         //var worldBoundaryPosition = {position: "center", width: 400, height: 400, bottom: 450/2 , left: 450/2}
         var worldBoundaryPosition = {position: "center", width: 850, height: 850, bottom: 0, left: 0}//bottom: this.props.human.width/2, left: this.props.human.width/2}
         var trial_type_bound = this.props.trial_type
-        var block_type_check = this.props.block_type
-        //console.log(block_type_check)
+
+
+
+
+
+        var block_type_check = this.props.bound.boundbool
+        let block_type_var = block_type_check
+
+        console.log(block_type_var)
+
+
+
 
 
         var src_bound = this.props.bound.bound2plot
@@ -398,7 +408,7 @@ export default class TwoDWorld extends React.Component {
                             <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
                                 
                         </div>
-                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v2.png" />}
+                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v3.png" />}
                     </div>
                 )
             

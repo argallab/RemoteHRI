@@ -75,8 +75,15 @@ def generate_mp_dict(pixel_scale, mp_list, start_location):
     mp_dict['fwl'] = [-np.sqrt(2)/2, np.sqrt(2)/2, 225] 
     mp_dict['bwr'] = [-np.sqrt(2)/2, -np.sqrt(2)/2, 315] 
     mp_dict['bwl'] = [np.sqrt(2)/2, -np.sqrt(2)/2, 225] 
-    mp_dict['cw'] = [0, 0, 245] # TODO: proper angle?
+    mp_dict['cw'] = [0, 0, 245] # TODO: proper angle? CHANGE TO ~180 degree turn
     mp_dict['ccw'] = [0, 0, 295] # TODO: proper angle?
+    mp_dict['fwr_cw'] = [0.3, 0, 90]
+    mp_dict['fwl_ccw'] = [-0.3, 0, 90]
+    mp_dict['bwr_ccw'] = [0.3, 0, 90]
+    mp_dict['bwl_cw'] = [-0.3, 0, 90]
+
+    somp_scaler = 1000
+
     for moprim in mp_list:
         if moprim != 'fw' and moprim != 'bw' and moprim != 'cw' and moprim != 'ccw':
             mp_dict[moprim][0] = mp_dict[moprim][0]*pixel_scale
@@ -93,6 +100,18 @@ def generate_mp_dict(pixel_scale, mp_list, start_location):
         elif moprim == 'ccw':
             mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
             mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*50) # 50 is hardcoded user height
+        elif moprim == 'fwr_cw':
+            mp_dict[moprim][0] = mp_dict[moprim][0]*(somp_scaler)#*pixel_scale)
+            mp_dict[moprim][1] = mp_dict[moprim][1]*(somp_scaler)#*pixel_scale)
+        elif moprim == 'fwl_ccw':
+            mp_dict[moprim][0] = mp_dict[moprim][0]*(somp_scaler)#*pixel_scale)
+            mp_dict[moprim][1] = mp_dict[moprim][1]*(somp_scaler)#*pixel_scale)
+        elif moprim == 'bwr_ccw':
+            mp_dict[moprim][0] = mp_dict[moprim][0]*(somp_scaler)#*pixel_scale)
+            mp_dict[moprim][1] = mp_dict[moprim][1]*(somp_scaler)#*pixel_scale)
+        elif moprim == 'bwl_cw':
+            mp_dict[moprim][0] = mp_dict[moprim][0]*(somp_scaler)#*pixel_scale)
+            mp_dict[moprim][1] = mp_dict[moprim][1]*(somp_scaler)#*pixel_scale)
         mp_dict[moprim][0] = mp_dict[moprim][0]+start_location['x']
         mp_dict[moprim][1] = mp_dict[moprim][1]+start_location['y']
         if start_location['angle']-90 >= 0.01:
@@ -105,7 +124,10 @@ def generate_mp_dict(pixel_scale, mp_list, start_location):
     return mp_dict
 #
 def generate_mp_list():
-    mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw']
+    #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw']
+    #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl']
+    mp_list = ['fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
+    #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
     return mp_list
 
 def generate_mp_tf_dict():
@@ -118,6 +140,11 @@ def generate_mp_tf_dict():
     mp_tf ['bwl'] = [-1.0, 1.0] 
     mp_tf ['cw'] = [0.0, 0.0] 
     mp_tf ['ccw'] = [0.0, 0.0]
+    mp_tf['fwr_cw'] = [0.0, 0.0] 
+    mp_tf['fwl_ccw'] = [0.0, 0.0] 
+    mp_tf['bwr_ccw'] = [0.0, 0.0] # TODO: check this; temp fix
+    mp_tf['bwl_cw'] = [0.0, 0.0] # TODO: check this; temp fix
+     
     return mp_tf
 
 
@@ -128,24 +155,54 @@ def generate_boundary_dict():
     boundary_dict['bw'] = "png/bw.png"
     boundary_dict['fwr'] = "png/fwr.png"
     boundary_dict['fwl'] = "png/fwl.png"
-    boundary_dict['bwr'] = "png/bwr.png"
-    boundary_dict['bwl'] = "png/bwl.png"
+    boundary_dict['bwr'] = "png/bwl.png" # temp fix for naming
+    boundary_dict['bwl'] = "png/bwr.png" # temp fix for naming
     boundary_dict['ccw'] = "png/ccw.png"
     boundary_dict['cw'] = "png/cw.png"
+    boundary_dict['fwr_cw'] = "png/fwr_cw.png"
+    boundary_dict['fwl_ccw'] = "png/fwl_ccw.png"
+    boundary_dict['bwr_ccw'] = "png/bwr_ccw.png"
+    boundary_dict['bwl_cw'] = "png/bwl_cw.png"
 
     return boundary_dict
 
 def generate_goal_dict():
 
     goal_dict = {}
-    goal_dict['fw'] = "png/goal_icon_v2_fwbw.png"
-    goal_dict['bw'] = "png/goal_icon_v2_fwbw.png"
-    goal_dict['fwr'] = "png/goal_icon_v2_fwrbwl.png"
-    goal_dict['fwl'] = "png/goal_icon_v2_fwlbwr.png"
-    goal_dict['bwr'] = "png/goal_icon_v2_fwrbwl.png" #
-    goal_dict['bwl'] = "png/goal_icon_v2_fwlbwr.png" #
-    goal_dict['ccw'] = "png/goal_icon_v2_ccw.png"
-    goal_dict['cw'] = "png/goal_icon_v2_cw.png"
+    #goal_dict['fw'] = "png/goal_icon_v2_fwbw.png"
+    #goal_dict['bw'] = "png/goal_icon_v2_fwbw.png"
+    #goal_dict['fwr'] = "png/goal_icon_v2_fwrbwl.png"
+    #goal_dict['fwl'] = "png/goal_icon_v2_fwlbwr.png"
+    #goal_dict['bwr'] = "png/goal_icon_v2_fwrbwl.png" # 
+    #goal_dict['bwl'] = "png/goal_icon_v2_fwlbwr.png" #
+    #goal_dict['ccw'] = "png/goal_icon_v2_ccw.png"
+    #goal_dict['cw'] = "png/goal_icon_v2_cw.png"
+
+    #goal_dict['fw'] = "png/goal_icon_v3_fwbw.png"
+    #goal_dict['bw'] = "png/goal_icon_v3_fwbw.png"
+    #goal_dict['fwr'] = "png/goal_icon_v3_fwrbwl.png"
+    #goal_dict['fwl'] = "png/goal_icon_v3_fwlbwr.png"
+    #goal_dict['bwr'] = "png/goal_icon_v3_fwrbwl.png" # 
+    #goal_dict['bwl'] = "png/goal_icon_v3_fwlbwr.png" #
+    #goal_dict['ccw'] = "png/goal_icon_v3_ccw.png"
+    #goal_dict['cw'] = "png/goal_icon_v3_cw.png"
+    #goal_dict['fwr_cw'] = "png/goal_icon_v3_270deg.png"
+    #goal_dict['fwl_ccw'] = "png/goal_icon_v3_270deg.png"
+    #goal_dict['bwr_ccw'] = "png/goal_icon_v3_270deg.png"
+    #goal_dict['bwl_cw'] = "png/goal_icon_v3_270deg.png"
+
+    goal_dict['fw'] = "png/goal_icon_v4_fwbw.png"
+    goal_dict['bw'] = "png/goal_icon_v4_fwbw.png"
+    goal_dict['fwr'] = "png/goal_icon_v4_fwrbwl.png"
+    goal_dict['fwl'] = "png/goal_icon_v4_fwlbwr.png"
+    goal_dict['bwr'] = "png/goal_icon_v4_fwrbwl.png" # 
+    goal_dict['bwl'] = "png/goal_icon_v4_fwlbwr.png" #
+    goal_dict['ccw'] = "png/goal_icon_v4_ccw.png"
+    goal_dict['cw'] = "png/goal_icon_v4_cw.png"
+    goal_dict['fwr_cw'] = "png/goal_icon_v4_270deg.png"
+    goal_dict['fwl_ccw'] = "png/goal_icon_v4_270deg.png"
+    goal_dict['bwr_ccw'] = "png/goal_icon_v4_270deg.png"
+    goal_dict['bwl_cw'] = "png/goal_icon_v4_270deg.png"
 
     return goal_dict
 
@@ -334,7 +391,7 @@ def generate_grid_world_trials(args):
         if block_num < num_train_blocks: # (training block case)
             a = a + 1
             current_block['blockName'] = "Training Block {}".format(block_num)
-            current_block['block_type'] = 'train'
+            current_block['block_type'] = "train"
             current_block['preTrials'] = []
             #training_block_intro_text_trial = collections.OrderedDict()
             #training_block_intro_text_trial['stimulusType'] = "test-display"
@@ -344,7 +401,7 @@ def generate_grid_world_trials(args):
         elif block_num >= num_train_blocks: # (testing block case)
             b = b + 1
             current_block['blockName'] = "Testing Block {}".format(block_num-num_train_blocks)
-            current_block['block_type'] = 'test'
+            current_block['block_type'] = "test"
             current_block['preTrials'] = []
             phase = "test" # (phase flag set)
 
@@ -437,6 +494,9 @@ def generate_grid_world_trials(args):
             #trial_dict['goalLocationX'] = goal_location[0] - w_tmp/2 + tf_x*w_tmp/2*np.cos((45)+trial_dict['goalLocationAngle']) 
             #trial_dict['goalLocationY'] = goal_location[1] - h_tmp/2 + tf_y*h_tmp/2*np.sin((45)+trial_dict['goalLocationAngle'])  
             trial_dict['instructions'] = "TEST INSTRUCTIONS: Move the robot with WASD or the arrow keys in order to reach the goals as they appear; \nFOR TESTING: mp type = " + str(trial_type)
+            print('\n>>' + str(current_block['block_type']))
+            print('\n')
+            trial_dict['blockType'] = current_block['block_type']
             trial_dict['trial_type'] = trial_type
             trial_dict['boundary'] = boundary_dict[trial_dict['trial_type']]
             trial_dict['goal_img'] = goal_dict[trial_dict['trial_type']]
@@ -450,7 +510,7 @@ def generate_grid_world_trials(args):
         current_block['postTrials'] = []
         block_end_text_trial = collections.OrderedDict()
         block_end_text_trial['stimulusType'] = "text-display"
-        block_end_text_trial['text'] = "<pdiv><h3>Current block over. Press any key for next block</h3><hr/></div>"
+        block_end_text_trial['text'] = "<div><h3>Current block over. Press any key for next block</h3><hr/></div>" # pdiv -> div [3/29/2021]
         current_block['postTrials'].append(block_end_text_trial)
 
         experiment_dict["blocks"].append(current_block)
