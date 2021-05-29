@@ -34,6 +34,8 @@ import numpy as np
 START_DIST_THRESHOLD = 2  
 INTER_GOAL_THRESHOLD = 10
 global ab
+global trial_type_idx
+trial_type_idx = -1
 
 # NOTE: 0,0 -> bottom left
 
@@ -53,10 +55,10 @@ def create_start_location(width, height, phase):
     start_state_dict['yv'] = 0.0
     start_state_dict['lv'] = 0.0
     start_state_dict['angularVelocity'] = 0.0
-    start_state_dict['maxLinearVelocity'] = 100
-    start_state_dict['maxAngularVelocity'] = 50
-    start_state_dict['linearAcceleration'] = 10
-    start_state_dict['angularAcceleration'] = 10
+    start_state_dict['maxLinearVelocity'] = 150
+    start_state_dict['maxAngularVelocity'] = 100
+    start_state_dict['linearAcceleration'] = 50
+    start_state_dict['angularAcceleration'] = 15
     start_state_dict['width'] = 50
     start_state_dict['height'] = 50
     start_state_dict['linearMu'] = 1
@@ -67,7 +69,7 @@ def create_start_location(width, height, phase):
 # NOTE: x, y values in pixels; include a scale factor; defined in vehicle ego frame
 # TODO: abs(5) -> abs(1)
 # TODO: transform to world coord. before adding to start loc.
-def generate_mp_dict(pixel_scale, mp_list, start_location):
+def generate_mp_dict(pixel_scale, mp_list, start_location, height):
     mp_dict = dict()
     mp_dict['fw'] = [0, 1, 270]
     mp_dict['bw'] = [0, -1, 270]
@@ -75,46 +77,66 @@ def generate_mp_dict(pixel_scale, mp_list, start_location):
     mp_dict['fwl'] = [-np.sqrt(2)/2, np.sqrt(2)/2, 225] 
     mp_dict['bwr'] = [-np.sqrt(2)/2, -np.sqrt(2)/2, 315] 
     mp_dict['bwl'] = [np.sqrt(2)/2, -np.sqrt(2)/2, 225] 
-    mp_dict['cw'] = [0, 0, 245] # TODO: proper angle? CHANGE TO ~180 degree turn
-    mp_dict['ccw'] = [0, 0, 295] # TODO: proper angle?
-    mp_dict['fwr_cw'] = [0.3, 0, 90]
-    mp_dict['fwl_ccw'] = [-0.3, 0, 90]
-    mp_dict['bwr_ccw'] = [0.3, 0, 90]
-    mp_dict['bwl_cw'] = [-0.3, 0, 90]
+    mp_dict['cw'] = [0, 0, 75] # TODO: proper angle? CHANGE TO ~180 degree turn
+    mp_dict['ccw'] = [0, 0, 105] # TODO: proper angle?
+    mp_dict['fwr_cw'] = [0.4, 0, 90]#[0.3, 0, 90]
+    mp_dict['fwl_ccw'] = [-0.4, 0, 90]#[-0.3, 0, 90]
+    mp_dict['bwr_ccw'] = [0.4, 0, 90]#[0.3, 0, 90]
+    mp_dict['bwl_cw'] = [-0.4, 0, 90]#[-0.3, 0, 90]
 
-    somp_scaler = 1000
+    mp_dict['fw'] = [0, 1, 270]
+    mp_dict['bw'] = [0, -1, 270]
+    mp_dict['fwr'] = [np.sqrt(2)/2, np.sqrt(2)/2, 315]
+    mp_dict['fwl'] = [-np.sqrt(2)/2, np.sqrt(2)/2, 225] 
+    mp_dict['bwr'] = [-np.sqrt(2)/2, -np.sqrt(2)/2, 315] 
+    mp_dict['bwl'] = [np.sqrt(2)/2, -np.sqrt(2)/2, 225] 
+    mp_dict['cw'] = [0, 0, 75] # TODO: proper angle? CHANGE TO ~180 degree turn
+    mp_dict['ccw'] = [0, 0, 105] # TODO: proper angle?
+    mp_dict['fwr_cw'] = [0.4, 0, 90]#[0.3, 0, 90]
+    mp_dict['fwl_ccw'] = [-0.4, 0, 90]#[-0.3, 0, 90]
+    mp_dict['bwr_ccw'] = [0.4, 0, 90]#[0.3, 0, 90]
+    mp_dict['bwl_cw'] = [-0.4, 0, 90]#[-0.3, 0, 90]
+
+    somp_scaler = pixel_scale#1#pixel_scale/3
 
     for moprim in mp_list:
-        if moprim != 'fw' and moprim != 'bw' and moprim != 'cw' and moprim != 'ccw':
-            mp_dict[moprim][0] = mp_dict[moprim][0]*pixel_scale
-            mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale
+        if moprim != 'fw' and moprim != 'bw' and moprim != 'cw' and moprim != 'ccw' and moprim != 'fwr_cw' and moprim != 'fwl_ccw' and moprim != 'bwr_ccw' and moprim != 'bwl_cw':
+            if moprim == 'fwr' or moprim == 'bwr':
+                mp_dict[moprim][0] = (mp_dict[moprim][0]*pixel_scale)-0.5*height
+                mp_dict[moprim][1] = (mp_dict[moprim][1]*pixel_scale)-0.5*height
+            elif moprim == 'fwl' or moprim == 'bwl':
+                mp_dict[moprim][0] = (mp_dict[moprim][0]*pixel_scale)-0.5*height
+                mp_dict[moprim][1] = (mp_dict[moprim][1]*pixel_scale)-0.5*height
+
+            #mp_dict[moprim][0] = (mp_dict[moprim][0]*pixel_scale)
+            #mp_dict[moprim][1] = (mp_dict[moprim][1]*pixel_scale)-0.5*height
         elif moprim == 'fw':
-            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
-            mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale#(0.2*pixel_scale)#75
+            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*height) # 50 is hardcoded user height
+            mp_dict[moprim][1] = (mp_dict[moprim][1]*pixel_scale)-1.0*height#(0.2*pixel_scale)#75
         elif moprim == 'bw':
-            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
-            mp_dict[moprim][1] = mp_dict[moprim][1]*pixel_scale#*(0.2*pixel_scale)#*75
+            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*height) # 50 is hardcoded user height
+            mp_dict[moprim][1] = (mp_dict[moprim][1]*pixel_scale)#+1.0*height#*(0.2*pixel_scale)#*75
         elif moprim == 'cw':
-            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
-            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*50) # 50 is hardcoded user height
+            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*height) # 50 is hardcoded user height
+            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*height) # 50 is hardcoded user height
         elif moprim == 'ccw':
-            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*50) # 50 is hardcoded user height
-            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*50) # 50 is hardcoded user height
+            mp_dict[moprim][0] = mp_dict[moprim][0]-(0.5*height) # 50 is hardcoded user height
+            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*height) # 50 is hardcoded user height
         elif moprim == 'fwr_cw':
-            mp_dict[moprim][0] = mp_dict[moprim][0]*(somp_scaler)#*pixel_scale)
-            mp_dict[moprim][1] = mp_dict[moprim][1]*(somp_scaler)#*pixel_scale)
+            mp_dict[moprim][0] = ((mp_dict[moprim][0])*(somp_scaler))-(0.5*height)#*pixel_scale)
+            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*height)#-50#(0.5*50)#*(somp_scaler)#*pixel_scale)
         elif moprim == 'fwl_ccw':
-            mp_dict[moprim][0] = mp_dict[moprim][0]*(somp_scaler)#*pixel_scale)
-            mp_dict[moprim][1] = mp_dict[moprim][1]*(somp_scaler)#*pixel_scale)
-        elif moprim == 'bwr_ccw':
-            mp_dict[moprim][0] = mp_dict[moprim][0]*(somp_scaler)#*pixel_scale)
-            mp_dict[moprim][1] = mp_dict[moprim][1]*(somp_scaler)#*pixel_scale)
-        elif moprim == 'bwl_cw':
-            mp_dict[moprim][0] = mp_dict[moprim][0]*(somp_scaler)#*pixel_scale)
-            mp_dict[moprim][1] = mp_dict[moprim][1]*(somp_scaler)#*pixel_scale)
+            mp_dict[moprim][0] = mp_dict[moprim][0]*(somp_scaler)-(0.5*height)#*pixel_scale)
+            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*height)#-50#(0.5*50)#*(somp_scaler)#*pixel_scale)
+        elif moprim == 'bwr_ccw': ## TODO: fix offset
+            mp_dict[moprim][0] = ((mp_dict[moprim][0])*(somp_scaler))-(0.5*height)#*pixel_scale)
+            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*height)#-50#(0.5*50)#*(somp_scaler)#*pixel_scale)
+        elif moprim == 'bwl_cw': ## TODO: fix offset
+            mp_dict[moprim][0] = (mp_dict[moprim][0]*(somp_scaler))-(0.5*height)#*pixel_scale)
+            mp_dict[moprim][1] = mp_dict[moprim][1]-(0.5*height)#-50#(0.5*50)#*(somp_scaler)#*pixel_scale)
         mp_dict[moprim][0] = mp_dict[moprim][0]+start_location['x']
         mp_dict[moprim][1] = mp_dict[moprim][1]+start_location['y']
-        if start_location['angle']-90 >= 0.01:
+        if start_location['angle']+90 >= 0.01: # TODO: check this; changed -90 -> +90 [3/31/2021]
             mp_dict[moprim] = ego2world(start_location, mp_dict[moprim])
             mp_dict[moprim] = ego2world_rot(start_location, mp_dict[moprim])
         else:
@@ -126,8 +148,9 @@ def generate_mp_dict(pixel_scale, mp_list, start_location):
 def generate_mp_list():
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw']
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl']
-    mp_list = ['fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
+    mp_list = ['fwr', 'fwl', 'bwr', 'bwl', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
+    #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
     return mp_list
 
 def generate_mp_tf_dict():
@@ -140,10 +163,10 @@ def generate_mp_tf_dict():
     mp_tf ['bwl'] = [-1.0, 1.0] 
     mp_tf ['cw'] = [0.0, 0.0] 
     mp_tf ['ccw'] = [0.0, 0.0]
-    mp_tf['fwr_cw'] = [0.0, 0.0] 
-    mp_tf['fwl_ccw'] = [0.0, 0.0] 
-    mp_tf['bwr_ccw'] = [0.0, 0.0] # TODO: check this; temp fix
-    mp_tf['bwl_cw'] = [0.0, 0.0] # TODO: check this; temp fix
+    mp_tf['fwr_cw'] = [-1.0, 1.0] 
+    mp_tf['fwl_ccw'] = [1.0, -1.0] 
+    mp_tf['bwr_ccw'] = [1.0, -1.0] # TODO: check this; temp fix
+    mp_tf['bwl_cw'] = [-1.0, 1.0] # TODO: check this; temp fix
      
     return mp_tf
 
@@ -306,6 +329,7 @@ def normalizeAngle(angle):
 
 #########################################################
 def generate_goal_list(mp_dict, mp_list, start_state_dict, phase, goal_list):
+    global trial_type_idx
     #all_cell_coords = list(itertools.product(range(width), range(height)))
     goal_list = []
     #dist_to_goals = [-100]
@@ -316,7 +340,10 @@ def generate_goal_list(mp_dict, mp_list, start_state_dict, phase, goal_list):
     # goal_list; use check on goal list to make sure repeated trials
     # do not occur in any given block; goal_tally() fn for this (!)
     #
-    trial_type_idx = np.random.randint(0, num_moprim)
+    #trial_type_idx = np.random.randint(0, num_moprim)
+    trial_type_idx = trial_type_idx + 1
+    if trial_type_idx >= num_moprim:
+        trial_type_idx = 0
     trial_type = mp_list[trial_type_idx]
 
     #while min(dist_to_goals) < START_DIST_THRESHOLD: # TODO: check if necessary; noise?
@@ -452,7 +479,7 @@ def generate_grid_world_trials(args):
             ## generate motion primitive dictionary + list for indexing ## NOTE: PIXEL_SCALE HERE
             pixel_scale = 350#190
             mp_list = generate_mp_list() 
-            mp_dict = generate_mp_dict(pixel_scale, mp_list, start_state_dict)
+            mp_dict = generate_mp_dict(pixel_scale, mp_list, start_state_dict, userHeight)
 
             goal_list, goal_location, trial_type = generate_goal_list(mp_dict, mp_list, start_state_dict, phase, goal_list)
             #print(goal_list)
@@ -467,8 +494,8 @@ def generate_grid_world_trials(args):
             tf_x = tf_tmp[0]
             tf_y = tf_tmp[1]            
 
-            trial_dict['goalWidth'] = 50
-            trial_dict['goalHeight'] = 50
+            trial_dict['goalWidth'] = userHeight#50
+            trial_dict['goalHeight'] = userHeight#50
 
             w_tmp = trial_dict['goalWidth']
             h_tmp = trial_dict['goalHeight']
@@ -534,12 +561,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--width', action='store', type=int, default=850, help="width of grid world")
     parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
-    parser.add_argument('--userWidth', action='store', type=int, default=50, help="width of user's vehicle")
-    parser.add_argument('--userHeight', action='store', type=int, default=50, help="height of user's vehicle")
+    parser.add_argument('--userWidth', action='store', type=int, default=80, help="width of user's vehicle")
+    parser.add_argument('--userHeight', action='store', type=int, default=80, help="height of user's vehicle")
     parser.add_argument('--num_train_blocks', action='store', type=int, default=1, help="number of training blocks")
-    parser.add_argument('--num_train_trials', action='store', type=int, default=8, help="number of trials per training block")
+    parser.add_argument('--num_train_trials', action='store', type=int, default=12, help="number of trials per training block")
     parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
-    parser.add_argument('--num_test_trials', action='store', type=int, default=8, help="number of trials per testing block")
+    parser.add_argument('--num_test_trials', action='store', type=int, default=12, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
     parser.add_argument('--is_shuffle_trials', action='store_true', default=False, help="flag for shuffling trials")
