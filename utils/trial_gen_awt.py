@@ -563,7 +563,8 @@ def generate_grid_world_trials(args):
     with open(full_path_to_json, 'w') as fp:
         json.dump(experiment_dict, fp)
 
-    print('\n>> total number of trials: ' + str(ab) + '; with ' + str(a) + ' training blocks, ' + str(b) + ' test blocks.')
+    print('\n>> total # of blocks: ' + str(ab) + '; with ' + str(a) + ' TRAIN blocks, ' + str(b) + ' TEST blocks.')
+    print('\t---> total # of trials: ' + str(((a*num_trials_per_train_block) + (b*num_trials_per_test_block))) + '; with ' + str(num_trials_per_train_block) + ' TRAIN trials per block, ' + str(num_trials_per_test_block) + ' TEST trials per block.')
 
 ## main function + argument parsing
 if __name__ == "__main__":
@@ -572,10 +573,10 @@ if __name__ == "__main__":
     parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
     parser.add_argument('--userWidth', action='store', type=int, default=80, help="width of user's vehicle")
     parser.add_argument('--userHeight', action='store', type=int, default=80, help="height of user's vehicle")
-    parser.add_argument('--num_train_blocks', action='store', type=int, default=0, help="number of training blocks")
-    parser.add_argument('--num_train_trials', action='store', type=int, default=1, help="number of trials per training block")
-    parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
-    parser.add_argument('--num_test_trials', action='store', type=int, default=1, help="number of trials per testing block")
+    parser.add_argument('--num_train_blocks', action='store', type=int, default=2, help="number of training blocks")
+    parser.add_argument('--num_train_trials', action='store', type=int, default=3, help="number of trials per training block")
+    parser.add_argument('--num_test_blocks', action='store', type=int, default=2, help="number of testing blocks")
+    parser.add_argument('--num_test_trials', action='store', type=int, default=3, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
     parser.add_argument('--is_shuffle_trials', action='store_true', default=False, help="flag for shuffling trials")

@@ -95,7 +95,8 @@ class master_dict:
         # beginning of per-trial data formatting loop; everything above is experiment-wide #
         for keyidx1 in range(0, len(self.current_data['Stimuli'])):
             #print(self.md)
-            # first, we branch off the training and test trials from the date #
+            # first, we branch off the training and test phases from the date #;
+            # afterwards, the training and test phases are set as keys to lists; these lists contain all the block numbers within those phases
             print('\tkeyidx : ' + str(keyidx1))
             blockName = self.current_data['Stimuli'][keyidx1]['blockName']
             print('\t\t\t--> ' + blockName)
@@ -106,35 +107,99 @@ class master_dict:
                 print('\t\t' + str(first_word) + ' not yet added! ')
                 #self.md['participantID'][participantID]['date'][date][first_word] = {first_word : []}
                 self.md['participantID'][participantID]['date'][date][first_word] = []
-                self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})# = {blockName : {}}
+                if len(self.md['participantID'][participantID]['date'][date][first_word]) == 0:
+                    self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})
+                elif not blockName in self.md['participantID'][participantID]['date'][date][first_word][0].keys():
+                    #self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})# = {blockName : {}}
+                    self.md['participantID'][participantID]['date'][date][first_word][0][blockName] = {}#{blockName : {}})
+                else:
+                    continue
             else:
                 print('\t\t' + str(first_word) + ' already added! ')
                 #self.md['participantID'][participantID]['date'][date][first_word].update({blockName : {}})
                 #self.md['participantID'][participantID]['date'][date][first_word] = {first_word : []}
                 #self.md['participantID'][participantID]['date'][date][first_word] = []
-                self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})
+                if not blockName in self.md['participantID'][participantID]['date'][date][first_word][0].keys():
+                    print('not in')
+                    #self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})# = {blockName : {}}
+                    self.md['participantID'][participantID]['date'][date][first_word][0][blockName] = {}
+                else:
+                    continue
 
         print(self.md)
            # for keyidx2 in range(0, len(self.current_data['Stimuli'])):
             #print(len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][0]))
             #print(len(self.current_data['Stimuli'][keyidx1]['Answer']))
 
-        kp_count_list = {} # outer list; inner list
-        for keyidx1 in range(0, len(self.current_data['Stimuli'])):
-            
-            for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])):
-                for keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])):
-                    a = 0
-                    len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])
-            
-            
-            kp_count_list[keyidx1] = {keyidx1 : keyidx2}
+        print('\n\t\t~ NOTE: ~ safe up to this point [5/29/2021]\n')
 
-            blockName = self.current_data['Stimuli'][keyidx1]['blockName']
-            self.md['participantID'][participantID]['date'][date][first_word]
 
-        print(kp_count_list)
 
+        # the subsequent script logs block-dependent trial information (most notably the contents to 'Answers' in the .json file)
+        print('\tbeginning to populate block-dependent information...')
+        #kp_count_list = {} # outer list; inner list
+
+        #stimlen = len(self.current_data['Stimuli'])
+        #answerlen = len(self.current_data['Stimuli'][keyidx1]['Answer'])
+        #kplen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])
+        #print('\t--> stimulus length:' + str(stimlen))
+        #print('\t--> answer length: ' + str(answerlen))
+        #print()
+
+        # keyidx1 is the index over all total trials #
+        for keyidx1 in range(0, len(self.current_data['Stimuli'])): # TODO: if trial is empty (or answer is <3) then remove block from stimuli
+            
+                print('\n')
+                stimlen = len(self.current_data['Stimuli'])
+                answerlen = len(self.current_data['Stimuli'][keyidx1]['Answer'])
+                print('\t--> stimulus length: ' + str(keyidx1+1) + " | " + str(stimlen))
+                print('\t--> answer length: ' + str(answerlen))                
+                try:
+                    
+                    kplistlen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])
+                    print('\t--> keypress list length: ' + str(kplistlen) + '   (hello!)')
+                except:
+                    print('\t--> keypress list length: ' + str(0) + ' <------------------------ [WARNING: EMPTY SET]')
+                
+                
+                #print('answers return: ' + str(self.current_data['Stimuli'][keyidx1]['Answer']))
+                
+                try:
+                    # keyidx2 is the index over all keypress lists (broken up in .json for bandwidth purposes, afaik) #
+                    kplist_flag = 0
+                    for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])):
+                        kp_count = 0
+                        humlen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])
+                        print('\t\t--> human length:' + str(humlen) + str('   (hello2!)'))
+                        
+                        # keyidx3 is the index over all keypresses across keypress lists (101 keypresses per list)
+                        for keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])):                            
+                            #print(keyidx3)
+                            a = 0
+                            #kplen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3])
+                            #print(kplen)
+                            kp_count += 1
+                            if kp_count >= 101:
+                                print('\t\t\t--> note: kp_count has hit 101')
+                                kp_count = 0
+                                kplist_flag += 1
+                                print('\t\t\t--> note: kplist_flag : ' + str(kplist_flag))
+                            else:
+                                continue
+                    #print(kplist_flag)
+                    #print(kp_count)
+                    kplen = kplist_flag*101 + kp_count
+                    print('\t--> keypress length: ' + str(kplen))
+
+                except:
+                    continue
+            #kp_count_list[keyidx1] = {keyidx1 : keyidx2}
+
+            #blockName = self.current_data['Stimuli'][keyidx1]['blockName']
+            #self.md['participantID'][participantID]['date'][date][first_word]
+
+        #print(kp_count_list)
+        
         return
         '''
             print('\n')
@@ -247,7 +312,7 @@ def main():
     md.load_one_experiment()
     #md.open_json_write('/parsed_data') # TODO: fix this
 
-    print(md.md)
+    print('\n' + str(md.md))
 
     return
 
