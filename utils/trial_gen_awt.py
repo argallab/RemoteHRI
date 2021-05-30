@@ -417,7 +417,7 @@ def generate_grid_world_trials(args):
         #
         if block_num < num_train_blocks: # (training block case)
             a = a + 1
-            current_block['blockName'] = "Training Block {}".format(block_num)
+            current_block['blockName'] = "Training Block {}".format(block_num+1)
             current_block['block_type'] = "train"
             current_block['preTrials'] = []
             #training_block_intro_text_trial = collections.OrderedDict()
@@ -427,7 +427,7 @@ def generate_grid_world_trials(args):
             phase = "train" # (phase flag set)
         elif block_num >= num_train_blocks: # (testing block case)
             b = b + 1
-            current_block['blockName'] = "Testing Block {}".format(block_num-num_train_blocks)
+            current_block['blockName'] = "Testing Block {}".format(block_num-num_train_blocks+1)
             current_block['block_type'] = "test"
             current_block['preTrials'] = []
             phase = "test" # (phase flag set)
@@ -442,14 +442,23 @@ def generate_grid_world_trials(args):
         ## initialize empty goal list per block
         goal_list = []
 
-        ## trial range for trial_num
+        ## trial range for trial_num ## NOTE: this is the spot ## TODO: this is where the blocksize > 1 bug is happening; FIGURE THIS OUT :^)
+        #if num_trial
         if block_num < num_train_trials:
-            trial_range = num_train_trials
+            if num_train_blocks == 0:
+                trial_range = 0
+            else:
+                trial_range = (num_train_trials/num_train_blocks)
+        
         elif block_num >= num_train_blocks:
-            trial_range = num_test_trials
+            if num_test_blocks == 0:
+                trial_range = 0
+            else:
+                trial_range = (num_test_trials/num_test_blocks)
 
+        print(trial_range)
         ## trial 
-        for trial_num in range(trial_range):
+        for trial_num in range(int(trial_range)):
             print(trial_num)
             trial_dict = collections.OrderedDict()
             trial_dict['fps'] = 60
@@ -459,9 +468,9 @@ def generate_grid_world_trials(args):
             trial_dict['worldHeight'] = worldHeight
 
             if num_train_blocks != 0:
-                print('\ntraining block case 1')
+                #print('\ntraining block case 1')
                 if block_num == 0: # (training block case)
-                    print(' -> training block case 2')
+                    #print(' -> training block case 2')
                     trial_dict['instructions'] = "[0] TRAINING INSTRUCTIONS: ."
                 elif block_num == num_train_blocks: # (testing block case)
                     trial_dict['instructions'] = "[1] TRAINING INSTRUCTIONS: ."
@@ -563,10 +572,10 @@ if __name__ == "__main__":
     parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
     parser.add_argument('--userWidth', action='store', type=int, default=80, help="width of user's vehicle")
     parser.add_argument('--userHeight', action='store', type=int, default=80, help="height of user's vehicle")
-    parser.add_argument('--num_train_blocks', action='store', type=int, default=1, help="number of training blocks")
-    parser.add_argument('--num_train_trials', action='store', type=int, default=12, help="number of trials per training block")
+    parser.add_argument('--num_train_blocks', action='store', type=int, default=0, help="number of training blocks")
+    parser.add_argument('--num_train_trials', action='store', type=int, default=1, help="number of trials per training block")
     parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
-    parser.add_argument('--num_test_trials', action='store', type=int, default=12, help="number of trials per testing block")
+    parser.add_argument('--num_test_trials', action='store', type=int, default=1, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
     parser.add_argument('--is_shuffle_trials', action='store_true', default=False, help="flag for shuffling trials")
