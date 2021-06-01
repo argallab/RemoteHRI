@@ -59,6 +59,35 @@ class master_dict:
         if not participantID in self.md.keys():
             self.md['participantID'] = {participantID : {}}
         
+        print()
+
+        if not 'age' in self.md['participantID'][participantID].keys():
+            try:
+                self.md['participantID'][participantID]['age'] =  self.current_data['ParticipantID']['Age']
+            except:
+                print('\t-> note: \'Age\' not obtained for participant.')
+                pass
+        if not 'sex' in self.md['participantID'][participantID].keys():
+            try:
+                self.md['participantID'][participantID]['sex'] =  self.current_data['ParticipantID']['Sex']
+            except:
+                print('\t-> note: \'Age\' not obtained for participant.')
+                pass
+        if not 'hand' in self.md['participantID'][participantID].keys():
+            try:
+                self.md['participantID'][participantID]['hand'] =  self.current_data['ParticipantID']['Hand']
+            except:
+                print('\t-> note: \'Age\' not obtained for participant.')
+                pass        
+        if not 'race' in self.md['participantID'][participantID].keys():
+            try:
+                self.md['participantID'][participantID]['race'] =  self.current_data['ParticipantID']['Race']
+            except:
+                print('\t-> note: \'Age\' not obtained for participant.')
+                pass
+        else:
+            pass
+
         # [b] experimental date # -------------------------------------------------------------------------------------------------------------------------------
         date = self.current_data['StartTime']
         if not date in self.md['participantID'][participantID].keys():
@@ -137,14 +166,9 @@ class master_dict:
 
         # the subsequent script logs block-dependent trial information (most notably the contents to 'Answers' in the .json file)
         print('\tbeginning to populate block-dependent information...')
-        #kp_count_list = {} # outer list; inner list
 
-        #stimlen = len(self.current_data['Stimuli'])
-        #answerlen = len(self.current_data['Stimuli'][keyidx1]['Answer'])
-        #kplen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])
         #print('\t--> stimulus length:' + str(stimlen))
         #print('\t--> answer length: ' + str(answerlen))
-        #print()
 
         # keyidx1 is the index over all total trials #
         for keyidx1 in range(0, len(self.current_data['Stimuli'])): # TODO: if trial is empty (or answer is <3) then remove block from stimuli
@@ -154,15 +178,11 @@ class master_dict:
                 answerlen = len(self.current_data['Stimuli'][keyidx1]['Answer'])
                 print('\t--> stimulus length: ' + str(keyidx1+1) + " | " + str(stimlen))
                 print('\t--> answer length: ' + str(answerlen))                
-                try:
-                    
+                try:                    
                     kplistlen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])
                     print('\t--> keypress list length: ' + str(kplistlen) + '   (hello!)')
                 except:
                     print('\t--> keypress list length: ' + str(0) + ' <------------------------ [WARNING: EMPTY SET]')
-                
-                
-                #print('answers return: ' + str(self.current_data['Stimuli'][keyidx1]['Answer']))
                 
                 try:
                     # keyidx2 is the index over all keypress lists (broken up in .json for bandwidth purposes, afaik) #
@@ -173,11 +193,17 @@ class master_dict:
                         print('\t\t--> human length:' + str(humlen) + str('   (hello2!)'))
                         
                         # keyidx3 is the index over all keypresses across keypress lists (101 keypresses per list)
-                        for keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])):                            
-                            #print(keyidx3)
+                        for keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])):             
                             a = 0
-                            #kplen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3])
-                            #print(kplen)
+                            # recovers blockName and first_word when checking what to populate in master dictionary
+                            blockName = self.current_data['Stimuli'][keyidx1]['blockName']
+                            first_word = blockName.split()[0]
+                            # this is where the subject trial responses are stored; the timestep associated with each response is treated as a key
+                            # that in turn links to two keys: 'human' and 'time'. The former is associated with the control and state information,
+                            # whereas the latter is associated with the # of system time counts during the trial
+                            self.md['participantID'][participantID]['date'][date][first_word][0][blockName][keyidx3+(kplist_flag*101)] = self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]
+                            
+                            #print('\t\t\t--> note: this is current key index for timesteps: ' + str(keyidx3+(kplist_flag*101)))
                             kp_count += 1
                             if kp_count >= 101:
                                 print('\t\t\t--> note: kp_count has hit 101')
@@ -192,6 +218,8 @@ class master_dict:
                     print('\t--> keypress length: ' + str(kplen))
 
                 except:
+                    kplist_flag = 0
+                    print('\t [WARNING] ~ exception encountered in keyidx2/keyidx3 loop')
                     continue
             #kp_count_list[keyidx1] = {keyidx1 : keyidx2}
 
@@ -310,9 +338,9 @@ def main():
 
     print('\n\t[3] beginning load process for file: [ ' + str(fp_list[0]) + ' ]')
     md.load_one_experiment()
-    #md.open_json_write('/parsed_data') # TODO: fix this
-
-    print('\n' + str(md.md))
+    md.open_json_write('./parsed_data/parsed_data.json') # TODO: fix this
+    
+    #print('\n' + str(md.md))
 
     return
 
