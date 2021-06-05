@@ -63,27 +63,27 @@ class master_dict:
 
         if not 'age' in self.md['participantID'][participantID].keys():
             try:
-                self.md['participantID'][participantID]['age'] =  self.current_data['ParticipantID']['Age']
+                self.md['participantID'][participantID]['age'] =  self.current_data['Age']
             except:
                 print('\t-> note: \'Age\' not obtained for participant.')
                 pass
         if not 'sex' in self.md['participantID'][participantID].keys():
             try:
-                self.md['participantID'][participantID]['sex'] =  self.current_data['ParticipantID']['Sex']
+                self.md['participantID'][participantID]['sex'] =  self.current_data['Sex']
             except:
-                print('\t-> note: \'Age\' not obtained for participant.')
+                print('\t-> note: \'Sex\' not obtained for participant.')
                 pass
         if not 'hand' in self.md['participantID'][participantID].keys():
             try:
-                self.md['participantID'][participantID]['hand'] =  self.current_data['ParticipantID']['Hand']
+                self.md['participantID'][participantID]['hand'] =  self.current_data['Hand']
             except:
-                print('\t-> note: \'Age\' not obtained for participant.')
+                print('\t-> note: \'Hand\' not obtained for participant.')
                 pass        
         if not 'race' in self.md['participantID'][participantID].keys():
             try:
-                self.md['participantID'][participantID]['race'] =  self.current_data['ParticipantID']['Race']
+                self.md['participantID'][participantID]['race'] =  self.current_data['Race']
             except:
-                print('\t-> note: \'Age\' not obtained for participant.')
+                print('\t-> note: \'Race\' not obtained for participant.')
                 pass
         else:
             pass
@@ -172,17 +172,17 @@ class master_dict:
 
         # keyidx1 is the index over all total trials #
         for keyidx1 in range(0, len(self.current_data['Stimuli'])): # TODO: if trial is empty (or answer is <3) then remove block from stimuli
-            
+
                 print('\n')
                 stimlen = len(self.current_data['Stimuli'])
                 answerlen = len(self.current_data['Stimuli'][keyidx1]['Answer'])
                 print('\t--> stimulus length: ' + str(keyidx1+1) + " | " + str(stimlen))
                 print('\t--> answer length: ' + str(answerlen))                
-                try:                    
-                    kplistlen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])
-                    print('\t--> keypress list length: ' + str(kplistlen) + '   (hello!)')
-                except:
-                    print('\t--> keypress list length: ' + str(0) + ' <------------------------ [WARNING: EMPTY SET]')
+                #try:                    
+                kplistlen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])
+                print('\t--> keypress list length: ' + str(kplistlen) + '   (hello!)')
+                #except:
+                #    print('\t--> keypress list length: ' + str(0) + ' <------------------------ [WARNING: EMPTY SET]')
                 
                 try:
                     # keyidx2 is the index over all keypress lists (broken up in .json for bandwidth purposes, afaik) #
@@ -229,99 +229,7 @@ class master_dict:
         #print(kp_count_list)
         
         return
-        '''
-            print('\n')
-            stimflag = 0 # TODO: might have to change the scope on this flag
-            for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer'])):
-                #keyidx3 = 0
-                for keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])):
-                #print('\tupper bound keyidx3: ' + str(len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])))
-                #while keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])):    
-                    print('\t\tkeyidx2: ' + str(keyidx2) + '; keyidx3: ' + str(keyidx3))
-                    trial_type = self.current_data['Stimuli'][0]['trial_type']
-
-                    #print(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human'])#['tv']])
-                if stimflag != 1:
-                    trialspecs = {trial_type : {'goalWidth' : self.current_data['Stimuli'][keyidx1]['goalWidth'],
-                                                                                                                'goalHeight' : self.current_data['Stimuli'][keyidx1]['goalHeight'], 
-                                                                                                                'goalLocationAngle' : self.current_data['Stimuli'][keyidx1]['goalLocationAngle'], 
-                                                                                                                'goalLocationX' : self.current_data['Stimuli'][keyidx1]['goalLocationX'], 
-                                                                                                                'goalLocationY' : self.current_data['Stimuli'][keyidx1]['goalLocationY'],
-                                                                                                                'boundary' : self.current_data['Stimuli'][keyidx1]['boundary'],
-                                                                                                                'goal_img' : self.current_data['Stimuli'][keyidx1]['goal_img'], 
-                                                                                                                'ClockTime' : self.current_data['Stimuli'][keyidx1]['ClockTime'], 
-
-                                                                                                                'responses' : {'x' : [self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['x']],
-                                                                                                                            'y' : [self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['y']],
-                                                                                                                            'angle' : [self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['angle']],
-                                                                                                                            'xv' : [self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['xv']],
-                                                                                                                            'yv' : [self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['yv']],
-                                                                                                                            'tv' : [self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['tv']],
-                                                                                                                            'lv' : [self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['lv']],
-                                                                                                                            'time' : [self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['time']]}}}
-                    print(trialspecs)
-                    print(self.md)
-                    self.md['participantID'][participantID]['date'][date][first_word][blockName] = trialspecs
-                    stimflag = 1
-                else:
-                    temp_ref = self.md['participantID'][participantID]['date'][date][first_word][blockName][trial_type]
-                    temp_ref['responses']['x'].append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['x'])
-                    temp_ref['responses']['y'].append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['x'])
-                    temp_ref['responses']['angle'].append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['x'])
-                    temp_ref['responses']['xv'].append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['x'])
-                    temp_ref['responses']['yv'].append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['x'])
-                    temp_ref['responses']['tv'].append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['x'])
-                    temp_ref['responses']['lv'].append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['x'])
-                    temp_ref['responses']['time'].append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]['human']['x'])
-                    
-                    
-                    #if keyidx3 < len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2]):
-                    #    keyidx3 += 1
-                    #else:
-                    #    keyidx3 = keyidx3
-            #print(str(self.md['participantID'][participantID]['date'][date][first_word][blockName]))
-            #print(str(self.md['participantID'][participantID]['date'][date][first_word][blockName].keys()))
-            
-            #if not keyidx1 in self.md['participantID'][participantID]['date'][date][first_word][blockName].keys():
-            #    print('\t\t' + str(keyidx1) + ' not yet added! ')
-            #    self.md['participantID'][participantID]['date'][date][first_word][blockName] = {self.current_data['Stimuli'][keyidx1]['TrialNumber'] : {}}
-            #else:
-            #    print('\t\t' + str(keyidx1) + ' already added! ')
-            #    self.md['participantID'][participantID]['date'][date][first_word][blockName].update({self.current_data['Stimuli'][keyidx1]['TrialNumber'] : {}})
-            #print(str(self.md['participantID'][participantID]['date'][date][first_word][blockName]))
-            #print(str(self.md['participantID'][participantID]['date'][date][first_word][blockName].keys()))
-            #for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['TrialNumber'])):
-                
-
-
-
-        # [d1] trial information (#, block name, motion primitive type) #
-
-        # [d2] answer (keypressed + timestamps) #
-        '''
-
-        '''
-        "goalWidth": 50,
-        "goalHeight": 50,
-        "goalLocationAngle": 270,
-        "goalLocationX": 400,
-        "goalLocationY": 775,
-        "trial_type": "fw",
-        "boundary": "png/fw.png",
-        "goal_img": "png/goal_icon_v2_fwbw.png",
-        "ClockTime": "2021-03-11T22:16:11.816Z",
-        "blockName": "Testing Block 0",
-        "TrialHeader": "Trial",
-        "trialIndex": 1,
-        "Answer": {
-        "start": 1615500966346,
-        "keypresses": [
-        '''
-
-        keypresses = {'x' : [], 'y' : [], 'theta' : [], 'xv' : [], 'yv' : [], 'lv' : [], 'angularVelocity' : [], 'maxLinearVelocity' : [],
-                     'maxAngularVelocity' : [], 'linearAcceleration' : [], 'angularAcceleration' : [], 'width' : [], 'height' : [],
-                     'linearMu' : [], 'rotationMu' : []}
-
+        
 
 def main():
     md = master_dict()
@@ -338,7 +246,7 @@ def main():
 
     print('\n\t[3] beginning load process for file: [ ' + str(fp_list[0]) + ' ]')
     md.load_one_experiment()
-    md.open_json_write('./parsed_data/parsed_data.json') # TODO: fix this
+    md.open_json_write('./parsed_data/parsed_data.json')
     
     #print('\n' + str(md.md))
 
@@ -361,7 +269,28 @@ master_dict = {'participantID' :
 print(master_dict)
 '''
 
+'''
+"goalWidth": 50,
+"goalHeight": 50,
+"goalLocationAngle": 270,
+"goalLocationX": 400,
+"goalLocationY": 775,
+"trial_type": "fw",
+"boundary": "png/fw.png",
+"goal_img": "png/goal_icon_v2_fwbw.png",
+"ClockTime": "2021-03-11T22:16:11.816Z",
+"blockName": "Testing Block 0",
+"TrialHeader": "Trial",
+"trialIndex": 1,
+"Answer": {
+"start": 1615500966346,
+"keypresses": [
 
+
+keypresses = {'x' : [], 'y' : [], 'theta' : [], 'xv' : [], 'yv' : [], 'lv' : [], 'angularVelocity' : [], 'maxLinearVelocity' : [],
+            'maxAngularVelocity' : [], 'linearAcceleration' : [], 'angularAcceleration' : [], 'width' : [], 'height' : [],
+            'linearMu' : [], 'rotationMu' : []}
+'''
 
 
 

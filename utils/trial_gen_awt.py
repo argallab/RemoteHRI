@@ -412,7 +412,7 @@ def generate_grid_world_trials(args):
     ab = 0
     a = 0
     b = 0
-    for block_num in range(num_blocks_total):
+    for block_num in range(0, num_blocks_total): # NOTE: added 0 for starting bound on block_num's (index) range [6/01/21]
         current_block = collections.OrderedDict()
         #
         if block_num < num_train_blocks: # (training block case)
@@ -543,14 +543,29 @@ def generate_grid_world_trials(args):
             #
             current_block['trials'].append(trial_dict)
 
-        current_block['postTrials'] = []
-        block_end_text_trial = collections.OrderedDict()
-        block_end_text_trial['stimulusType'] = "text-display"
-        block_end_text_trial['text'] = "<div><h3>Current block over. Press any key for next block</h3><hr/></div>" # pdiv -> div [3/29/2021]
-        current_block['postTrials'].append(block_end_text_trial)
+        
+        if block_num == num_blocks_total-1:
+            current_block['postTrials'] = []
+            endQuestionnaireBlock = collections.OrderedDict()
+            endQuestionnaireBlock['stimulusType'] = "post-experiment-questionnaire"
+            current_block['postTrials'].append(endQuestionnaireBlock)
+        else:
+            current_block['postTrials'] = []
+            block_end_text_trial = collections.OrderedDict()
+            block_end_text_trial['stimulusType'] = "text-display"
+            block_end_text_trial['text'] = "<div><h3>Current block over. Press any key for next block</h3><hr/></div>" # pdiv -> div [3/29/2021]
+            current_block['postTrials'].append(block_end_text_trial)
 
         experiment_dict["blocks"].append(current_block)
+
         
+
+    
+    #current_block['postExperimentQuestionnaire'] = []
+    #endQuestionnaireBlock = collections.OrderedDict()
+    #endQuestionnaireBlock['stimulusType'] = "postExperimentQuestionnaire"
+    #experiment_dict["endQuestionnaireBlock"] = endQuestionnaireBlock
+
     print('generation of blocks completed')
 
     ## save and export the experiment as a .json file
@@ -574,12 +589,12 @@ if __name__ == "__main__":
     parser.add_argument('--userWidth', action='store', type=int, default=80, help="width of user's vehicle")
     parser.add_argument('--userHeight', action='store', type=int, default=80, help="height of user's vehicle")
     parser.add_argument('--num_train_blocks', action='store', type=int, default=2, help="number of training blocks")
-    parser.add_argument('--num_train_trials', action='store', type=int, default=3, help="number of trials per training block")
+    parser.add_argument('--num_train_trials', action='store', type=int, default=2, help="number of trials per training block")
     parser.add_argument('--num_test_blocks', action='store', type=int, default=2, help="number of testing blocks")
-    parser.add_argument('--num_test_trials', action='store', type=int, default=3, help="number of trials per testing block")
+    parser.add_argument('--num_test_trials', action='store', type=int, default=2, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
-    parser.add_argument('--is_shuffle_trials', action='store_true', default=False, help="flag for shuffling trials")
+    parser.add_argument('--is_shuffle_trials', action='store_true', default=True, help="flag for shuffling trials")
     parser.add_argument('--is_shuffle_blocks', action='store_true', default=False, help="flag for shuffling blocks")
     
     args = parser.parse_args()

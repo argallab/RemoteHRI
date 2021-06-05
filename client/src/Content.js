@@ -5,6 +5,7 @@ import DiscreteGridWorld from './components/ActiveStimulus/DiscreteGridWorld'
 import Survey from './components/PassiveStimulus/Survey'
 import LoadingScreen from './components/LoadingScreen'
 import PreExperimentForm from './components/PreExperimentForm';
+import PostExperimentForm from './components/PostExperimentForm';
 import TextDisplay from './components/PassiveStimulus/TextDisplay'
 import ContinuousWorld from './components/ActiveStimulus/ContinuousWorld'
 import ContinuousWorldDynamic from './components/ActiveStimulus/ContinuousWorldDynamic'
@@ -22,6 +23,7 @@ export default class Content extends React.Component {
             // note: can eventually experiment with preloading
             trialLoaded: false,
             startExperimentResponse: {},
+            // postExperimentReponse: {}, // NOTE: added 06/02/2021 ~ awt
             trialData: {},
             experimentDone: false,
             experimentName: "",
@@ -32,6 +34,7 @@ export default class Content extends React.Component {
         this.getNextStimulus = this.getNextStimulus.bind(this)
         this.getNextTrial = this.getNextTrial.bind(this)
         this.endExperiment = this.endExperiment.bind(this)
+        // this.postExperiment = this.postExperiment.bind(this) // awt [06/02/2021]
 
         this.fetchConfig = {
             headers: {
@@ -86,7 +89,31 @@ export default class Content extends React.Component {
                 this.getNextStimulus() // get the first trial right away. 
             })
             .catch((err) => console.error(err))
+            console.log('startExperiment fetch outer loop!')
     }
+
+    /* postExperiment() { // awt [06/03/2021]
+        fetch("/postExperiment", this.fetchConfig)
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json()
+                } else {
+                    throw new Error("/postExperiment failed with error code: " + response.status) 
+                }
+            })
+            .then((data) => {
+                console.log("/postExperiment response:")
+                console.log(data)
+                this.setState({
+                    postExperimentResponse: data,
+                    postExperiment: true
+                })
+                console.log('postExperiment 2nd .then outer loop!')
+                //this.getNextStimulus()
+            })
+            .catch((err) => console.error(err))
+            console.log('postExperiment fetch outer loop!')
+    } */
 
     endExperiment() {
         fetch("/endExperiment", this.fetchConfig)
@@ -94,15 +121,23 @@ export default class Content extends React.Component {
                 if (response.status === 200) {
                     return response.json()
                 } else {
-                    throw new Error("/end failed with error code: " + response.status)
+                    throw new Error("/endExperiment failed with error code: " + response.status) // awt [06/03/2021]
                 }
             })
             .then((data) => {
-                console.log("/end response:")
+                console.log("/endExperiment response:") // awt [06/03/2021]
                 console.log(data)
+                this.setState({
+                    endExperimentResponse: data,
+                    experimentDone: true
+                })
+                this.getNextStimulus()
             })
             .catch((err) => console.error(err))
+            console.log('endExperiment fetch outer loop!')
     }
+
+    
 
     checkSessionData() {
         fetch("/showSessionData", this.fetchConfig)
@@ -133,17 +168,30 @@ export default class Content extends React.Component {
                     throw new Error("/getNextStimulus failed with error code: " + response.status)
                 }
             })
-            .then((data) => {
+            .then((data) => { // made changes to this block to set a pre-experimentDone render; awt [06/02/2021]
                 console.log("/getNextStimulus response:")
                 console.log(data)
+                //if (this.state.postExperiment) { 
                 if (data.data.Data === "Done") {
+                    console.log("endExperiment cb")
                     this.setState({
                         trialData: {},
                         trialLoaded: false,
                         experimentDone: true
                     }, this.endExperiment)
-
-                } else {
+                    //console.log('data.data.Data === "postExperimentQuestionnaire"')
+                }
+                /* else if (data.data.Data === "postExperimentQuestionnaire") {
+                    console.log("postExperiment cb")
+                    this.setState({
+                        //trialData: {},
+                        //trialLoaded: false,
+                        postExperiment: true,
+                        trialData: data.data
+                    }, this.postExperiment)
+                    //console.log('data.data.Data === "Done"')
+                } */
+                else {
                     if (data.progress) {
                         this.setState({
                             trialData: data.data,
@@ -182,11 +230,30 @@ export default class Content extends React.Component {
          */
 
 
+
         if (this.state.experimentDone) {
             return (
                 <LoadingScreen hideLoader={true} text={"Experiment done!"} />
             )
+            
         }
+
+        /* if (this.state.postExperiment) {
+
+           
+            else {
+                return(
+                    <div>
+                            <h3>{this.state.experimentName}</h3>
+                            <hr />
+                            <PostExperimentForm endExperiment={this.endExperiment} />
+                    </div>
+            )}
+        } */
+
+        //else if (this.state.experimentDone) && (this.state.postExperimentForm ) {
+        //    <LoadingScreen hideLoader={true} text={"Experiment done!"} />
+        //}
 
         if (this.state.experimentLoaded) {
             if (this.state.experimentStarted) {
@@ -218,6 +285,10 @@ export default class Content extends React.Component {
                     } else if (this.state.trialData.stimulusType === 'continuous-world-dynamic') {
                         return (
                             <ContinuousWorldDynamic key={this.state.trialData.trialIndex} data={this.state.trialData} batchSubmit={this.getNextStimulus} submit={this.getNextTrial} />
+                        )
+                    } else if (this.state.trialData.stimulusType === 'post-experiment-questionnaire') {
+                        return (
+                            <PostExperimentForm key={this.state.trialData.trialIndex} submit={this.getNextTrial}></PostExperimentForm>                            
                         )
                     }
 

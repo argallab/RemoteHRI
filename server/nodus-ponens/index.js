@@ -148,7 +148,7 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
             if (!req.body.answer) progress = true
             if (req.body.dumpQuery) {
                var currentStimulus = sess.sessdata.CurrentStimulus;
-               if (currentStimulus >= 0 && currentStimulus < sess.sessdata.Stimuli.length
+               if (currentStimulus >= 0 && currentStimulus < sess.sessdata.Stimuli.length // if currentStimulus within expected # of stimuli
                   && req.body.answer !== undefined) {
 
                      if (!sess.sessdata.Stimuli[currentStimulus]["Answer"]) {
@@ -160,7 +160,10 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
                }
             }
             
-            if (sess.sessdata.CurrentStimulus >= sess.sessdata.Stimuli.length)
+            //console.log(sess.sessdata.CurrentStimulus)
+            //if (sess.sessdata.CurrentStimulus == sess.sessdata.Stimuli.length) // awt [06/03/2021]
+            //   nextStimulus = {"Data" : "postExperimentQuestionnaire"}
+            if (sess.sessdata.CurrentStimulus >= sess.sessdata.Stimuli.length ) // awt [06/03/2021]
                nextStimulus = { "Data": "Done" };
             else
                nextStimulus = sess.sessdata.Stimuli[sess.sessdata.CurrentStimulus];
@@ -189,7 +192,9 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
                logData(np.dataDirectory + "/incomplete", sess.sessdata);
             }
             sess.sessdata.CurrentStimulus++;
-            if (currentStimulus + 1 >= sess.sessdata.Stimuli.length)
+            /* if (currentStimulus + 1 == sess.sessdata.Stimuli.length) // awt [06/03/2021]
+               nextStimulus = {"Data" : "postExperimentQuestionnaire"} */
+            if (currentStimulus + 1 >= sess.sessdata.Stimuli.length) // awt [06/03/2021] 
                nextStimulus = { "Data": "Done" };
             else
                nextStimulus = sess.sessdata.Stimuli[currentStimulus + 1];
@@ -226,7 +231,65 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
    })
 
    // --------------------------------------------------------------------------------------------------
-   // 4. Writing participant data to file
+   // 4. Post-experiment Questionnaire
+   // --------------------------------------------------------------------------------------------------
+
+   
+/*    np.app.get("/postExperiment", function (req, res) {
+      var sess = req.session;
+      var today = new Date();
+
+      sess.sessdata.ParticipantID = "P" + np.participantID;
+      
+
+      if (req.query.td1 !== "") { sess.sessdata.taskDifficulty1 = req.query.td1; }           // Set experiment variables
+      if (req.query.td2 !== "") { sess.sessdata.taskDifficulty1 = req.query.td2; }
+      if (req.query.iwr1 !== "") { sess.sessdata.interactionWithRobot1 = req.query.iwr1; }
+      if (req.query.iwr2 !== "") { sess.sessdata.interactionWithRobot2 = req.query.iwr2; }
+      if (req.query.iwr3 !== "") { sess.sessdata.interactionWithRobot3 = req.query.iwr3; }
+      if (req.query.iwr4 !== "") { sess.sessdata.interactionWithRobot4 = req.query.iwr4; }
+
+      var today = new Date();
+      //sess.sessdata.StartTime = today.toISOString();
+      //sess.sessdata.CurrentStimulus = 0;
+      sess.sessdata.Stimuli           = np.loadStimuli(np.participantID); // this calls the setUpStimuli in index.js, sess.sessdata.Stimuli is a flattened list containing all the trials (confirm this)? 
+      sess.sessdata.ExperimentName = np.experimentName; // loadStimuli will update the experimentName field. 
+
+      req.session = sess;
+      console.log(dateFormat(today) + "   Set up experiment for " + sess.sessdata.ParticipantID + "...");
+      res.json({ "Data": "Post-experiment questionnaire completed", "Experiment": np.experimentName, "Time": today.toISOString() });
+      
+      // Write out experiment header information
+      //fs.writeFileSync(fileName, JSON.stringify(experimentData, null, 2));
+   });
+
+   np.app.get("/dumpLogs", function (req, res) {
+      // read in data from JSON file
+      
+      var experimentData = JSON.parse(JSON.stringify(sessionData));
+
+      var fileName = dataDirectory + "/data-" + experimentData.ExperimentName + "-" + experimentData.ParticipantID
+         + "-" + new Date().toISOString().slice(0, 10) + ".json";
+      
+      var existingInformation = JSON.parse(fs.readFileSync(fileName))
+      if (existingInformation.Stimuli) {
+         if (existingInformation.Stimuli.length === req.session.sessdata.CurrentStimulus) {
+            existingInformation.Stimuli.push({})
+         }
+         if (!existingInformation.Stimuli.Answer.keypresses) {
+            existingInformation.Stimuli["Answer"]
+         }
+      }
+
+      // Write out experiment header information
+      fs.writeFileSync(fileName, JSON.stringify(experimentData, null, 2));
+   }) */
+   
+
+   
+
+   // --------------------------------------------------------------------------------------------------
+   // 5. Writing participant data to file
    // --------------------------------------------------------------------------------------------------
 
    np.app.get("/endExperiment", function (req, res) {

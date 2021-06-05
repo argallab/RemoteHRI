@@ -398,20 +398,33 @@ export default class TwoDWorld extends React.Component {
 
         }
         else if (test_bool == 3){
-            
-                return (
-                    <div className="world-container">
-                        <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
-                        <div>
-                            
-                            {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
-                            <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
-                                
+                if (block_type_var == 'train'){
+                    return (
+                        <div className="world-container">
+                            <div>
+                                <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>                                
+                                {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
+                                <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
+                                    
+                            </div>
+                            {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v3.png" />}
                         </div>
-                        {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v3.png" />}
-                    </div>
-                )
-            
+                    )
+                }
+                else if (block_type_var == 'test'){
+                    return (
+                        <div className="world-container">
+
+                            <div>
+                                
+                                {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
+                                <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
+                                    
+                            </div>
+                            {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v3.png" />}
+                        </div>
+                    )
+                }
         }
         else {
             return (
