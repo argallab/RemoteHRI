@@ -443,7 +443,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         
         // NOTE: changed tvf threshold from 0.002 -> 0.02 (2/1/2021)
         // console.log('TVF', tvf, this.angular_vel_active)
-        if (!this.angular_vel_active && Math.abs(tvf) < 0.02){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops rotating
+        if (!this.angular_vel_active && Math.abs(tvf) < 0.002){ // if no keys are pressed and if the current velocity is less than a threshold make it zero so that the robot completely stops rotating
             // console.log('ZERO TVF')
             tvf = 0.0
         }
@@ -458,15 +458,16 @@ export default class ContinuousWorldDynamic extends React.Component {
         var xvf = 0.0
         var yvf = 0.0
         if (tvf != 0.0){ //nonzero angular velocity
-            // console.log('TVF in UPDATE', tvf)
+            console.log('TVF in UPDATE', tvf)
             xf = xi - (lvf/tvf)*Math.sin(ti) + (lvf/tvf)*Math.sin(ti + tvf)
             yf = yi + (lvf/tvf)*Math.cos(ti) - (lvf/tvf)*Math.cos(ti + tvf)
             tf = ti + tvf
-            // console.log('TF update', tf)
+            console.log('TF update', tf)
         } else if (tvf == 0.0) { // zero angular velocity
             xf = xi + lvf*Math.cos(ti) 
             yf = yi + lvf*Math.sin(ti)
-            tf = ti
+            tf = ti 
+            //console.log('TF update', tvf)
         }
 
         //extract component along x and y

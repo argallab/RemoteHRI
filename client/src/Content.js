@@ -68,7 +68,7 @@ export default class Content extends React.Component {
         }
     }
 
-    startExperiment(data = {}) {
+    startExperiment(data = {}, render_flag = 0) {
         var url = `/startExperiment?&s=${data.sex}&a=${data.age}&r=${data.race}&h=${data.hand}` // the 'data' structure comes from the PreExperiment Form and is assumed to have sex,age,race and hand info. Assign each of the variables in data to s,a,r, and h respectively.
         // Refer to onSubmit() in PreExperimentForm
         fetch(url, this.fetchConfig)

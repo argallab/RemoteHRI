@@ -84,31 +84,31 @@ export default class PostExperimentForm extends Component {
 
         if (fields["taskDifficulty1"] == ""){
             formIsValid = false;
-            validation_errors["taskDifficulty1"] = "[Q1] Cannot be empty."
+            validation_errors["taskDifficulty1"] = "[Q1] Field cannot be empty."
         }
         if (fields["taskDifficulty2"] == ""){
             formIsValid = false;
-            validation_errors["taskDifficulty2"] = "[Q2] Cannot be empty."
+            validation_errors["taskDifficulty2"] = "[Q2] Field cannot be empty."
             
         }
         if (fields["interactionWithRobot1"] == ""){
             formIsValid = false;
-            validation_errors["interactionWithRobot1"] = "[Q3] Cannot be empty."
+            validation_errors["interactionWithRobot1"] = "[Q3] Field cannot be empty."
             
         }
         if (fields["interactionWithRobot2"] == ""){
             formIsValid = false;
-            validation_errors["interactionWithRobot2"] = "[Q4] Cannot be empty."
+            validation_errors["interactionWithRobot2"] = "[Q4] Field cannot be empty."
             
         }
         if (fields["interactionWithRobot3"] == ""){
             formIsValid = false;
-            validation_errors["interactionWithRobot3"] = "[Q5] Cannot be empty."
+            validation_errors["interactionWithRobot3"] = "[Q5] Field cannot be empty."
             
         }
         if (fields["interactionWithRobot4"] == ""){
             formIsValid = false;
-            validation_errors["interactionWithRobot4"] = "[Q6] Cannot be empty."
+            validation_errors["interactionWithRobot4"] = "[Q6] Field cannot be empty."
             
         }
 
@@ -136,8 +136,8 @@ export default class PostExperimentForm extends Component {
                     <Row>
                         <br/>
                         <Col md={3}>
-                            <Form.Group controlId={`[Q1] taskDifficulty1`}>
-                                <Form.Label>It was easy for me to complete this task.</Form.Label>
+                            <Form.Group controlId={`taskDifficulty1`}>
+                                <Form.Label>[Q1] It was easy for me to complete this task.</Form.Label>
                                 <Form.Control
                                     as="select"
                                     type="select"
@@ -156,8 +156,8 @@ export default class PostExperimentForm extends Component {
                             </Form.Group>
                         {/* </Col>
                         <Col md={3}> */}
-                            <Form.Group controlId={`[Q2] taskDifficulty2`}>
-                                <Form.Label>The tasks were well-defined.</Form.Label>
+                            <Form.Group controlId={`taskDifficulty2`}>
+                                <Form.Label>[Q2] The tasks were well-defined.</Form.Label>
                                 <Form.Control
                                     as="select"
                                     type="select"
@@ -177,13 +177,13 @@ export default class PostExperimentForm extends Component {
                         {/* </Col>
                         <Col md={3}> */}
                             <Form.Group controlId={`interactionWithRobot1`}>
-                                <Form.Label>I found the controls to be intuitive.</Form.Label>
+                                <Form.Label>[Q3] I found the controls to be intuitive.</Form.Label>
                                 <Form.Control
                                     as="select"
                                     type="select"
                                     value={this.state.interactionWithRobot1}
                                     onChange={this.handleChange}
-                                    name="[Q3] interactionWithRobot1">
+                                    name="interactionWithRobot1">
                                     <option></option>
                                     <option>strongly disagree</option>
                                     <option>disagree</option>
@@ -197,13 +197,13 @@ export default class PostExperimentForm extends Component {
                         {/* </Col>
                         <Col md={3}> */}
                             <Form.Group controlId={`interactionWithRobot2`}>
-                                <Form.Label>The vehicle moved as I intended it to.</Form.Label>
+                                <Form.Label>[Q4] The vehicle moved as I intended it to.</Form.Label>
                                 <Form.Control
                                     as="select"
                                     type="select"
                                     value={this.state.interactionWithRobot2}
                                     onChange={this.handleChange}
-                                    name="[Q4] interactionWithRobot2">
+                                    name="interactionWithRobot2">
                                     <option></option>
                                     <option>strongly disagree</option>
                                     <option>disagree</option>
@@ -217,13 +217,13 @@ export default class PostExperimentForm extends Component {
                         {/* </Col>
                         <Col md={3}> */}
                             <Form.Group controlId={`interactionWithRobot3`}>
-                                <Form.Label>It was difficult to plan how to reach a given goal.</Form.Label>
+                                <Form.Label>[Q5] It was difficult to plan how to reach a given goal.</Form.Label>
                                 <Form.Control
                                     as="select"
                                     type="select"
                                     value={this.state.interactionWithRobot3}
                                     onChange={this.handleChange}
-                                    name="[Q5] interactionWithRobot3">
+                                    name="interactionWithRobot3">
                                     <option></option>
                                     <option>strongly disagree</option>
                                     <option>disagree</option>
@@ -237,13 +237,13 @@ export default class PostExperimentForm extends Component {
                         {/* </Col>
                         <Col md={3}> */}
                             <Form.Group controlId={`interactionWithRobot4`}>
-                                <Form.Label>I had a clear view of the objects in the testing environment.</Form.Label>
+                                <Form.Label>[Q6] I had a clear view of the objects in the testing environment.</Form.Label>
                                 <Form.Control
                                     as="select"
                                     type="select"
                                     value={this.state.interactionWithRobot4}
                                     onChange={this.handleChange}
-                                    name="[Q6] interactionWithRobot4">
+                                    name="interactionWithRobot4">
                                     <option></option>
                                     <option>strongly disagree</option>
                                     <option>disagree</option>

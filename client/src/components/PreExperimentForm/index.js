@@ -16,32 +16,57 @@ export default class PreExperimentForm extends Component {
             race: "",
             age: "",
             sex: "",
-            hand: ""
+            hand: "",
+            errors: "",
+            show_splash_page: true,
+            show_form_page: false,
+            show_training_phase_info_page: false
         }
 
-        this.renderLogic ={
-            show_splash_page: "true",
-            show_training_phase_info_page: "false"
-        }
+        this.render_flag = false
 
         this.onSubmit = this.onSubmit.bind(this)
         this.handleChange = this.handleChange.bind(this)
         // NOTE: the methods below is adapted from: https://stackoverflow.com/questions/41296668/reactjs-form-input-validation
         this.contactSubmit = this.contactSubmit.bind(this)
         this.handleValidation = this.handleValidation.bind(this)
+        this.render = this.render.bind(this) // check this
     }
 
 
     onSubmit() {
-        console.log("onSubmit called from DemographicInfoForm")
-        var data = {
-            race: this.state.race,
-            age: this.state.age,
-            sex: this.state.sex,
-            hand: this.state.hand,
-            errors: {}
+        // case where questionnaire is fully filled out; triggers pre-training info. page
+        if (this.state["show_splash_page"] == false) { 
+            if (this.state["show_training_phase_info_page"] == false) {
+                console.log("onSubmit called from DemographicInfoForm")
+                this.setState({"show_form_page": false})
+                var data = {
+                    race: this.state.race,
+                    age: this.state.age,
+                    sex: this.state.sex,
+                    hand: this.state.hand,
+                    errors: {}
+                }
+                this.render_flag = false;
+                this.props.startExperiment(data, this.render_flag)
+            }
         }
-        this.props.startExperiment(data)
+        // initial case to trigger rendering of the experiment's splash page
+        else if (this.state["show_splash_page"] == true) {
+            this.render_flag = true;
+            this.setState({show_splash_page: false})
+            this.setState({show_form_page: true})
+            //this.render()
+            //this.props.startExperiment(data, this.render_flag)
+
+        }
+        else if (this.state["show_form_page"] == true) {
+            this.render_flag = true;
+            //this.render()
+            
+            //this.props.startExperiment(data, this.render_flag)
+        }
+        
     }
 
     handleChange(e) {
@@ -53,18 +78,55 @@ export default class PreExperimentForm extends Component {
      contactSubmit(e){
         e.preventDefault();
 
-        if(this.handleValidation()){
-            this.onSubmit()
-            alert("Form submitted. Thank you!");
-        }
-        else{
-            let errors_list = Object.keys(this.state.errors)
-            var inputErrorStr = `Form contains missing information; please provide appropriate answers. The following questions returned the following ${errors_list.length} errors:`;
-            for (var i=0; i < errors_list.length; i++) {
-                var str2add = `${this.state.errors[errors_list[i]]}`
-                var inputErrorStr = `${inputErrorStr} \n ${str2add}`;
+        if (this.state["show_splash_page"] == false) {
+            if (this.state["show_training_phase_info_page"] == false) {
+                if (this.state["show_form_page"] == true) {
+                    if(this.handleValidation()){
+                        this.onSubmit();
+                        alert("Form submitted. Thank you!");
+                    }
+                    else{
+                        let errors_list = Object.keys(this.state.errors)
+                        var inputErrorStr = `Form contains missing information; please provide appropriate answers. The following questions returned the following ${errors_list.length} errors:`;
+                        for (var i=0; i < errors_list.length; i++) {
+                            var str2add = `${this.state.errors[errors_list[i]]}`;
+                            var inputErrorStr = `${inputErrorStr} \n ${str2add}`;
+                        }
+                        alert(inputErrorStr)
+                    }
+                }
             }
-            alert(inputErrorStr)
+        }
+        else if (this.state["show_splash_page"] == true) {
+            this.setState({show_splash_page: true})
+            alert("pass through contactSubmit for splash page")
+            this.onSubmit()
+            //this.render()
+        }
+
+        else if (this.state.show_training_phase_info_page == true){
+            this.setState({state: this.state})
+
+            //this.render()
+
+        }
+
+        else {
+            if(this.handleValidation()){
+                this.setState({show_training_phase_info_page: true})
+                this.onSubmit()
+                alert("Form submitted. Thank you!");
+                
+            }
+            else{
+                let errors_list = Object.keys(this.state.errors)
+                var inputErrorStr = `Form contains missing information; please provide appropriate answers. The following questions returned the following ${errors_list.length} errors:`;
+                for (var i=0; i < errors_list.length; i++) {
+                    var str2add = `${this.state.errors[errors_list[i]]}`
+                    var inputErrorStr = `${inputErrorStr} \n ${str2add}`;
+                }
+                alert(inputErrorStr)
+            }
         }
     }
 
@@ -87,18 +149,18 @@ export default class PreExperimentForm extends Component {
         //
         if (fields["race"] == ""){
             formIsValid = false;
-            validation_errors["race"] = "[1] Cannot be empty."
+            validation_errors["race"] = "[1] Field cannotbe empty."
         }
         //
         if (fields["sex"] == ""){
             formIsValid = false;
-            validation_errors["sex"] = "[2] Cannot be empty."
+            validation_errors["sex"] = "[2] Field cannot be empty."
             
         }
         //
         if (fields["age"] == ""){
             formIsValid = false;
-            validation_errors["age"] = "[3] Cannot be empty."
+            validation_errors["age"] = "[3] Field cannot be empty."
             
         }
         /* if (fields["age"].type != "number"){
@@ -115,11 +177,11 @@ export default class PreExperimentForm extends Component {
         //
         if (fields["hand"] == ""){
             formIsValid = false;
-            validation_errors["hand"] = "[4] Cannot be empty."
+            validation_errors["hand"] = "[4] Field cannot be empty."
             
         }
 
-        //this.setState({errors: errors});
+        this.setState({errors: validation_errors})
         this.state.errors = validation_errors;
 
         return formIsValid;
@@ -132,17 +194,19 @@ export default class PreExperimentForm extends Component {
      * - disable the Next button until the video ends
      */
     render() {
-        if (this.renderLogic.show_splash_page == "true"){
+        if (this.state["show_splash_page"] == true){
             return(
             <div>
                 <h3>Welcome to our experiment! [enter participant statement]</h3>
+                <Button onClick={this.contactSubmit}>Start Experiment</Button>
             </div>
             )
         }
-        else if (this.renderLogic.show_training_phase_info_page == "true") {
+        else if (this.state["show_training_phase_info_page"] == true) {
             return (
                 <div>
                     <h3>[enter training phase trial instructions for participant]</h3>
+                    <Button onClick={this.contactSubmit}>Start Experiment</Button>
                 </div>
             )
         }
@@ -202,7 +266,7 @@ export default class PreExperimentForm extends Component {
                                     <Form.Control
                                         as="select"
                                         type="select"
-                                        name="[Q3] Race"
+                                        name="Race"
                                         value={this.state.race}
                                         onChange={this.handleChange}
                                         name="race">
@@ -224,7 +288,7 @@ export default class PreExperimentForm extends Component {
                                     <Form.Control
                                         as="select"
                                         type="select"
-                                        name="[Q4] Hand"
+                                        name="Hand"
                                         value={this.state.hand}
                                         onChange={this.handleChange}
                                         name="hand">
