@@ -18,11 +18,17 @@ export default class PostExperimentForm extends Component {
             interactionWithRobot1: "",
             interactionWithRobot2: "",
             interactionWithRobot3: "",
-            interactionWithRobot4: ""
+            interactionWithRobot4: "",
+            errors: {}
         }
-
+        
         this.onSubmit = this.onSubmit.bind(this)
         this.handleChange = this.handleChange.bind(this)
+        // NOTE: the methods below is adapted from: https://stackoverflow.com/questions/41296668/reactjs-form-input-validation
+        this.contactSubmit = this.contactSubmit.bind(this)
+        this.handleValidation = this.handleValidation.bind(this)
+
+
     }
 
 
@@ -39,10 +45,76 @@ export default class PostExperimentForm extends Component {
         this.props.submit(data)
     }
 
-    handleChange(e) {
+    // NOTE: the method below is adapted from: https://stackoverflow.com/questions/41296668/reactjs-form-input-validation
+    contactSubmit(e){
+        e.preventDefault();
+
+        
+
+        if(this.handleValidation()){
+            this.onSubmit()
+            alert("Form submitted. Thank you!");
+        }
+        else{
+            let errors_list = Object.keys(this.state.errors)
+            var inputErrorStr = `Form contains missing information; please provide appropriate answers. The following questions returned the following ${errors_list.length} errors:`;
+            for (var i=0; i < errors_list.length; i++) {
+                var str2add = `${this.state.errors[errors_list[i]]}`
+                var inputErrorStr = `${inputErrorStr} \n ${str2add}`;
+            }
+            alert(inputErrorStr)
+        }
+    }
+
+    // NOTE: the method below is adapted from: https://stackoverflow.com/questions/41296668/reactjs-form-input-validation
+    handleChange(e) { 
+        //let fields = this.state;
+        //fields[field] = e.target.value;
+
         this.setState({
             [e.target.name]: e.target.value
         })
+    }
+
+    // NOTE: the method below is adapted from: https://stackoverflow.com/questions/41296668/reactjs-form-input-validation
+    handleValidation(){
+        let fields = this.state;
+        let validation_errors = {};
+        let formIsValid = true;
+
+        if (fields["taskDifficulty1"] == ""){
+            formIsValid = false;
+            validation_errors["taskDifficulty1"] = "[Q1] Cannot be empty."
+        }
+        if (fields["taskDifficulty2"] == ""){
+            formIsValid = false;
+            validation_errors["taskDifficulty2"] = "[Q2] Cannot be empty."
+            
+        }
+        if (fields["interactionWithRobot1"] == ""){
+            formIsValid = false;
+            validation_errors["interactionWithRobot1"] = "[Q3] Cannot be empty."
+            
+        }
+        if (fields["interactionWithRobot2"] == ""){
+            formIsValid = false;
+            validation_errors["interactionWithRobot2"] = "[Q4] Cannot be empty."
+            
+        }
+        if (fields["interactionWithRobot3"] == ""){
+            formIsValid = false;
+            validation_errors["interactionWithRobot3"] = "[Q5] Cannot be empty."
+            
+        }
+        if (fields["interactionWithRobot4"] == ""){
+            formIsValid = false;
+            validation_errors["interactionWithRobot4"] = "[Q6] Cannot be empty."
+            
+        }
+
+        //this.setState({errors: validation_errors});
+        this.state.errors = validation_errors;
+        return formIsValid;
     }
 
     /**
@@ -55,11 +127,16 @@ export default class PostExperimentForm extends Component {
     render() {
         return (
             <div>
-                <h5>Post Task Questionnaire</h5>
+                <h8>Post Task Questionnaire</h8>
+                <br/>
+                Please provide answers for each of the following (6) questions:
+                <br/>
+
                 <Form>
                     <Row>
+                        <br/>
                         <Col md={3}>
-                            <Form.Group controlId={`taskDifficulty1`}>
+                            <Form.Group controlId={`[Q1] taskDifficulty1`}>
                                 <Form.Label>It was easy for me to complete this task.</Form.Label>
                                 <Form.Control
                                     as="select"
@@ -77,9 +154,9 @@ export default class PostExperimentForm extends Component {
                                     <option>strongly agree</option>
                                 </Form.Control>
                             </Form.Group>
-                        </Col>
-                        <Col md={3}>
-                            <Form.Group controlId={`taskDifficulty2`}>
+                        {/* </Col>
+                        <Col md={3}> */}
+                            <Form.Group controlId={`[Q2] taskDifficulty2`}>
                                 <Form.Label>The tasks were well-defined.</Form.Label>
                                 <Form.Control
                                     as="select"
@@ -97,8 +174,8 @@ export default class PostExperimentForm extends Component {
                                     <option>strongly agree</option>
                                 </Form.Control>
                             </Form.Group>
-                        </Col>
-                        <Col md={3}>
+                        {/* </Col>
+                        <Col md={3}> */}
                             <Form.Group controlId={`interactionWithRobot1`}>
                                 <Form.Label>I found the controls to be intuitive.</Form.Label>
                                 <Form.Control
@@ -106,7 +183,7 @@ export default class PostExperimentForm extends Component {
                                     type="select"
                                     value={this.state.interactionWithRobot1}
                                     onChange={this.handleChange}
-                                    name="interactionWithRobot1">
+                                    name="[Q3] interactionWithRobot1">
                                     <option></option>
                                     <option>strongly disagree</option>
                                     <option>disagree</option>
@@ -117,8 +194,8 @@ export default class PostExperimentForm extends Component {
                                     <option>strongly agree</option>
                                 </Form.Control>
                             </Form.Group>
-                        </Col>
-                        <Col md={3}>
+                        {/* </Col>
+                        <Col md={3}> */}
                             <Form.Group controlId={`interactionWithRobot2`}>
                                 <Form.Label>The vehicle moved as I intended it to.</Form.Label>
                                 <Form.Control
@@ -126,7 +203,7 @@ export default class PostExperimentForm extends Component {
                                     type="select"
                                     value={this.state.interactionWithRobot2}
                                     onChange={this.handleChange}
-                                    name="interactionWithRobot2">
+                                    name="[Q4] interactionWithRobot2">
                                     <option></option>
                                     <option>strongly disagree</option>
                                     <option>disagree</option>
@@ -137,16 +214,16 @@ export default class PostExperimentForm extends Component {
                                     <option>strongly agree</option>
                                 </Form.Control>
                             </Form.Group>
-                        </Col>
-                        <Col md={3}>
+                        {/* </Col>
+                        <Col md={3}> */}
                             <Form.Group controlId={`interactionWithRobot3`}>
-                                <Form.Label>It was difficulty to plan how to reach a given goal.</Form.Label>
+                                <Form.Label>It was difficult to plan how to reach a given goal.</Form.Label>
                                 <Form.Control
                                     as="select"
                                     type="select"
                                     value={this.state.interactionWithRobot3}
                                     onChange={this.handleChange}
-                                    name="interactionWithRobot3">
+                                    name="[Q5] interactionWithRobot3">
                                     <option></option>
                                     <option>strongly disagree</option>
                                     <option>disagree</option>
@@ -157,8 +234,8 @@ export default class PostExperimentForm extends Component {
                                     <option>strongly agree</option>
                                 </Form.Control>
                             </Form.Group>
-                        </Col>
-                        <Col md={3}>
+                        {/* </Col>
+                        <Col md={3}> */}
                             <Form.Group controlId={`interactionWithRobot4`}>
                                 <Form.Label>I had a clear view of the objects in the testing environment.</Form.Label>
                                 <Form.Control
@@ -166,7 +243,7 @@ export default class PostExperimentForm extends Component {
                                     type="select"
                                     value={this.state.interactionWithRobot4}
                                     onChange={this.handleChange}
-                                    name="interactionWithRobot4">
+                                    name="[Q6] interactionWithRobot4">
                                     <option></option>
                                     <option>strongly disagree</option>
                                     <option>disagree</option>
@@ -178,12 +255,13 @@ export default class PostExperimentForm extends Component {
                                 </Form.Control>
                             </Form.Group>
                         </Col>
-                    </Row>
-
-                </Form>
+                {/* </Form>
+                </Col> */}
+            </Row>
+            </Form>
                 <hr />
                 <div style={{ display: "flex", justifyContent: "center" }}>
-                    <Button onClick={this.onSubmit}>Finish Experiment</Button>
+                    <Button onClick={this.contactSubmit}>Finish Experiment</Button>
 
                 </div>
             </div>
