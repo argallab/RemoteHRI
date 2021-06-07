@@ -13,6 +13,7 @@ import RobotArmWorld from './components/ActiveStimulus/RobotArmWorld';
 /**
  * See README.md for documentation.
  */
+
 export default class Content extends React.Component {
     constructor(props) {
         super(props);

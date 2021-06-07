@@ -213,7 +213,7 @@ export default class PreExperimentForm extends Component {
         else {
             return (
                 <div>
-                    <h3>Demographic Information Survey</h3>
+                    <h2>Demographic Information Survey</h2>
                     <hr/>
                     <Form>
                         <div class="center">  
@@ -238,8 +238,7 @@ export default class PreExperimentForm extends Component {
                                         value={this.state.age}
                                         onChange={this.handleChange}
                                         name="age"
-                                        min="13"
-                                        max="150"/>
+                                        min="13"/>
                                 </Form.Group>
                             </Col>
                             <Col md={3}>
@@ -260,6 +259,8 @@ export default class PreExperimentForm extends Component {
                                     </Form.Control>
                                 </Form.Group>
                             </Col>
+                        </Row>
+                        <Row lg={2}>
                             <Col md={3}>
                                 <Form.Group controlId={`race`}>
                                     <Form.Label>[Q3] Race</Form.Label>

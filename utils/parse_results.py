@@ -34,7 +34,7 @@ import pickle as pkl
 class master_dict:
     def __init__(self):
         self.md = collections.OrderedDict()
-        self.dpath = dpath = '../server/data/working_dir/'
+        self.dpath = dpath = '../server/data/working_dir/working_dir_06_06_21'
     # method for generating a list of filepaths for json files in the data storage directory # -------------------------------------------------------------------------------------------------------------------------------
     def list_fnames(self):
         fp_list = []
@@ -170,58 +170,73 @@ class master_dict:
         #print('\t--> stimulus length:' + str(stimlen))
         #print('\t--> answer length: ' + str(answerlen))
 
+        block_count = 0
+
         # keyidx1 is the index over all total trials #
         for keyidx1 in range(0, len(self.current_data['Stimuli'])): # TODO: if trial is empty (or answer is <3) then remove block from stimuli
 
-                print('\n')
-                stimlen = len(self.current_data['Stimuli'])
-                answerlen = len(self.current_data['Stimuli'][keyidx1]['Answer'])
-                print('\t--> stimulus length: ' + str(keyidx1+1) + " | " + str(stimlen))
-                print('\t--> answer length: ' + str(answerlen))                
-                #try:                    
+            print('\n')
+            stimlen = len(self.current_data['Stimuli'])
+            answerlen = len(self.current_data['Stimuli'][keyidx1]['Answer'])
+            print('\t--> stimulus length: ' + str(keyidx1+1) + " | " + str(stimlen))
+            print('\t--> answer length: ' + str(answerlen))
+
+            # if keyidx1+1 == (len(self.current_data['Stimuli'])):
+                
+
+            try: # NOTE: re-added try/except clause 06/06/21               
                 kplistlen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])
                 print('\t--> keypress list length: ' + str(kplistlen) + '   (hello!)')
-                #except:
-                #    print('\t--> keypress list length: ' + str(0) + ' <------------------------ [WARNING: EMPTY SET]')
-                
-                try:
-                    # keyidx2 is the index over all keypress lists (broken up in .json for bandwidth purposes, afaik) #
-                    kplist_flag = 0
-                    for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])):
-                        kp_count = 0
-                        humlen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])
-                        print('\t\t--> human length:' + str(humlen) + str('   (hello2!)'))
-                        
-                        # keyidx3 is the index over all keypresses across keypress lists (101 keypresses per list)
-                        for keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])):             
-                            a = 0
-                            # recovers blockName and first_word when checking what to populate in master dictionary
-                            blockName = self.current_data['Stimuli'][keyidx1]['blockName']
-                            first_word = blockName.split()[0]
-                            # this is where the subject trial responses are stored; the timestep associated with each response is treated as a key
-                            # that in turn links to two keys: 'human' and 'time'. The former is associated with the control and state information,
-                            # whereas the latter is associated with the # of system time counts during the trial
-                            self.md['participantID'][participantID]['date'][date][first_word][0][blockName][keyidx3+(kplist_flag*101)] = self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]
-                            
-                            #print('\t\t\t--> note: this is current key index for timesteps: ' + str(keyidx3+(kplist_flag*101)))
-                            kp_count += 1
-                            if kp_count >= 101:
-                                print('\t\t\t--> note: kp_count has hit 101')
-                                kp_count = 0
-                                kplist_flag += 1
-                                print('\t\t\t--> note: kplist_flag : ' + str(kplist_flag))
-                            else:
-                                continue
-                    #print(kplist_flag)
-                    #print(kp_count)
-                    kplen = kplist_flag*101 + kp_count
-                    print('\t--> keypress length: ' + str(kplen))
+            except:
+                print('\t--> keypress list length: ' + str(0) + ' <------------------------ [WARNING: EMPTY SET]')
+                block_count += 1
 
-                except:
-                    kplist_flag = 0
-                    print('\t [WARNING] ~ exception encountered in keyidx2/keyidx3 loop')
-                    continue
+                if keyidx1 == (len(self.current_data['Stimuli'])-1):
+                    # TODO: recover post-experiment questionnaire data here
+                    self.md['participantID'][participantID]['date'][date]['Questionnaire'] = self.current_data['Stimuli'][keyidx1]["Answer"]
+                    print("\t--> [NOTE] post-experiment question parsing reached.")
+            
+            try:
+                # keyidx2 is the index over all keypress lists (broken up in .json for bandwidth purposes, afaik) #
+                kplist_flag = 0
+                for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])):
+                    kp_count = 0
+                    humlen = len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])
+                    print('\t\t--> human length:' + str(humlen) + str('   (hello2!)'))
+                    
+                    # keyidx3 is the index over all keypresses across keypress lists (101 keypresses per list)
+                    for keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])):             
+                        a = 0
+                        # recovers blockName and first_word when checking what to populate in master dictionary
+                        blockName = self.current_data['Stimuli'][keyidx1]['blockName']
+                        first_word = blockName.split()[0]
+                        # this is where the subject trial responses are stored; the timestep associated with each response is treated as a key
+                        # that in turn links to two keys: 'human' and 'time'. The former is associated with the control and state information,
+                        # whereas the latter is associated with the # of system time counts during the trial
+                        self.md['participantID'][participantID]['date'][date][first_word][0][blockName][keyidx3+(kplist_flag*101)] = self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]
+                        
+                        #print('\t\t\t--> note: this is current key index for timesteps: ' + str(keyidx3+(kplist_flag*101)))
+                        kp_count += 1
+                        if kp_count >= 101:
+                            print('\t\t\t--> note: kp_count has hit 101')
+                            kp_count = 0
+                            kplist_flag += 1
+                            print('\t\t\t--> note: kplist_flag : ' + str(kplist_flag))
+                        else:
+                            continue
+                #print(kplist_flag)
+                #print(kp_count)
+                kplen = kplist_flag*101 + kp_count
+                print('\t--> keypress length: ' + str(kplen))
+
+            except:
+                kplist_flag = 0
+                print('\t [WARNING] ~ exception encountered in keyidx2/keyidx3 loop')
+                
+                continue
             #kp_count_list[keyidx1] = {keyidx1 : keyidx2}
+            
+                    
 
             #blockName = self.current_data['Stimuli'][keyidx1]['blockName']
             #self.md['participantID'][participantID]['date'][date][first_word]
