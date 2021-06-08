@@ -54,6 +54,7 @@ export default class Content extends React.Component {
                     if (response.status === 200) {
                         return response.json()
                     } else {
+                        console.log("/getExperimentName failed with error code: " + response.status)
                         throw new Error("/getExperimentName failed with error code: " + response.status)
                     }
                 })
