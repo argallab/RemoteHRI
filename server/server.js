@@ -34,7 +34,7 @@ var participantIndex = 0;                            // Start participant number
 var np               = require("./nodus-ponens")(participantIndex, staticDirectory, dataDirectory); //this line is a concise way of invoking the constructor (commented out lines in line 32 and 33 shows the long way)
 np.authors           = "Authors";
 np.experimentName    = "Test Experiment";
-np.port              = 3003 //3003; // had changed to 80
+np.port              = 80 //3003; // had changed to 80
 
 // run command node server.js FILENAME
 const args = process.argv.slice(2) // slice out the first words in the command line string
@@ -154,7 +154,7 @@ function assignContents(design)            // This assigns contents to schematic
 
 console.log('server.js; line 155')
 var corsOptions = {
-   origin: "http://andrew-reactjs-test.s3-website.us-east-2.amazonaws.com/" //"http://localhost:3001" // TODO: s3 link (?) // had appended :80
+   origin: "http://andrew-reactjs-test.s3-website.us-east-2.amazonaws.com/:3001" //"http://localhost:3001" // TODO: s3 link (?) // had appended :80
 }
 console.log('server.js; line 159')
 np.app.use(cors(corsOptions))
