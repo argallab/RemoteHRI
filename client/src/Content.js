@@ -40,7 +40,10 @@ export default class Content extends React.Component {
         this.fetchConfig = {
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": ["POST", "GET", "OPTIONS"],
+                "Access-Control-Allow-Headers": ["Origin, X-Requested-With, X-PINGOTHER, Content-Type, Accept"]
             },
             mode: "cors",
             credentials: "include"
@@ -49,14 +52,7 @@ export default class Content extends React.Component {
 
     componentDidMount() {
         if (process.env.REACT_APP_SERVERURL !== null && process.env.REACT_APP_SERVERURL !== "") {
-            fetch("/getExperimentName", this.fetchConfig,
-            {
-              headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": ["POST", "GET", "OPTIONS"],
-                "Access-Control-Allow-Headers": ["X-PINGOTHER", "Content-Type"]
-              }
-            })
+            fetch("/getExperimentName", this.fetchConfig,)
                 .then((response) => {
                     if (response.status === 200) {
                         console.log('error code === 200 case')

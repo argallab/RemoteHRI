@@ -65,7 +65,7 @@ function setupNodusPonens(startingParticipantID, staticDirectory, dataDirectory)
    np["displayHeader"] = require("./displayHeader.js");
    np["authors"] = "Anonymous";
    np["experimentName"] = "XX0";
-   np["port"] = 3000; //"31337";
+   np["port"] = 80; //"31337";
    np["randomize"] = shuffle;
    np["launchStudy"] = function () {
       np.app.listen(np.port);
