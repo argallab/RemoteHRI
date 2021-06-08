@@ -152,11 +152,13 @@ function assignContents(design)            // This assigns contents to schematic
 // 3. Extra routes
 // --------------------------------------------------------------------------------------------------
 
+console.log('server.js; line 155')
 var corsOptions = {
    origin: "http://andrew-reactjs-test.s3-website.us-east-2.amazonaws.com/" //"http://localhost:3001" // TODO: s3 link (?)
 }
+console.log('server.js; line 159')
 np.app.use(cors(corsOptions))
-
+console.log('server.js; line 161')
 np.app.get("/getExperimentName", (req, res) => {
    res.json({"name": np.experimentName}) // potentially need to update the experiment name from experiment.json
 })

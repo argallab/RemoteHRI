@@ -52,13 +52,17 @@ export default class Content extends React.Component {
             fetch("/getExperimentName", this.fetchConfig,
             {
               headers: {
-                "Access-Control-Allow-Origin": "*"
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": ["POST", "GET", "OPTIONS"],
+                "Access-Control-Allow-Headers": ["X-PINGOTHER", "Content-Type"]
               }
             })
                 .then((response) => {
                     if (response.status === 200) {
+                        console.log('error code === 200 case')
                         return response.json()
                     } else {
+                        console.log('error code !== 200 case')
                         console.log("/getExperimentName failed with error code: " + response.status)
                         throw new Error("/getExperimentName failed with error code: " + response.status)
                     }

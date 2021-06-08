@@ -108,7 +108,7 @@ def generate_grid_world_trials(args):
     experiment_dict["experimentName"] = experiment_name
     experiment_dict["shuffleBlocks"] = is_shuffle_blocks
     experiment_dict["blocks"] = []
-    for nb in range(num_blocks+1): #+1 to accomodate for the training block. 
+    for nb in range(num_blocks+1): #+1 to accomodate for the training block. # TODO: is this what's causing the extra trial? Check this![06/04/2021]
         current_block = collections.OrderedDict()
         if nb == 0: #if training block
             current_block['blockName'] = "Training Block"
