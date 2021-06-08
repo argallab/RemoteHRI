@@ -49,7 +49,12 @@ export default class Content extends React.Component {
 
     componentDidMount() {
         if (process.env.REACT_APP_SERVERURL !== null && process.env.REACT_APP_SERVERURL !== "") {
-            fetch("/getExperimentName", this.fetchConfig)
+            fetch("/getExperimentName", this.fetchConfig,
+            {
+              headers: {
+                "Access-Control-Allow-Origin": "*"
+              }
+            })
                 .then((response) => {
                     if (response.status === 200) {
                         return response.json()
