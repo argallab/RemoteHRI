@@ -154,7 +154,7 @@ function assignContents(design)            // This assigns contents to schematic
 
 console.log('server.js; line 155')
 var corsOptions = {
-   origin: "http://andrew-reactjs-test.s3-website.us-east-2.amazonaws.com/" //"http://localhost:3001" // TODO: s3 link (?)
+   origin: "http://andrew-reactjs-test.s3-website.us-east-2.amazonaws.com/:80" //"http://localhost:3001" // TODO: s3 link (?)
 }
 console.log('server.js; line 159')
 np.app.use(cors(corsOptions))
