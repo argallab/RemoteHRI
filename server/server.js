@@ -34,7 +34,7 @@ var participantIndex = 0;                            // Start participant number
 var np               = require("./nodus-ponens")(participantIndex, staticDirectory, dataDirectory); //this line is a concise way of invoking the constructor (commented out lines in line 32 and 33 shows the long way)
 np.authors           = "Authors";
 np.experimentName    = "Test Experiment";
-np.port              = 80 //3003; // had changed to 80
+np.port              = 3003 //3003; // had changed to 80
 
 // run command node server.js FILENAME
 const args = process.argv.slice(2) // slice out the first words in the command line string
