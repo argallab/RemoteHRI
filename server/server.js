@@ -159,6 +159,11 @@ var corsOptions = {
    'Access-Control-Allow-Methods': ['POST', 'GET', 'OPTIONS'],
    'Access-Control-Allow-Headers': ['Origin', 'X-Requested-With', 'X-PINGOTHER', 'Content-Type', 'Accept']
 }
+
+app.get('/', function (req, res) {
+   res.render('index', {});
+})
+
 console.log('server.js; line 159')
 np.app.use(cors(corsOptions))
 console.log('server.js; line 161')
