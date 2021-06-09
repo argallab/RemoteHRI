@@ -1,7 +1,6 @@
 {
   "name": "client",
-  "hostname": "http://ec2-3-133-149-105.us-east-2.compute.amazonaws.com",
-  "proxy": "http://ec2-3-133-149-105.us-east-2.compute.amazonaws.com:3003",
+  "proxy": "3.133.149.105:443",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

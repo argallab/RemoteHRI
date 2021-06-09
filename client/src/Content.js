@@ -41,9 +41,9 @@ export default class Content extends React.Component {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": ["POST, GET, OPTIONS"],
-                "Access-Control-Allow-Headers": ["Origin, X-Requested-With, X-PINGOTHER, Content-Type, Accept"]
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': ['POST', 'GET', 'OPTIONS'],
+                'Access-Control-Allow-Headers': ['Origin', 'X-Requested-With', 'X-PINGOTHER', 'Content-Type', 'Accept']
             },
             mode: "cors",
             credentials: "include"
