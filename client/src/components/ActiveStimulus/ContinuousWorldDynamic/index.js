@@ -196,7 +196,7 @@ export default class ContinuousWorldDynamic extends React.Component {
         this.started = false
         this.linear_vel_active = false
         this.angular_vel_active = false
-        console.log(this.started)
+        //console.log(this.started)
     }
 
     // NOTE: nice reference for preventing scrolling in browser window
@@ -326,7 +326,7 @@ export default class ContinuousWorldDynamic extends React.Component {
                 }
                 ////// TODO
                 this.onWin()
-                console.log('made past .onWin()')
+                //console.log('made past .onWin()')
                 return
             }
 
@@ -346,7 +346,7 @@ export default class ContinuousWorldDynamic extends React.Component {
     }
 
     onSubmit(){
-        console.log('onSubmit called from ContinuousWorld')
+        //console.log('onSubmit called from ContinuousWorld')
 
         var answer = {
             start: this.start,
@@ -458,11 +458,11 @@ export default class ContinuousWorldDynamic extends React.Component {
         var xvf = 0.0
         var yvf = 0.0
         if (tvf != 0.0){ //nonzero angular velocity
-            console.log('TVF in UPDATE', tvf)
+            //console.log('TVF in UPDATE', tvf)
             xf = xi - (lvf/tvf)*Math.sin(ti) + (lvf/tvf)*Math.sin(ti + tvf)
             yf = yi + (lvf/tvf)*Math.cos(ti) - (lvf/tvf)*Math.cos(ti + tvf)
             tf = ti + tvf
-            console.log('TF update', tf)
+            //console.log('TF update', tf)
         } else if (tvf == 0.0) { // zero angular velocity
             xf = xi + lvf*Math.cos(ti) 
             yf = yi + lvf*Math.sin(ti)
@@ -642,7 +642,7 @@ export default class ContinuousWorldDynamic extends React.Component {
     }
 
     componentWillUnmount() {
-        console.log('COMPONENT DID MOUNT (!!!)')
+        //onsole.log('COMPONENT DID MOUNT (!!!)')
         document.removeEventListener("keydown", this.handleKeyPress, false);
         document.removeEventListener("keyup", this.handleKeyPress, false);
     }

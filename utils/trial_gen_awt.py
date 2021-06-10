@@ -471,13 +471,13 @@ def generate_grid_world_trials(args):
                 #print('\ntraining block case 1')
                 if block_num == 0: # (training block case)
                     #print(' -> training block case 2')
-                    trial_dict['instructions'] = "[0] TRAINING INSTRUCTIONS: ."
+                    trial_dict['instructions'] = ""#"[0] TRAINING INSTRUCTIONS: ."
                 elif block_num == num_train_blocks: # (testing block case)
-                    trial_dict['instructions'] = "[1] TRAINING INSTRUCTIONS: ."
+                    trial_dict['instructions'] = ""#"[1] TRAINING INSTRUCTIONS: ."
                 #else:
                 #    trial_dict['instructions'] = "Press any key to continue..." # CHECK
             elif num_train_blocks == 0:
-                trial_dict['instructions'] = "TEST INSTRUCTIONS:  mp type = "
+                trial_dict['instructions'] = ""#"TEST INSTRUCTIONS:  mp type = "
 
             ## TO-DO: FIGURE THIS OUT :^)
             if block_num < num_train_blocks: # (training block case)
@@ -529,9 +529,9 @@ def generate_grid_world_trials(args):
             #trial_dict['goalLocationY'] = goal_location[1] - h_tmp/2 + tf_y*h_tmp/2*np.sin((45)+trial_dict['goalLocationAngle'])
             #trial_dict['goalLocationX'] = goal_location[0] - w_tmp/2 + tf_x*w_tmp/2*np.cos((45)+trial_dict['goalLocationAngle']) 
             #trial_dict['goalLocationY'] = goal_location[1] - h_tmp/2 + tf_y*h_tmp/2*np.sin((45)+trial_dict['goalLocationAngle'])  
-            trial_dict['instructions'] = "TEST INSTRUCTIONS: Move the robot with WASD or the arrow keys in order to reach the goals as they appear; \nFOR TESTING: mp type = " + str(trial_type)
-            print('\n>>' + str(current_block['block_type']))
-            print('\n')
+            #trial_dict['instructions'] = "TEST INSTRUCTIONS: Move the robot with WASD or the arrow keys in order to reach the goals as they appear; \nFOR TESTING: mp type = " + str(trial_type)
+            #print('\n>>' + str(current_block['block_type']))
+            #print('\n')
             trial_dict['blockType'] = current_block['block_type']
             trial_dict['trial_type'] = trial_type
             trial_dict['boundary'] = boundary_dict[trial_dict['trial_type']]
@@ -543,17 +543,24 @@ def generate_grid_world_trials(args):
             #
             current_block['trials'].append(trial_dict)
 
-        
-        if block_num == num_blocks_total-1:
+        if block_num == num_train_blocks-1:
+            current_block['postTrials'] = []
+            block_end_text_trial = collections.OrderedDict()
+            block_end_text_trial['stimulusType'] = "text-display"
+            block_end_text_trial['text'] = "<div><h3>Training blocks completed. <hr/> [insert testing block instructions here] <hr/>Press blue 'Next' button key to begin test blocks.</h3><hr/></div>" # pdiv -> div [3/29/2021]
+            current_block['postTrials'].append(block_end_text_trial)
+
+        elif block_num == num_blocks_total-1:
             current_block['postTrials'] = []
             endQuestionnaireBlock = collections.OrderedDict()
             endQuestionnaireBlock['stimulusType'] = "post-experiment-questionnaire"
             current_block['postTrials'].append(endQuestionnaireBlock)
+
         else:
             current_block['postTrials'] = []
             block_end_text_trial = collections.OrderedDict()
             block_end_text_trial['stimulusType'] = "text-display"
-            block_end_text_trial['text'] = "<div><h3>Current block over. Press any key for next block</h3><hr/></div>" # pdiv -> div [3/29/2021]
+            block_end_text_trial['text'] = "<div><h3>Current block over. Press blue 'Next' button for next block.</h3><hr/></div>" # pdiv -> div [3/29/2021]
             current_block['postTrials'].append(block_end_text_trial)
 
         experiment_dict["blocks"].append(current_block)
@@ -588,10 +595,10 @@ if __name__ == "__main__":
     parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
     parser.add_argument('--userWidth', action='store', type=int, default=80, help="width of user's vehicle")
     parser.add_argument('--userHeight', action='store', type=int, default=80, help="height of user's vehicle")
-    parser.add_argument('--num_train_blocks', action='store', type=int, default=3, help="number of training blocks")
-    parser.add_argument('--num_train_trials', action='store', type=int, default=1, help="number of trials per training block")
-    parser.add_argument('--num_test_blocks', action='store', type=int, default=3, help="number of testing blocks")
-    parser.add_argument('--num_test_trials', action='store', type=int, default=1, help="number of trials per testing block")
+    parser.add_argument('--num_train_blocks', action='store', type=int, default=2, help="number of training blocks")
+    parser.add_argument('--num_train_trials', action='store', type=int, default=12, help="number of trials per training block")
+    parser.add_argument('--num_test_blocks', action='store', type=int, default=4, help="number of testing blocks")
+    parser.add_argument('--num_test_trials', action='store', type=int, default=12, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
     parser.add_argument('--is_shuffle_trials', action='store_true', default=True, help="flag for shuffling trials")

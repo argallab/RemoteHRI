@@ -8,7 +8,7 @@ export default class TwoDWorld extends React.Component {
     render() {
         var worldrobotPosition
         if (this.props.human) {
-            var worldrobotPosition = {width: this.props.human.width, height: this.props.human.height, bottom: this.props.humanState.y, left: this.props.humanState.x, transform: `rotate(${this.props.humanState.angle}deg)`, 'transform-origin': 'center'}
+            var worldrobotPosition = {width: this.props.human.width, height: this.props.human.height, bottom: this.props.humanState.y, left: this.props.humanState.x, transform: `rotate(${this.props.humanState.angle}deg)`, 'transformOrigin': 'center'}
         }
 
         var worldautoPosition

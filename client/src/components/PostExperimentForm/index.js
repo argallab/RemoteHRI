@@ -21,7 +21,7 @@ export default class PostExperimentForm extends Component {
             interactionWithRobot4: "",
             errors: {}
         }
-        
+         
         this.onSubmit = this.onSubmit.bind(this)
         this.handleChange = this.handleChange.bind(this)
         // NOTE: the methods below is adapted from: https://stackoverflow.com/questions/41296668/reactjs-form-input-validation

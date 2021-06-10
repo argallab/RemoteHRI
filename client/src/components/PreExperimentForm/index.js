@@ -23,6 +23,13 @@ export default class PreExperimentForm extends Component {
             show_training_phase_info_page: false
         }
 
+        this.data_tmp = {
+            race: "",
+            age: "",
+            sex: "",
+            hand: ""
+        }
+
         this.render_flag = false
 
         this.onSubmit = this.onSubmit.bind(this)
@@ -33,26 +40,45 @@ export default class PreExperimentForm extends Component {
         this.render = this.render.bind(this) // check this
     }
 
-
+ 
     onSubmit() {
+        /* console.log(`   oS -> spp: ${this.state["show_splash_page"]}`)
+        console.log(`   oS -> sfp: ${this.state["show_form_page"]}`)
+        console.log(`   oS -> stpip: ${this.state["show_training_phase_info_page"]}`)
+        console.log(`   oS -> rf: ${this.render_flag}`) */
         // case where questionnaire is fully filled out; triggers pre-training info. page
-        if (this.state["show_splash_page"] == false) { 
-            if (this.state["show_training_phase_info_page"] == false) {
-                console.log("onSubmit called from DemographicInfoForm")
-                this.setState({"show_form_page": false})
-                var data = {
-                    race: this.state.race,
-                    age: this.state.age,
-                    sex: this.state.sex,
-                    hand: this.state.hand,
-                    errors: {}
-                }
-                this.render_flag = false;
-                this.props.startExperiment(data, this.render_flag)
-            }
+        if (this.state["show_splash_page"] == false && this.state["show_training_phase_info_page"] == false && this.render_flag == true) { 
+           /*  if  {
+                if  { */
+                    //console.log("onSubmit called from DemographicInfoForm")
+                    /* this.data_tmp = {
+                        race: this.state.race,
+                        age: this.state.age,
+                        sex: this.state.sex,
+                        hand: this.state.hand
+                    } */
+                    data = {
+                        race: this.state.race,
+                        age: this.state.age,
+                        sex: this.state.sex,
+                        hand: this.state.hand
+                    }
+
+                    //this.props.startExperiment(data, this.render_flag)
+                    this.render_flag = false;
+                    //console.log(this.state["show_training_phase_info_page"])
+                    this.setState({"show_form_page": false})
+                    this.setState({"show_training_phase_info_page": true})
+                    //console.log(this.state["show_training_phase_info_page"])
+                    //
+/*                 }
+
+            } */
+            
         }
         // initial case to trigger rendering of the experiment's splash page
         else if (this.state["show_splash_page"] == true) {
+            console.log(`spp onSubmit()`)
             this.render_flag = true;
             this.setState({show_splash_page: false})
             this.setState({show_form_page: true})
@@ -60,11 +86,19 @@ export default class PreExperimentForm extends Component {
             //this.props.startExperiment(data, this.render_flag)
 
         }
-        else if (this.state["show_form_page"] == true) {
+        /* else if (this.state["show_form_page"] == true) {
             this.render_flag = true;
             //this.render()
             
             //this.props.startExperiment(data, this.render_flag)
+        }
+ */
+        else if (this.state["show_training_phase_info_page"] == true && this.render_flag == false) {
+            //if  {
+                var data = this.data_tmp
+                //console.log(`stpip onSubmit()`)
+                this.props.startExperiment(data, this.render_flag)
+            //}
         }
         
     }
@@ -77,13 +111,17 @@ export default class PreExperimentForm extends Component {
      // NOTE: the method below is adapted from: https://stackoverflow.com/questions/41296668/reactjs-form-input-validation
      contactSubmit(e){
         e.preventDefault();
+        /* console.log(`cS -> spp: ${this.state["show_splash_page"]}`)
+        console.log(`cS -> sfp: ${this.state["show_form_page"]}`)
+        console.log(`cS -> stpip: ${this.state["show_training_phase_info_page"]}`)
+        console.log(`cS -> rf: ${this.render_flag}`) */
 
-        if (this.state["show_splash_page"] == false) {
-            if (this.state["show_training_phase_info_page"] == false) {
-                if (this.state["show_form_page"] == true) {
+        //
+        if (this.state["show_splash_page"] == false && this.state["show_training_phase_info_page"] == false && this.state["show_form_page"] == true) 
+            {
                     if(this.handleValidation()){
                         this.onSubmit();
-                        alert("Form submitted. Thank you!");
+                        //alert("Form submitted. Thank you!");
                     }
                     else{
                         let errors_list = Object.keys(this.state.errors)
@@ -93,31 +131,40 @@ export default class PreExperimentForm extends Component {
                             var inputErrorStr = `${inputErrorStr} \n ${str2add}`;
                         }
                         alert(inputErrorStr)
-                    }
-                }
-            }
+                    }   
         }
+
+        // (1) initial case to show splash page
         else if (this.state["show_splash_page"] == true) {
             this.setState({show_splash_page: true})
-            alert("pass through contactSubmit for splash page")
+            //alert("pass through contactSubmit for splash page")
             this.onSubmit()
             //this.render()
         }
 
-        else if (this.state.show_training_phase_info_page == true){
-            this.setState({state: this.state})
-
+        // (3) case to show splash page training phase information
+        else if (this.state["show_training_phase_info_page"] == true){
+            //this.setState({state: this.state})
+            console.log('training phase info page')
+            this.setState({show_training_phase_info_page: true})
+            
+            //alert("training phase info page")
             //this.render()
+            this.onSubmit()
 
         }
 
+        // check for handle validation; i.e., if form was correctly filled out
         else {
+            console.log("error encountered")
+            /* // case where form is correctly filled out
             if(this.handleValidation()){
                 this.setState({show_training_phase_info_page: true})
                 this.onSubmit()
-                alert("Form submitted. Thank you!");
+                //alert("Form submitted. Thank you!");
                 
             }
+            // case where form is not correctly filled out
             else{
                 let errors_list = Object.keys(this.state.errors)
                 var inputErrorStr = `Form contains missing information; please provide appropriate answers. The following questions returned the following ${errors_list.length} errors:`;
@@ -126,7 +173,7 @@ export default class PreExperimentForm extends Component {
                     var inputErrorStr = `${inputErrorStr} \n ${str2add}`;
                 }
                 alert(inputErrorStr)
-            }
+            } */
         }
     }
 
@@ -194,19 +241,33 @@ export default class PreExperimentForm extends Component {
      * - disable the Next button until the video ends
      */
     render() {
+
+        /* console.log(`      r -> spp: ${this.state["show_splash_page"]}`)
+        console.log(`      r -> sfp: ${this.state["show_form_page"]}`)
+        console.log(`      r -> stpip: ${this.state["show_training_phase_info_page"]}`)
+        console.log(`      r -> rf: ${this.render_flag}`) */
         if (this.state["show_splash_page"] == true){
             return(
             <div>
-                <h3>Welcome to our experiment! [enter participant statement]</h3>
+                <h3>Hello, and thank you for your interest in participating in our study! Participation should take approximately 20-25 minutes to complete.</h3>
+                <hr/>
+                <h4>Study: Quantifying Control Bias in the Operation of a Virtual Vehicle </h4>
+                <h4>Institution: Northwestern University (https://www.northwestern.edu/)</h4>
+                <h4>Research Group: argallab (https://www.argallab.northwestern.edu/)</h4>
+                <hr/>
+                <h3>By participating in this study, you are consenting to allow the research group to collect, analyze, and use data collected during this study (your keypresses throughout the course of this study; your responses to any requests for information/questionnaires presenting within this study) for research purposes. This data will be collected on the local network of the machine you are currently using; after collection, it will be deidentified and stored in the institution’s secure storage. By clicking through to the next page and beginning the study, you are electronically confirming your consent.</h3>
+                <hr/>
+
                 <Button onClick={this.contactSubmit}>Start Experiment</Button>
             </div>
             )
         }
         else if (this.state["show_training_phase_info_page"] == true) {
+            this.render_flag = false
             return (
                 <div>
                     <h3>[enter training phase trial instructions for participant]</h3>
-                    <Button onClick={this.contactSubmit}>Start Experiment</Button>
+                    <Button onClick={this.contactSubmit}>Start Training</Button>
                 </div>
             )
         }
@@ -216,11 +277,11 @@ export default class PreExperimentForm extends Component {
                     <h2>Demographic Information Survey</h2>
                     <hr/>
                     <Form>
-                        <div class="center">  
+                        <div>  
                         
                             <h5>- Please respond to the following four questions by using the drop-down menus (or by entering your numeric age in years for the question pertaining to age). </h5>
                             <h5>- We are required to collect this information by law. </h5>
-                            <h5>- When you're done providing your answers, please click the blue, rectangular "Start Experiment" button below.</h5>                           
+                            <h5>- When you're done providing your answers, please click the blue, rectangular "Next" button below.</h5>                           
                         
                             {/* <Row>
                                 <Col md={8}>    
@@ -306,7 +367,7 @@ export default class PreExperimentForm extends Component {
                     </Form> 
                     <hr />
                     <div style={{ display: "flex", justifyContent: "center" }}>
-                        <Button onClick={this.contactSubmit}>Start Experiment</Button>
+                        <Button onClick={this.contactSubmit}>Next</Button>
 
                     </div>
                 </div>

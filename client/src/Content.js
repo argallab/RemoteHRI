@@ -46,7 +46,8 @@ export default class Content extends React.Component {
                 'Access-Control-Allow-Headers': ['Origin', 'X-Requested-With', 'X-PINGOTHER', 'Content-Type', 'Accept']
             },
             mode: "cors",
-            credentials: "include"
+            credentials: "include",
+            method: "GET"
         }
     }
 
