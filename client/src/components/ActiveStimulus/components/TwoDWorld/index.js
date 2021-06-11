@@ -398,7 +398,7 @@ export default class TwoDWorld extends React.Component {
 
         }
         else if (test_bool == 3){
-                if (block_type_var == 'train'){
+                if (block_type_var === 'train'){
                     return (
                         <div className="world-container">
                             <div>
@@ -411,7 +411,7 @@ export default class TwoDWorld extends React.Component {
                         </div>
                     )
                 }
-                else if (block_type_var == 'test'){
+                else if (block_type_var === 'test'){
                 
                         return (
                             <div className="world-container">
