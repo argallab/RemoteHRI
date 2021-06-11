@@ -412,7 +412,7 @@ export default class TwoDWorld extends React.Component {
                     )
                 }
                 else if (block_type_var == 'test'){
-                    if (this.props.trial_type == "fwl_ccw") {
+                
                         return (
                             <div className="world-container">
     
@@ -425,66 +425,6 @@ export default class TwoDWorld extends React.Component {
                                 {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v3.png" />}
                             </div>
                         )
-
-                    }
-                    else if (this.props.trial_type == "fwr_cw") {
-                        return (
-                            <div className="world-container">
-    
-                                <div>
-                                    <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
-                                    {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
-                                    <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
-                                        
-                                </div>
-                                {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v3.png" />}
-                            </div>
-                        )
-
-                    }
-                    else if (this.props.trial_type == "bwr_ccw") {
-                        return (
-                            <div className="world-container">
-    
-                                <div>
-                                    <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
-                                    {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
-                                    <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
-                                        
-                                </div>
-                                {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v3.png" />}
-                            </div>
-                        )
-
-                    }
-                    else if (this.props.trial_type == "bwl_cw") {
-                        return (
-                            <div className="world-container">
-    
-                                <div>
-                                    <img id="worldboundary" style={worldBoundaryPosition} src={boundary2plot}/>
-                                    {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
-                                    <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
-                                        
-                                </div>
-                                {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v3.png" />}
-                            </div>
-                        )
-
-                    }
-                    else {
-                        return (
-                            <div className="world-container">
-    
-                                <div>
-                                    {this.props.goals && <img id="worldgoal" style={worldgoalPositionVar} src={goal2plot} />}
-                                    <img id="worldgoalcell" style={worldgoalPosition} src={goal2plot} alt="goal_cell" className="grid-goal"/>   
-                                        
-                                </div>
-                                {this.props.human && <img id="worldrobot" style={worldrobotPosition} src="png/robot_icon_v3.png" />}
-                            </div>
-                        )
-                    }
                 }
         }
         else {

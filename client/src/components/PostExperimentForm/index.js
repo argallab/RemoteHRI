@@ -127,7 +127,7 @@ export default class PostExperimentForm extends Component {
     render() {
         return (
             <div>
-                <h8>Post Task Questionnaire</h8>
+                <h4>Post Task Questionnaire</h4>
                 <br/>
                 Please provide answers for each of the following (6) questions:
                 <br/>

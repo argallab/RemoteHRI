@@ -549,9 +549,9 @@ def generate_grid_world_trials(args):
             trial_dict['trial_type'] = trial_type
             if current_block['block_type'] == 'test':
                 if trial_type == "fwr_cw" or trial_type == "bwr_ccw" or trial_type == "bwl_cw" or trial_type == "fwl_ccw":
-                    trial_dict['boundary'] = plume_dict[trial_type]
+                    trial_dict['boundary'] = boundary_dict[trial_type]#plume_dict[trial_type]
                 else:
-                    continue
+                    trial_dict['boundary'] = "png/empty.png"
             else:
                 trial_dict['boundary'] = boundary_dict[trial_type]
                 
