@@ -148,7 +148,8 @@ def generate_mp_dict(pixel_scale, mp_list, start_location, height):
 def generate_mp_list():
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw']
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl']
-    mp_list = ['fwr', 'fwl', 'bwr', 'bwl', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
+    mp_list = ['fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
+    #mp_list = ['fwr', 'fwl', 'bwr', 'bwl', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
     return mp_list
@@ -228,6 +229,17 @@ def generate_goal_dict():
     goal_dict['bwl_cw'] = "png/goal_icon_v4_270deg.png"
 
     return goal_dict
+
+def generate_plume_dict():
+
+    plume_dict = dict()
+
+    plume_dict['fwr_cw'] = "png/fwr_cw_plume.png"
+    plume_dict['fwl_ccw'] = "png/fwl_ccw_plume.png"
+    plume_dict['bwr_ccw'] = "png/bwr_ccw_plume.png"
+    plume_dict['bwl_cw'] = "png/bwl_cw_plume.png"
+
+    return plume_dict
 
 def ego2world(start_location, goal_location):
     
@@ -404,6 +416,7 @@ def generate_grid_world_trials(args):
     ## initialize the boundary dict (maps 'trial_type' to client/public/png/x.png files for moprim boundaries)
     boundary_dict = generate_boundary_dict()
     goal_dict = generate_goal_dict()
+    plume_dict = generate_plume_dict()
     #
     mp_tf = generate_mp_tf_dict()
     #
@@ -534,7 +547,14 @@ def generate_grid_world_trials(args):
             #print('\n')
             trial_dict['blockType'] = current_block['block_type']
             trial_dict['trial_type'] = trial_type
-            trial_dict['boundary'] = boundary_dict[trial_dict['trial_type']]
+            if current_block['block_type'] == 'test':
+                if trial_type == "fwr_cw" or trial_type == "bwr_ccw" or trial_type == "bwl_cw" or trial_type == "fwl_ccw":
+                    trial_dict['boundary'] = plume_dict[trial_type]
+                else:
+                    continue
+            else:
+                trial_dict['boundary'] = boundary_dict[trial_type]
+                
             trial_dict['goal_img'] = goal_dict[trial_dict['trial_type']]
             #
             #trial_dict['tickTime'] = 600
@@ -595,10 +615,10 @@ if __name__ == "__main__":
     parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
     parser.add_argument('--userWidth', action='store', type=int, default=80, help="width of user's vehicle")
     parser.add_argument('--userHeight', action='store', type=int, default=80, help="height of user's vehicle")
-    parser.add_argument('--num_train_blocks', action='store', type=int, default=2, help="number of training blocks")
-    parser.add_argument('--num_train_trials', action='store', type=int, default=12, help="number of trials per training block")
-    parser.add_argument('--num_test_blocks', action='store', type=int, default=4, help="number of testing blocks")
-    parser.add_argument('--num_test_trials', action='store', type=int, default=12, help="number of trials per testing block")
+    parser.add_argument('--num_train_blocks', action='store', type=int, default=1, help="number of training blocks")
+    parser.add_argument('--num_train_trials', action='store', type=int, default=1, help="number of trials per training block")
+    parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
+    parser.add_argument('--num_test_trials', action='store', type=int, default=1, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
     parser.add_argument('--is_shuffle_trials', action='store_true', default=True, help="flag for shuffling trials")
