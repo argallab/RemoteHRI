@@ -33,6 +33,7 @@ class master_dict:
     def __init__(self):
         self.md = collections.OrderedDict()
         self.dpath = '../../RemoteHRI_support/rhri_data'
+
     # method for generating a list of filepaths for json files in the data storage directory # -------------------------------------------------------------------------------------------------------------------------------
     def list_fnames(self):
         fp_list = []
@@ -41,10 +42,12 @@ class master_dict:
                 fp_tmp = os.path.join(root, filename)
                 fp_list.append(fp_tmp)
         return fp_list
+
     # method for reading in json files # -------------------------------------------------------------------------------------------------------------------------------
     def open_json_read(self, fpath):
         with open(fpath, "r") as read_json:
             self.current_data = json.load(read_json)
+
     # method for outputting data back to json format for checking # -------------------------------------------------------------------------------------------------------------------------------
     def open_json_write(self, fpath): 
         with open(fpath, "w") as write_json:
@@ -160,8 +163,8 @@ class master_dict:
                     self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})
                 elif not blockName in self.md['participantID'][participantID]['date'][date][first_word][0].keys():
                     #self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})# = {blockName : {}}
-                    if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
-                        pass
+                    # if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
+                    #     pass
                     self.md['participantID'][participantID]['date'][date][first_word][0][blockName] = {}#{blockName : {}})
                 else:
                     continue
@@ -173,8 +176,8 @@ class master_dict:
                 if not blockName in self.md['participantID'][participantID]['date'][date][first_word][0].keys():
                     #print('not in')
                     #self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})# = {blockName : {}}
-                    if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
-                        pass
+                    # if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
+                    #     pass
                     self.md['participantID'][participantID]['date'][date][first_word][0][blockName] = {}
                 else:
                     continue
@@ -197,8 +200,8 @@ class master_dict:
             first_word = blockName.split()[0]
             trial_number = (self.current_data['Stimuli'][keyidx1]['TrialHeader']) + ' ' + str(self.current_data['Stimuli'][keyidx1]['trialIndex'])
 
-            if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
-                pass
+            # if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
+            #     pass
 
             if not trial_number in self.md['participantID'][participantID]['date'][date][first_word][0][blockName]:
                 self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number] = {}
@@ -212,11 +215,12 @@ class master_dict:
 
             else:
                 full_trial_response = list()
-                print(str(keyidx1) + ': ' + str(len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])))
+                #print(str(keyidx1) + ': ' + str(len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])))
                 # return
 
                 for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])):
-                    full_trial_response.append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])
+                    #full_trial_response.append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])
+                    full_trial_response = full_trial_response + self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2]
 
                 if not 'response' in self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number].keys():
                     self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response'] = { 'start' : {}, 'end': {}, 'keypresses' : []}
@@ -224,6 +228,9 @@ class master_dict:
                 self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['start'] = self.current_data['Stimuli'][keyidx1]['Answer']['start']
                 self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['end'] = self.current_data['Stimuli'][keyidx1]['Answer']['end']
                 self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['keypresses'] = full_trial_response
+
+            print(full_trial_response)
+            
             
 
 
@@ -373,7 +380,7 @@ def main():
     # return
 
     
-    for json_idx in range(0, 1):#len(fp_list)):
+    for json_idx in range(0, len(fp_list)):
         print('\n\n\t[2] opening entry ' + str(fp_list[json_idx]) + ' in fp_list for read access...')
         if fp_list[json_idx] == '../../RemoteHRI_support/rhri_data/master_dict.json':
             print('\t |')
@@ -386,7 +393,11 @@ def main():
             print('\t |')
             print('\t  ---> file ' + str(fp_list[json_idx]) + ' opened with read access.')
             
-            md.load_one_experiment()
+            try:
+                md.load_one_experiment()
+            except:
+                print('\t\t[WARNING] --> could not load experiment: ' + str(fp_list[json_idx]))
+                pass
             #md.load_participantIDs_test()
     md.open_json_write('../../RemoteHRI_support/rhri_data/master_dict.json')
     
