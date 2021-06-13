@@ -236,17 +236,17 @@ class master_dict:
                         #print('made before trial_number call')
                         trial_number = (self.current_data['Stimuli'][keyidx1]['TrialHeader']) + ' ' + str(self.current_data['Stimuli'][keyidx1]['trialIndex'])
                         #print('made past trial_number call')
-                        print(trial_number)
-                        print(self.md['participantID'][participantID]['date'][date][first_word][0][blockName].keys())
+                        #print(trial_number)
+                        #print(self.md['participantID'][participantID]['date'][date][first_word][0][blockName].keys())
                         if not trial_number in self.md['participantID'][participantID]['date'][date][first_word][0][blockName].keys():
-                            print('adding ' + str(trial_number))
+                            #print('adding ' + str(trial_number))
                             self.md['participantID'][participantID]['date'][date][first_word][0][blockName] = {trial_number: {}}
                         # this is where the subject trial responses are stored; the timestep associated with each response is treated as a key
                         # that in turn links to two keys: 'human' and 'time'. The former is associated with the control and state information,
                         # whereas the latter is associated with the # of system time counts during the trial
                         #self.md['participantID'][participantID]['date'][date][first_word][0][blockName][keyidx3+(kplist_flag*101)] = self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]
                         self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number][keyidx3+(kplist_flag*101)] = self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2][keyidx3]
-                        print('made before kp_count')
+                        #print('made before kp_count')
                         ##print('\t\t\t--> note: this is current key index for timesteps: ' + str(keyidx3+(kplist_flag*101)))
                         kp_count += 1
                         if kp_count >= 101:
