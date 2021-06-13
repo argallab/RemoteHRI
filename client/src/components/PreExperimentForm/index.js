@@ -72,7 +72,6 @@ export default class PreExperimentForm extends Component {
                     //console.log(this.state["show_training_phase_info_page"])
                     //
 /*                 }
-
             } */
             
         }
@@ -266,7 +265,13 @@ export default class PreExperimentForm extends Component {
             this.render_flag = false
             return (
                 <div>
-                    <h3>[enter training phase trial instructions for participant]</h3>
+                    <h3>in this experiment, you'll be moving a virtual vehicle with the WASD keys with your dominant hand to reach a number of different parking spots. The vehicle is represented by a brown, semi-transparent oval with an orange arrow attached. The arrow represents the vehicle's front end (the direction it is pointing). The W and S keys give forward and backward signals; the A and D keys make the vehicle turn. The parking spots are represented as cyan rectangles-they also have orange arrows representing the direction they are facing.</h3>
+                    <hr/>
+                    <h3>To complete a trial, you need to (1) move the vehicle fully into the parking space, making sure the direction of the orange arrows matches, and (2) slow the vehicle to near-stop alongside these conditions. It is, after all, a parking space-not a drive through! After completing a trial, the vehicle will reset to the center of the screen and the next trial will begin after a brief pause. </h3>
+                    <hr/>
+                    <h3> in the following training phase, you will be presented with green boundary regions between the vehicle's starting location (center of the screen) and the parking spaces. This boundary is meant to encourage smooth driving, and you should try to stay within the green region as much as possible. That being said, there is no penalty for exiting this region, and you are encouraged to move the vehicle in a way that feels natural to you. </h3>
+                    <hr/>
+                    <h3> NOTE: in all trials, the goal is not to reach the parking space as fast as possible. Instead, it is to reach the parking space in a smooth manner and in a way that feels natural to you.</h3>
                     <Button onClick={this.contactSubmit}>Start Training</Button>
                 </div>
             )
@@ -316,6 +321,7 @@ export default class PreExperimentForm extends Component {
                                         <option>Male</option>
                                         <option>Female</option>
                                         <option>Non-binary/Non-conforming</option>
+                                        <option>Other/Option not listed</option>
                                         <option>Prefer not to answer</option>
                                     </Form.Control>
                                 </Form.Group>

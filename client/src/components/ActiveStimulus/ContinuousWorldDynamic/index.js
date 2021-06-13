@@ -503,13 +503,15 @@ export default class ContinuousWorldDynamic extends React.Component {
 
         //update angular velocity
         if (this.keys["a"] || this.keys["ArrowLeft"]) {
-            if (this.goalSpecs.trial_type != 'cw'){
-                tvd = robotAngularAcceleration
-            }
+            tvd = robotAngularAcceleration
+            // if (this.goalSpecs.trial_type != 'cw'){
+            //     tvd = robotAngularAcceleration
+            // }
         } else if (this.keys["d"] || this.keys["ArrowRight"]) {
-            if (this.goalSpecs.trial_type != 'ccw'){
-                tvd = -1 * robotAngularAcceleration
-            }
+            tvd = -1 * robotAngularAcceleration
+            // if (this.goalSpecs.trial_type != 'ccw'){
+            //     tvd = -1 * robotAngularAcceleration
+            // }
         }
         
         //update linear velocity

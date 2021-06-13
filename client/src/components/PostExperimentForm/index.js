@@ -127,17 +127,18 @@ export default class PostExperimentForm extends Component {
     render() {
         return (
             <div>
-                <h8>Post Task Questionnaire</h8>
+                <h4>Post Task Questionnaire</h4>
                 <br/>
                 Please provide answers for each of the following (6) questions:
                 <br/>
+                <hbar/>
 
                 <Form>
                     <Row>
                         <br/>
                         <Col md={3}>
                             <Form.Group controlId={`taskDifficulty1`}>
-                                <Form.Label>[Q1] It was easy for me to complete this task.</Form.Label>
+                                <Form.Label>[Q1] It was easy for me to move the vehicle into the parking spaces.</Form.Label>
                                 <Form.Control
                                     as="select"
                                     type="select"
@@ -157,7 +158,7 @@ export default class PostExperimentForm extends Component {
                         {/* </Col>
                         <Col md={3}> */}
                             <Form.Group controlId={`taskDifficulty2`}>
-                                <Form.Label>[Q2] The tasks were well-defined.</Form.Label>
+                                <Form.Label>[Q2] The way in which I was supposed to control the vehicle was well-defined.</Form.Label>
                                 <Form.Control
                                     as="select"
                                     type="select"

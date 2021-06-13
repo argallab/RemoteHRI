@@ -55,14 +55,14 @@ def create_start_location(width, height, phase):
     start_state_dict['yv'] = 0.0
     start_state_dict['lv'] = 0.0
     start_state_dict['angularVelocity'] = 0.0
-    start_state_dict['maxLinearVelocity'] = 150
-    start_state_dict['maxAngularVelocity'] = 100
-    start_state_dict['linearAcceleration'] = 50
-    start_state_dict['angularAcceleration'] = 15
+    start_state_dict['maxLinearVelocity'] = 95
+    start_state_dict['maxAngularVelocity'] = 35
+    start_state_dict['linearAcceleration'] = 20 # changed from 20 after first 2 tests
+    start_state_dict['angularAcceleration'] = 10
     start_state_dict['width'] = 50
     start_state_dict['height'] = 50
-    start_state_dict['linearMu'] = 1
-    start_state_dict['rotationMu'] = 0.1
+    start_state_dict['linearMu'] = 3
+    start_state_dict['rotationMu'] = 0.12 # changed from 0.1 after first 2 tests
     return start_state_dict
 
 #######################
@@ -148,9 +148,10 @@ def generate_mp_dict(pixel_scale, mp_list, start_location, height):
 def generate_mp_list():
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw']
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl']
-    mp_list = ['fwr', 'fwl', 'bwr', 'bwl', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
+    #mp_list = ['fwr', 'fwl', 'bwr', 'bwl', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
+    #mp_list = ['fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
     #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
-    #mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
+    mp_list = ['fw', 'bw', 'fwr', 'fwl', 'bwr', 'bwl', 'cw', 'ccw', 'fwr_cw', 'fwl_ccw', 'bwr_ccw', 'bwl_cw']
     return mp_list
 
 def generate_mp_tf_dict():
@@ -228,6 +229,17 @@ def generate_goal_dict():
     goal_dict['bwl_cw'] = "png/goal_icon_v4_270deg.png"
 
     return goal_dict
+
+def generate_plume_dict():
+
+    plume_dict = dict()
+
+    plume_dict['fwr_cw'] = "png/fwr_cw_plume.png"
+    plume_dict['fwl_ccw'] = "png/fwl_ccw_plume.png"
+    plume_dict['bwr_ccw'] = "png/bwr_ccw_plume.png"
+    plume_dict['bwl_cw'] = "png/bwl_cw_plume.png"
+
+    return plume_dict
 
 def ego2world(start_location, goal_location):
     
@@ -404,6 +416,7 @@ def generate_grid_world_trials(args):
     ## initialize the boundary dict (maps 'trial_type' to client/public/png/x.png files for moprim boundaries)
     boundary_dict = generate_boundary_dict()
     goal_dict = generate_goal_dict()
+    plume_dict = generate_plume_dict()
     #
     mp_tf = generate_mp_tf_dict()
     #
@@ -534,7 +547,13 @@ def generate_grid_world_trials(args):
             #print('\n')
             trial_dict['blockType'] = current_block['block_type']
             trial_dict['trial_type'] = trial_type
-            trial_dict['boundary'] = boundary_dict[trial_dict['trial_type']]
+            if current_block['block_type'] == 'test':
+                if trial_type == "fwr_cw" or trial_type == "bwr_ccw" or trial_type == "bwl_cw" or trial_type == "fwl_ccw":
+                    trial_dict['boundary'] = plume_dict[trial_type]#plume_dict[trial_type]
+                else:
+                    trial_dict['boundary'] = "png/empty.png"
+            else:
+                trial_dict['boundary'] = boundary_dict[trial_type]
             trial_dict['goal_img'] = goal_dict[trial_dict['trial_type']]
             #
             #trial_dict['tickTime'] = 600
@@ -547,7 +566,7 @@ def generate_grid_world_trials(args):
             current_block['postTrials'] = []
             block_end_text_trial = collections.OrderedDict()
             block_end_text_trial['stimulusType'] = "text-display"
-            block_end_text_trial['text'] = "<div><h3>Training blocks completed. <hr/> [insert testing block instructions here] <hr/>Press blue 'Next' button key to begin test blocks.</h3><hr/></div>" # pdiv -> div [3/29/2021]
+            block_end_text_trial['text'] = "<div><h3>Training blocks completed.<h3/> <hr/> <h3/>In the following testing phase, the same criteria exist for trial completion as in the previous training phase. <h3/> <hbar/> <h3> You will notice, however, that the green boundary regions are now removed. There is also the addition of dashed red arrows for a number of the parking spaces to disambiguate the direction in which you should initially be moving the vehicle. <h3/> <hbar/> <h3> If you do not see the dashed red arrows for a specific trial, you are free to ignore them. With the green boundary regions from the previous phase in mind, you are encouraged to move the vehicle to the parking spaces in a way that feels most natural to you.  <hr/>Press blue 'Next' button key to begin test blocks.</h3><hr/></div>" # pdiv -> div [3/29/2021]
             current_block['postTrials'].append(block_end_text_trial)
 
         elif block_num == num_blocks_total-1:
@@ -595,9 +614,13 @@ if __name__ == "__main__":
     parser.add_argument('--height', action='store', type=int, default=850, help="height of grid world")
     parser.add_argument('--userWidth', action='store', type=int, default=80, help="width of user's vehicle")
     parser.add_argument('--userHeight', action='store', type=int, default=80, help="height of user's vehicle")
+    # parser.add_argument('--num_train_blocks', action='store', type=int, default=1, help="number of training blocks")
+    # parser.add_argument('--num_train_trials', action='store', type=int, default=1, help="number of trials per training block")
+    # parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
+    # parser.add_argument('--num_test_trials', action='store', type=int, default=1, help="number of trials per testing block")
     parser.add_argument('--num_train_blocks', action='store', type=int, default=2, help="number of training blocks")
     parser.add_argument('--num_train_trials', action='store', type=int, default=12, help="number of trials per training block")
-    parser.add_argument('--num_test_blocks', action='store', type=int, default=4, help="number of testing blocks")
+    parser.add_argument('--num_test_blocks', action='store', type=int, default=6, help="number of testing blocks")
     parser.add_argument('--num_test_trials', action='store', type=int, default=12, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
