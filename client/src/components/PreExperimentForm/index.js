@@ -51,12 +51,12 @@ export default class PreExperimentForm extends Component {
            /*  if  {
                 if  { */
                     //console.log("onSubmit called from DemographicInfoForm")
-                    /* this.data_tmp = {
+                    this.data_tmp = {
                         race: this.state.race,
                         age: this.state.age,
                         sex: this.state.sex,
                         hand: this.state.hand
-                    } */
+                    }
                     data = {
                         race: this.state.race,
                         age: this.state.age,
