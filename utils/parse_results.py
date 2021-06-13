@@ -160,6 +160,8 @@ class master_dict:
                     self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})
                 elif not blockName in self.md['participantID'][participantID]['date'][date][first_word][0].keys():
                     #self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})# = {blockName : {}}
+                    if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
+                        pass
                     self.md['participantID'][participantID]['date'][date][first_word][0][blockName] = {}#{blockName : {}})
                 else:
                     continue
@@ -171,6 +173,8 @@ class master_dict:
                 if not blockName in self.md['participantID'][participantID]['date'][date][first_word][0].keys():
                     #print('not in')
                     #self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})# = {blockName : {}}
+                    if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
+                        pass
                     self.md['participantID'][participantID]['date'][date][first_word][0][blockName] = {}
                 else:
                     continue
@@ -181,6 +185,73 @@ class master_dict:
             ##print(len(self.current_data['Stimuli'][keyidx1]['Answer']))
 
         #print('\n\t\t~ NOTE: ~ safe up to this point [5/29/2021]\n')
+        #print(self.md)
+        
+        #return
+        block_count = 0
+        ##
+        for keyidx1 in range(0, len(self.current_data['Stimuli'])): # total number of trials
+            
+            
+            blockName = self.current_data['Stimuli'][keyidx1]['blockName']
+            first_word = blockName.split()[0]
+            trial_number = (self.current_data['Stimuli'][keyidx1]['TrialHeader']) + ' ' + str(self.current_data['Stimuli'][keyidx1]['trialIndex'])
+
+            if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
+                pass
+
+            if not trial_number in self.md['participantID'][participantID]['date'][date][first_word][0][blockName]:
+                self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number] = {}
+
+            if keyidx1 == (len(self.current_data['Stimuli'])-1):
+                self.md['participantID'][participantID]['date'][date]['Questionnaire'] = self.current_data['Stimuli'][keyidx1]['Answer']
+                #return
+
+            if len(self.current_data['Stimuli'][keyidx1]['Answer']) != 3:
+                    pass            
+
+            else:
+                full_trial_response = list()
+                print(str(keyidx1) + ': ' + str(len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])))
+                # return
+
+                for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])):
+                    full_trial_response.append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])
+
+                if not 'response' in self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number].keys():
+                    self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response'] = { 'start' : {}, 'end': {}, 'keypresses' : []}
+
+                self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['start'] = self.current_data['Stimuli'][keyidx1]['Answer']['start']
+                self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['end'] = self.current_data['Stimuli'][keyidx1]['Answer']['end']
+                self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['keypresses'] = full_trial_response
+            
+
+
+            #for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1][]))
+
+
+        return
+
+            ##
+            # for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])): # total number of packets (length 101) in a given trial
+            #     self.md['participantID'][participantID]['date'][date]
+                
+            #     ##
+            #     for keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])): # total number of timesteps in a given trial
+                    
+            #         try:
+            #             kplistlen = len(self.current_data['Stimuli'][keyidx1])
+            #             self.md['participantID'][participantID]['date'][date][first_word] 
+            #         except:
+            #             block_count += 1
+            #             if keyidx1 == (len(self.current_data['stimuli'])-1):
+            #                 self.md['participantID'][participantID]['date'][date]['Questionnaire'] = self.current_data['Stimuli'][keyidx1]["Answer"]
+
+
+
+        
+
+
 
 
 
@@ -193,6 +264,10 @@ class master_dict:
         block_count = 0
 
         # keyidx1 is the index over all total trials #
+
+        print(len(self.current_data['Stimuli']))
+        
+
         for keyidx1 in range(0, len(self.current_data['Stimuli'])): # TODO: if trial is empty (or answer is <3) then remove block from stimuli
 
             #print('\n')
@@ -230,6 +305,7 @@ class master_dict:
                     for keyidx3 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])): 
                         #print('made into try/except trial for loop 2 (keyidx3)')            
                         a = 0
+
                         # recovers blockName and first_word when checking what to populate in master dictionary
                         blockName = self.current_data['Stimuli'][keyidx1]['blockName']
                         first_word = blockName.split()[0]
@@ -241,6 +317,7 @@ class master_dict:
                         if not trial_number in self.md['participantID'][participantID]['date'][date][first_word][0][blockName].keys():
                             #print('adding ' + str(trial_number))
                             self.md['participantID'][participantID]['date'][date][first_word][0][blockName] = {trial_number: {}}
+
                         # this is where the subject trial responses are stored; the timestep associated with each response is treated as a key
                         # that in turn links to two keys: 'human' and 'time'. The former is associated with the control and state information,
                         # whereas the latter is associated with the # of system time counts during the trial
@@ -296,7 +373,7 @@ def main():
     # return
 
     
-    for json_idx in range(0, len(fp_list)):
+    for json_idx in range(0, 1):#len(fp_list)):
         print('\n\n\t[2] opening entry ' + str(fp_list[json_idx]) + ' in fp_list for read access...')
         if fp_list[json_idx] == '../../RemoteHRI_support/rhri_data/master_dict.json':
             print('\t |')
