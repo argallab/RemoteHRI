@@ -41,6 +41,7 @@ class master_dict:
             for filename in files:
                 fp_tmp = os.path.join(root, filename)
                 fp_list.append(fp_tmp)
+            break
         return fp_list
 
     # method for reading in json files # -------------------------------------------------------------------------------------------------------------------------------
@@ -198,7 +199,7 @@ class master_dict:
             
             blockName = self.current_data['Stimuli'][keyidx1]['blockName']
             first_word = blockName.split()[0]
-            trial_number = (self.current_data['Stimuli'][keyidx1]['TrialHeader']) + ' ' + str(self.current_data['Stimuli'][keyidx1]['trialIndex'])
+            trial_number = (self.current_data['Stimuli'][keyidx1]['TrialHeader']) + ' ' + str(self.current_data['Stimuli'][keyidx1]['trialIndex']%11) # NOTE: made this change to reset each block's trial number to 0 for readability in visualizer 
 
             # if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
             #     pass
@@ -220,16 +221,20 @@ class master_dict:
 
                 for keyidx2 in range(0, len(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'])):
                     #full_trial_response.append(self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2])
-                    full_trial_response = full_trial_response + self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2]
+                    try:
+                        full_trial_response = full_trial_response + self.current_data['Stimuli'][keyidx1]['Answer']['keypresses'][keyidx2]
+                    except:
+                        pass
 
                 if not 'response' in self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number].keys():
                     self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response'] = { 'start' : {}, 'end': {}, 'keypresses' : []}
 
                 self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['start'] = self.current_data['Stimuli'][keyidx1]['Answer']['start']
                 self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['end'] = self.current_data['Stimuli'][keyidx1]['Answer']['end']
+                self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['trial_type'] = self.current_data['Stimuli'][keyidx1]['trial_type']
                 self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['keypresses'] = full_trial_response
 
-            print(full_trial_response)
+            #print(full_trial_response)
             
             
 
@@ -361,10 +366,6 @@ class master_dict:
         
         return
         
-    # def load_all_experiments(self, fp_list):
-    #     for 
-
-    #     return
 
 def main():
     md = master_dict()
@@ -386,65 +387,31 @@ def main():
             print('\t |')
             print('\t[3] file is masterdict.json; pass')
             pass
+        elif fp_list[json_idx] == '../../RemoteHRI_support/rhri_data/one_participant.json':
+            print('\t |')
+            print('\t[3] file is one_participant.json; pass')
+            pass
+        # elif fp_list[json_idx] == '../../RemoteHRI_support/rhri_data/test/*':
+        #     pass
         else:
             md.open_json_read(fp_list[json_idx])
             print('\t |')
             print('\t[3] beginning load process for file: [ ' + str(fp_list[json_idx]) + ' ]')
             print('\t |')
-            print('\t  ---> file ' + str(fp_list[json_idx]) + ' opened with read access.')
-            
-            try:
-                md.load_one_experiment()
-            except:
-                print('\t\t[WARNING] --> could not load experiment: ' + str(fp_list[json_idx]))
-                pass
+            print('\t  ---> file ' + str(fp_list[json_idx]) + ' opened with read access...')
+            md.load_one_experiment()
+            print('\t  ---> file ' + str(fp_list[json_idx]) + ' loaded into master_dict.')
+            # try:
+            #     md.load_one_experiment()
+            # except:
+            #     print('\t\t[WARNING] --> could not load experiment: ' + str(fp_list[json_idx]))
+            #     pass
             #md.load_participantIDs_test()
+    print('\n\t[NOTE] beginning to write master_dict.json to ../../RemoteHRI_support/rhri_data/')
     md.open_json_write('../../RemoteHRI_support/rhri_data/master_dict.json')
-    
-    #print('\n' + str(md.md))
+    print('\n\t\t--> master_dict.json has been successfully written.')
 
     return
-
-
-## initialize master_dict;
-# participantID --> experimental data & time --> phase --> block --> stimuli
-'''
-master_dict = {'participantID' : 
-                {df2['ParticipantID'] :
-                    {'startTime' :
-                        {df2['StartTime'] :
-                            {'test' : , 'train' : }
-                                {'stimuli' : {}}
-                                                                                           }
-                                                         }
-                                 }     
-              }
-print(master_dict)
-'''
-
-'''
-"goalWidth": 50,
-"goalHeight": 50,
-"goalLocationAngle": 270,
-"goalLocationX": 400,
-"goalLocationY": 775,
-"trial_type": "fw",
-"boundary": "png/fw.png",
-"goal_img": "png/goal_icon_v2_fwbw.png",
-"ClockTime": "2021-03-11T22:16:11.816Z",
-"blockName": "Testing Block 0",
-"TrialHeader": "Trial",
-"trialIndex": 1,
-"Answer": {
-"start": 1615500966346,
-"keypresses": [
-
-
-keypresses = {'x' : [], 'y' : [], 'theta' : [], 'xv' : [], 'yv' : [], 'lv' : [], 'angularVelocity' : [], 'maxLinearVelocity' : [],
-            'maxAngularVelocity' : [], 'linearAcceleration' : [], 'angularAcceleration' : [], 'width' : [], 'height' : [],
-            'linearMu' : [], 'rotationMu' : []}
-'''
-
 
 
 if __name__ == "__main__":
