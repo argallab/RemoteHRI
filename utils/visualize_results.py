@@ -367,8 +367,6 @@ class visualizer:
                             'bwr_ccw' : {'Training' : {}, 'Testing' : {}}, 
                             'bwl_cw' : {'Training' : {}, 'Testing' : {}}, 
                             'fwl_ccw' : {'Training' : {}, 'Testing' : {}}}
-
-
             
             for train_block_idx in range(1, num_train_blocks+1):
                 for trial_num_idx in range(0, num_train_trials-1):
@@ -379,9 +377,6 @@ class visualizer:
                 for trial_num_idx in range(0, num_test_trials-1):            
                     test_moprim_dist, test_moprim_location = self.get_moprims(participantID, moprim_list, test_moprim_dist, test_moprim_location, 'Testing', test_block_idx, trial_num_idx, date_key)
                     moprim_dist, moprim_location = self.get_moprims(participantID, moprim_list, moprim_dist, moprim_location, 'Testing', test_block_idx, trial_num_idx, date_key)
-
-
-        #self.get_trial(participantID, 'Training', block_num, trial_num)
 
         return moprim_dist, moprim_location, moprim_list
 
@@ -396,19 +391,11 @@ class visualizer:
             date_from_dict, date_key = self.get_date_auto(participantID)
         else:
             date_key = date
-        #print(block_key)
-        #print(len(self.md['participantID'][pid]['date'][date_key][test_or_train][0][block_key][trial_key].keys()))
+
         if len(self.md['participantID'][pid]['date'][date_key][test_or_train][0][block_key][trial_key].keys()) != 0:
-        #try:
-            #print(self.md['participantID'][pid]['date'][date_key][test_or_train][0][block_key])
-            #print(self.md['participantID'][pid]['date'][date_key][test_or_train][0][block_key][trial_key]['response']['trial_type'])
             moprim = self.md['participantID'][pid]['date'][date_key][test_or_train][0][block_key][trial_key]['response']['trial_type']
             mp_dist[pid][moprim] += 1
             mp_location[pid][moprim][test_or_train][block_key] = trial_key#{block_key : trial_key}
-        #except:
-            #print('[NOTE] except triggered in get_moprims [!]')
-
-        #for mps in moprim_list:
 
         return mp_dist, mp_location
 
@@ -459,23 +446,14 @@ class visualizer:
         else:
             pid = participantID
 
-        #mploc_subset = mp_location[pid]
-
         if train_or_test == 0:
             mp_overdict = collections.OrderedDict()
             dict_idx = 0
-            # print(mp_location)
-            # print('\n')
-            # print(mp_location[pid])
-            # print(mp_location[pid][moprim])
             for test_or_train_key in mp_location[pid][moprim].keys():
                 for block_key in mp_location[pid][moprim][test_or_train_key].keys():
                     trial_key = mp_location[pid][moprim][test_or_train_key][block_key]
-                    #print(str(pid) + " : " + str(test_or_train_key) + " : " + str(block_key) + " : " + str(trial_key))
-                    #for trial_key in mp_location[pid][moprim][test_or_train_key][block_key].values():
                     
                     dict_idx += 1
-                    #print(pid)
                     mp_overdict[dict_idx] = self.get_trial_array(pid, test_or_train_key, block_key, trial_key)
 
         else:
@@ -495,8 +473,6 @@ class visualizer:
             pid = 'P' + str(participantID)
         else:
             pid = participantID
-
-        #mploc_subset = mp_location[pid]
 
         if train_or_test == 0:
             mp_overdict = collections.OrderedDict()
@@ -591,59 +567,316 @@ class visualizer:
                         #for trial_key in mp_location[pid][moprim][train_or_test][block_key].values():
                         trial_key = mp_location[pid][moprim][train_or_test][block_key]
                         dict_idx += 1
-                        mp_overdict['pid'][pid][moprim] = self.get_trial_array(pid, train_or_test, block_key, trial_key)
+                        mp_overdict['pid'][pid][moprim][dict_idx] = self.get_trial_array(pid, train_or_test, block_key, trial_key)
 
         return mp_overdict
 
 
     # plot odometry
-    def visualize_odom(self, mp_location):
+    def visualize_odom(self, mp_location, mp_list, mp=0, train_or_test=0, participantID=0):
 
-        return
+        cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
 
-    # def plot_moprim(self, moprim_array):
-    #     for 
-    #         for ts_length in range(0, len(moprim_array['ts_idx'].keys())):
-    #             print(ts_length)
-    #             plt.plot(trial_array['ts_idx'][ts_length][0], trial_array['ts_idx'][ts_length][1], '*r')
-    #     plt.show()
+        # case for unspecified phase; includes both training and testing phase data
+        if train_or_test == 0:
+            print('\n[NOTE]: training or testing unspecified!\n')
+            if participantID == 0:
+                pid_list = self.get_participantID_list()
+                pid_num = len(pid_list)
+                pid_col = 3
+                pid_row = 6
+                fig, axs = plt.subplots(pid_col, pid_row)
+                col_axis_num = 0
+                row_axis_num = 0
+                for pid in mp_location['pid'].keys():                
+                    print('plotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
+                    for trial_key in mp_location['pid'][pid].keys():
+                        for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
+                            axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][1], '.')
+                            axs[col_axis_num, row_axis_num].set_title(str(pid))
+                    if col_axis_num < pid_col-1:
+                        col_axis_num += 1
+                    else:
+                        if row_axis_num < pid_row-1:
+                            row_axis_num += 1
+                            col_axis_num = 0
+                        else:
+                            break
+            else:
+                if type(participantID) == int:
+                    pid = 'P' + str(participantID)
+                else:
+                    pid = participantID
+                #print(pid)
+                #print(mp_location['pid'].keys())
+                #print(mp_location['pid'][pid])
+                for trial_key in mp_location['pid'][pid].keys():
+                        for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
+                            plt.plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][1], '.')
 
-    #     return
+        # case where training/testing phase is specified
+        else:
+            #print('\n[NOTE]: training or testing specified as argument!\n')
+            # pid not provided; show data for all participants
+            if participantID == 0:
+                pid_list = self.get_participantID_list()
+                pid_num = len(pid_list)
+                pid_col = 3
+                pid_row = 6
+                fig, axs = plt.subplots(pid_col, pid_row, sharey=True, sharex=True)
+                col_axis_num = 0
+                row_axis_num = 0
+                for pid in mp_location['pid'].keys():                
+                    print('\nplotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
+                    for trial_key in mp_location['pid'][pid][mp].keys():
+                        print('\tcurrently on trial: ' + str(trial_key))
+                        axs[col_axis_num, row_axis_num].plot([410, 440], [425, 425], '--k', markersize=0.2)
+                        axs[col_axis_num, row_axis_num].plot([425, 425], [415, 440], '--k', markersize=0.2)
+                        try:
+                            for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
+                                x = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0]
+                                y = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1]
+                                theta = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2]
+                                if ts_idx%10 == 0:
+                                    axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], '.', color=cmap[trial_key], alpha=0.75, markersize=0.8)
+                                    #axs[col_axis_num, row_axis_num].plot([mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0] + 20*np.sin(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2])], [mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0] + 20*np.cos(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][3])], '-', color=cmap[trial_key+1])
+                                    axs[col_axis_num, row_axis_num].plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'-', color=cmap[trial_key], markersize=0.1)
+                                    axs[col_axis_num, row_axis_num].set_title(str(pid))
+                                    #axs[col_axis_num, row_axis_num].set_xlim([0, 900])
+                                    #axs[col_axis_num, row_axis_num].set_ylim([0, 900])
+                                    axs[col_axis_num, row_axis_num].set_box_aspect(1)
+                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3)
+                                
+                        except:
+                            print('\t\t[WARNING]: no timesteps found')
+                            pass
+                    if col_axis_num < pid_col-1:
+                        col_axis_num += 1
+                    else:
+                        if row_axis_num < pid_row-1:
+                            row_axis_num += 1
+                            col_axis_num = 0
+                        else:
+                            break
+                fig.text(0.5, 0.04, 'x', ha='center', va='center')
+                fig.text(0.06, 0.5, 'y', ha='center', va='center', rotation='vertical')
+                fig.suptitle(str(train_or_test) + ' Pose Data for Motion Primitive: ' + str(mp))
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_pose_data_all_participants.png', dpi=800, facecolor='w', transparent=True)
+            else:
+                if type(participantID) == int:
+                    pid = 'P' + str(participantID)
+                else:
+                    pid = participantID
+                for trial_key in mp_location['pid'][pid][mp].keys():
+                        plt.plot([410, 440], [425, 425], '--k', markersize=0.2)
+                        plt.plot([425, 425], [415, 440], '--k', markersize=0.2)
+                        #print('training_all_moprim_all_pid_test.json > pid > ' + str(pid) + ' > ' + str(mp) + str(trial_key))
+                        try:
+                            for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
+                                if ts_idx%10 == 0:
+                                    x = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0]
+                                    y = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1]
+                                    theta = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2]
+                                    plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], '.', color=cmap[trial_key])
+                                    plt.plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'--', color=cmap[trial_key], markersize=0.3)
+                        except:
+                            #print('\t\t[WARNING]: no timesteps found')
+                            pass
+                plt.xlabel('x')
+                plt.ylabel('y')
+                plt.title(str(pid) + ' ' + str(train_or_test) + ' Pose Data for Motion Primitive: ' + str(mp))
 
-    ##
-
-    def get_multiple_participants(self, pidlist):
-
-        return
-
-    def get_multiple_blocks(self, blockset, blocklist):
-
-        return
-
-    def get_control_across_trials(self,):
-
-        return
-
-    def get_control_across_blocks(self,):
-
-        return
-
-    def two_axis_plot(self, hdata, haxis, hrange, vdata, vaxis, vrange):#self, haxis, vaxis, title, hrange, vrange, hdata, vdata)
+                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/'):
+                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/')
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/' + str(mp) + '_' + str(train_or_test) + '_pose_data_' + str(pid) + '.png', dpi=800, facecolor='w', transparent=True)
+            
+        #plt.show()
+        plt.clf()
         
-        # if vdata not supplied, creates a numpy array that indexes the hdata
-        if vdata == 0:
-            vdata = np.arange(len(hdata))
 
+        return
 
+    # plot control signals
+    def visualize_controls(self, mp_location, mp_list, mp=0, train_or_test=0, participantID=0):
 
+        cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
+
+        # case for unspecified phase; includes both training and testing phase data
+        if train_or_test == 0:
+            print('\n[NOTE]: training or testing unspecified!\n')
+            if participantID == 0:
+                pid_list = self.get_participantID_list()
+                pid_num = len(pid_list)
+                pid_col = 3
+                pid_row = 6
+                fig, axs = plt.subplots(pid_col, pid_row, sharey=True, sharex=True)
+                col_axis_num = 0
+                row_axis_num = 0
+                for pid in mp_location['pid'].keys():                
+                    print('plotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
+                    for trial_key in mp_location['pid'][pid].keys():
+                        for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
+                            axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.')
+                            axs[col_axis_num, row_axis_num].set_title(str(pid))
+                    if col_axis_num < pid_col-1:
+                        col_axis_num += 1
+                    else:
+                        if row_axis_num < pid_row-1:
+                            row_axis_num += 1
+                            col_axis_num = 0
+                        else:
+                            break
+            else:
+                if type(participantID) == int:
+                    pid = 'P' + str(participantID)
+                else:
+                    pid = participantID
+                #print(pid)
+                #print(mp_location['pid'].keys())
+                #print(mp_location['pid'][pid])
+                for trial_key in mp_location['pid'][pid].keys():
+                        for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
+                            plt.plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.')
+
+        # case where training/testing phase is specified
+        else:
+            #print('\n[NOTE]: training or testing specified as argument!\n')
+            # pid not provided; show data for all participants
+            if participantID == 0:
+                pid_list = self.get_participantID_list()
+                pid_num = len(pid_list)
+                pid_col = 3
+                pid_row = 6
+                fig, axs = plt.subplots(pid_col, pid_row, sharey=True, sharex=True)
+                col_axis_num = 0
+                row_axis_num = 0
+                for pid in mp_location['pid'].keys():                
+                    print('\nplotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
+                    for trial_key in mp_location['pid'][pid][mp].keys():
+                        print('\tcurrently on trial: ' + str(trial_key))
+                        axs[col_axis_num, row_axis_num].plot([-0.5, 0.5], [0, 0], '--k', markersize=0.2)
+                        axs[col_axis_num, row_axis_num].plot([0, 0], [-0.2, 0.2], '--k', markersize=0.2)
+                        try:
+                            for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
+                                if ts_idx%10 == 0:
+                                    axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=0.8)
+                                    axs[col_axis_num, row_axis_num].set_title(str(pid))
+                                    #axs[col_axis_num, row_axis_num].set_xlim([-0, 900])
+                                    #axs[col_axis_num, row_axis_num].set_ylim([-0, 900])
+                                    axs[col_axis_num, row_axis_num].set_box_aspect(1)
+                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3)
+                                    
+                        except:
+                            print('\t\t[WARNING]: no timesteps found')
+                            pass
+                    if col_axis_num < pid_col-1:
+                        col_axis_num += 1
+                    else:
+                        if row_axis_num < pid_row-1:
+                            row_axis_num += 1
+                            col_axis_num = 0
+                        else:
+                            break
+                fig.text(0.5, 0.04, 'linear velocity (m/s)', ha='center', va='center')
+                fig.text(0.06, 0.5, 'angular velocity (rad/s)', ha='center', va='center', rotation='vertical')
+                fig.suptitle(str(train_or_test) + ' Control Data for Motion Primitive: ' + str(mp))
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_control_data_all_participants.png', dpi=800, facecolor='w', transparent=True)
+
+            else:
+                if type(participantID) == int:
+                    pid = 'P' + str(participantID)
+                else:
+                    pid = participantID
+                for trial_key in mp_location['pid'][pid][mp].keys():
+                    plt.plot([-0.5, 0.5], [0, 0], '--k', markersize=0.2)
+                    plt.plot([0, 0], [-0.2, 0.2], '--k', markersize=0.2)
+                    try:
+                        for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
+                            if ts_idx%10 == 0:
+                                plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], markersize=0.5)
+                    except:
+                        #print('\t\t[WARNING]: no timesteps found')
+                        pass
+                plt.xlabel('linear velocity (m/s)')
+                plt.ylabel('angular velocity (rad/s)')
+                plt.title(str(pid) + ' ' + str(train_or_test) + ' Control Data for Motion Primitive: ' + str(mp))
+
+                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/'):
+                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/')
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '_' + str(train_or_test) + '_control_data_' + str(pid) + '.png', dpi=800, facecolor='w', transparent=True)
+
+        #plt.show()
+        plt.clf()
         
         return
-        
-    ##
+
+####################### MAIN FUNCTION #######################################################################################
 
 def main():
     vmd = visualizer()
     vmd.load_dict()
+
+    # get the distribution of motion primitives across all participants
+    moprim_dict_all_pid, moprim_location_all_pid, moprim_list = vmd.get_moprim_dist()
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_dict_all_pid_test.json', "w") as write_json:
+        json.dump(moprim_dict_all_pid, write_json)
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_location_all_pid_test.json', "w") as write_json:
+        json.dump(moprim_location_all_pid, write_json)
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_list.json', "w") as write_json:
+        json.dump(moprim_list, write_json)
+
+    ##
+
+
+
+    # # get all instances of a single motion primitive from a single participant
+    # single_moprim_single_pid_array = vmd.get_single_moprim_single_pid(11, moprim_location_all_pid, 'fwr')
+    # with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/single_moprim_single_pid_test.json', "w") as write_json:
+    #     json.dump(single_moprim_single_pid_array, write_json)
+    
+    # get all instances of a single motion primitive from all participants
+    single_moprim_all_pid_array = vmd.get_single_moprim_all_pid(moprim_location_all_pid, 'fwr')
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/single_moprim_all_pid_test.json', "w") as write_json:
+        json.dump(single_moprim_all_pid_array, write_json)
+
+     # get all instances of all motion primitives during the TRAINING phase from all participants
+    training_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Training')
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/training_all_moprim_all_pid_test.json', "w") as write_json:
+        json.dump(training_all_moprim_all_pid_array, write_json)
+
+    # get all instances of all motion primitives during the TRAINING phase from all participants
+    testing_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Testing')
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/testing_all_moprim_all_pid_test.json', "w") as write_json:
+        json.dump(testing_all_moprim_all_pid_array, write_json)
+
+
+    #vmd.visualize_odom(single_moprim_all_pid_array, moprim_list, 'fwr', 'P11')
+
+    ##
+
+    pid_list = vmd.get_participantID_list()
+
+    # for pid in pid_list:
+    #     for mp_idx in moprim_list['P11']:
+    #         print(str(pid) + ', ' + str(mp_idx))
+    #         vmd.visualize_odom(training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training', pid)
+    #         vmd.visualize_controls(training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training', pid)
+
+    #         vmd.visualize_odom(testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing', pid)
+    #         vmd.visualize_controls(testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing', pid)
+
+    
+    
+    for mp_idx in moprim_list['P11']:
+        print(mp_idx)
+        vmd.visualize_odom(training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training')
+        vmd.visualize_controls(training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training')
+
+        vmd.visualize_odom(testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing')
+        vmd.visualize_controls(testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing')
+
+
+    return
 
     ############ MOPRIM INFORMATION #########################################################################################
 
@@ -704,8 +937,6 @@ def main():
         json.dump(training_all_moprim_all_pid_array, write_json)
 
     return 
-
-    
 
     ############ PID INFORMATION ############################################################################################
 
