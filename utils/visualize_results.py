@@ -416,7 +416,7 @@ class visualizer:
         if type(participantID) == int:
             pid = 'P' + str(participantID)
         else:
-            print('entered pid else statement')
+            #print('entered pid else statement')
             pid = participantID
         if type(block_num) == int:
             block2get = test_or_train + ' Block ' + str(block_num)
@@ -429,18 +429,10 @@ class visualizer:
         if date == 0:
             date_from_dict, date_key = self.get_date_auto(participantID)
 
-        #print(str(pid) + '\n')
-
-
-        #print(self.md['participantID'][pid][pid]['date'])#[date_key][test_or_train][0][block2get][trial2get]['response']['keypresses'])
         num_timesteps = len(self.md['participantID'][pid]['date'][date_key][test_or_train][0][block2get][trial2get]['response']['keypresses'])
 
         trial_array = collections.OrderedDict
         trial_array = {'ts_idx':{}}
-
-        #print(num_timesteps)
-
-        print(str(pid) + ' : ' + str(test_or_train) + ' : ' +  str(block2get) + ' : ' +  str(trial2get))
 
         for ts_idx in range(0, num_timesteps):
             temp_ts = self.get_timestep(pid, test_or_train, block2get, trial2get, ts_idx)
@@ -458,21 +450,16 @@ class visualizer:
 
             trial_array['ts_idx'][ts] = ts_slice
 
-
-        # for ts_length in range(0, len(trial_array['ts_idx'].keys())):
-        #     print(ts_length)
-        #     plt.plot(trial_array['ts_idx'][ts_length][0], trial_array['ts_idx'][ts_length][1], '*r')
-        # plt.show()
-
         return trial_array
 
+    # returns single motion primitive from a single participant
     def get_single_moprim_single_pid(self, participantID, mp_location, moprim, train_or_test=0):
         if type(participantID) == int:
             pid = 'P' + str(participantID)
         else:
             pid = participantID
 
-        mploc_subset = mp_location[pid]
+        #mploc_subset = mp_location[pid]
 
         if train_or_test == 0:
             mp_overdict = collections.OrderedDict()
@@ -502,13 +489,14 @@ class visualizer:
 
         return mp_overdict
 
+    # returns all motion primitives from a single participant
     def get_all_moprim_single_pid(self, participantID, mp_location, mp_list, train_or_test=0):
         if type(participantID) == int:
             pid = 'P' + str(participantID)
         else:
             pid = participantID
 
-        mploc_subset = mp_location[pid]
+        #mploc_subset = mp_location[pid]
 
         if train_or_test == 0:
             mp_overdict = collections.OrderedDict()
@@ -537,15 +525,79 @@ class visualizer:
 
         return mp_overdict
 
-        return
+    # returns single motion primitive across all participants
+    def get_single_moprim_all_pid(self, mp_location, moprim, train_or_test=0):
+        
+        pid_list = self.get_participantID_list()
 
-    def get_single_moprim_all_pid(self, mp_location):
+        if train_or_test == 0:
+            mp_overdict = collections.OrderedDict()
+            mp_overdict['pid'] = {}
+            for pid in pid_list:
+                dict_idx = 0
+                mp_overdict['pid'][pid] = {}                
+                for test_or_train_key in mp_location[pid][moprim].keys():
+                    for block_key in mp_location[pid][moprim][test_or_train_key].keys():
+                        trial_key = mp_location[pid][moprim][test_or_train_key][block_key]
+                        
+                        dict_idx += 1
+                        mp_overdict['pid'][pid][dict_idx] = self.get_trial_array(pid, test_or_train_key, block_key, trial_key)
+
+        
+
+        else:
+            mp_overdict = collections.OrderedDict()
+            mp_overdict['pid'] = {}
+            dict_idx = 0
+            for pid in pid_list:
+                mp_overdict['pid'][pid] = {}
+                for block_key in mp_location[pid][moprim][train_or_test].keys():
+                    trial_key = mp_location[pid][moprim][train_or_test][block_key]
+                    dict_idx += 1
+                    mp_overdict['pid'][pid][dict_idx] = self.get_trial_array(pid, train_or_test, block_key, trial_key)
+
+        return mp_overdict
+
+    # plot all motion primitives across all participants
+    def get_all_moprim_all_pid(self, mp_location, mp_list, train_or_test=0):
+        pid_list = self.get_participantID_list()
+
+        if train_or_test == 0:
+            mp_overdict = collections.OrderedDict()
+            mp_overdict['pid'] = {}
+            for pid in pid_list:
+                mp_overdict['pid'][pid] = {}
+                for moprim in mp_list[pid]:
+                    dict_idx = 0
+                    mp_overdict['pid'][pid][moprim] = {dict_idx : {}}
+                    for test_or_train_key in mp_location[pid][moprim].keys():
+                        for block_key in mp_location[pid][moprim][test_or_train_key].keys():
+                            #for trial_key in mp_location[pid][moprim][test_or_train_key][block_key].values():
+                            trial_key = mp_location[pid][moprim][test_or_train_key][block_key]
+                            dict_idx += 1
+                            #mp_overdict[moprim][dict_idx] = {dict_idx : {}}
+                            mp_overdict['pid'][pid][moprim][dict_idx] = self.get_trial_array(pid, test_or_train_key, block_key, trial_key)
 
 
-        return
+        else:
+            mp_overdict = collections.OrderedDict()
+            mp_overdict['pid'] = {}
+            for pid in pid_list:
+                mp_overdict['pid'][pid] = {}
+                for moprim in mp_list[pid]:
+                    dict_idx = 0
+                    mp_overdict['pid'][pid][moprim] = {dict_idx : {}}
+                    for block_key in mp_location[pid][moprim][train_or_test].keys():
+                        #for trial_key in mp_location[pid][moprim][train_or_test][block_key].values():
+                        trial_key = mp_location[pid][moprim][train_or_test][block_key]
+                        dict_idx += 1
+                        mp_overdict['pid'][pid][moprim] = self.get_trial_array(pid, train_or_test, block_key, trial_key)
 
-    def get_all_moprim_all_pid(self, mp_location):
+        return mp_overdict
 
+
+    # plot odometry
+    def visualize_odom(self, mp_location):
 
         return
 
@@ -572,7 +624,7 @@ class visualizer:
 
         return
 
-    def get_control_across_blocks():
+    def get_control_across_blocks(self,):
 
         return
 
@@ -595,19 +647,21 @@ def main():
 
     ############ MOPRIM INFORMATION #########################################################################################
 
-    # get the distribution of motion primitives across all participants
-    moprim_dict_all_pid, moprim_location_all_pid, moprim_list = vmd.get_moprim_dist()
-    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_dict_all_pid_test.json', "w") as write_json:
-        json.dump(moprim_dict_all_pid, write_json)
-    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_location_all_pid_test.json', "w") as write_json:
-        json.dump(moprim_location_all_pid, write_json)
-
     # get the distribution of motions primitives across a single participant
     moprim_dict_single_pid, moprim_location_single_pid, moprim_list = vmd.get_moprim_dist(11)
     with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_dict_test.json', "w") as write_json:
         json.dump(moprim_dict_single_pid, write_json)
     with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_location_test.json', "w") as write_json:
         json.dump(moprim_location_single_pid, write_json)
+
+    # get the distribution of motion primitives across all participants
+    moprim_dict_all_pid, moprim_location_all_pid, moprim_list = vmd.get_moprim_dist()
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_dict_all_pid_test.json', "w") as write_json:
+        json.dump(moprim_dict_all_pid, write_json)
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_location_all_pid_test.json', "w") as write_json:
+        json.dump(moprim_location_all_pid, write_json)
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_list.json', "w") as write_json:
+        json.dump(moprim_list, write_json)
 
     # get all instances of a single motion primitive from a single participant
     single_moprim_single_pid_array = vmd.get_single_moprim_single_pid(11, moprim_location_all_pid, 'fwr')
@@ -618,6 +672,36 @@ def main():
     all_moprim_single_pid_array = vmd.get_all_moprim_single_pid(11, moprim_location_all_pid, moprim_list)
     with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/all_moprim_single_pid_test.json', "w") as write_json:
         json.dump(all_moprim_single_pid_array, write_json)
+
+    # get all instances of a single motion primitive from all participants
+    single_moprim_all_pid_array = vmd.get_single_moprim_all_pid(moprim_location_all_pid, 'fwr')
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/single_moprim_all_pid_test.json', "w") as write_json:
+        json.dump(single_moprim_all_pid_array, write_json)
+    
+    # get all instances of all motion primitives from all participants
+    all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list)
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/all_moprim_all_pid_test.json', "w") as write_json:
+        json.dump(all_moprim_all_pid_array, write_json)
+
+    # get all instances of a single motion primitive during the TESTING phase from all participants
+    testing_single_moprim_all_pid_array = vmd.get_single_moprim_all_pid(moprim_location_all_pid, 'fwr', 'Testing')
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/testing_single_moprim_all_pid_test.json', "w") as write_json:
+        json.dump(testing_single_moprim_all_pid_array, write_json)
+    
+    # get all instances of all motion primitives during the TESTING phase from all participants
+    testing_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Testing')
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/testing_all_moprim_all_pid_test.json', "w") as write_json:
+        json.dump(testing_all_moprim_all_pid_array, write_json)
+
+    # get all instances of a single motion primitive during the TRAINING phase from all participants
+    training_single_moprim_all_pid_array = vmd.get_single_moprim_all_pid(moprim_location_all_pid, 'fwr', 'Training')
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/training_single_moprim_all_pid_test.json', "w") as write_json:
+        json.dump(training_single_moprim_all_pid_array, write_json)
+    
+    # get all instances of all motion primitives during the TRAINING phase from all participants
+    training_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Training')
+    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/training_all_moprim_all_pid_test.json', "w") as write_json:
+        json.dump(training_all_moprim_all_pid_array, write_json)
 
     return 
 
