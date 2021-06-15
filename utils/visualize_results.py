@@ -9,11 +9,16 @@ import random
 import requests
 import numpy as np
 import matplotlib.pyplot as plt
-
+import cv2 as cv
+import scipy as sp
+from scipy.spatial import ConvexHull, convex_hull_plot_2d
+from scipy import ndimage
 
 class visualizer:
     def __init__(self):
         self.dpath = '/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/master_dict.json'
+        self.training_all_moprim_all_pid_array = collections.OrderedDict()
+        self.testing_all_moprim_all_pid_array = collections.OrderedDict()
      
     def load_dict(self):
         with open(self.dpath, "r") as read_json:
@@ -213,6 +218,7 @@ class visualizer:
 
 ###################################################################################################################################################
 
+    # returns the distribution of motion primitives from either all participants or a single participant (wraps self.get_morpims())
     def get_moprim_dist(self, participantID='na', date=0):
         if type(participantID) == int:
             pid = 'P' + str(participantID)
@@ -380,6 +386,7 @@ class visualizer:
 
         return moprim_dist, moprim_location, moprim_list
 
+    # returns a single participant's distribution of motion primitives
     def get_moprims(self, participantID, moprim_list, mp_dist, mp_location, test_or_train=0, block_num=0, trial_num=0, date=0):
         if type(participantID) == int:
             pid = 'P' + str(participantID)
@@ -399,6 +406,7 @@ class visualizer:
 
         return mp_dist, mp_location
 
+    # returns a single trial array
     def get_trial_array(self, participantID, test_or_train, block_num, trial_num, date=0):
         if type(participantID) == int:
             pid = 'P' + str(participantID)
@@ -571,7 +579,6 @@ class visualizer:
 
         return mp_overdict
 
-
     # plot odometry
     def visualize_odom(self, mp_location, mp_list, mp=0, train_or_test=0, participantID=0):
 
@@ -638,9 +645,9 @@ class visualizer:
                                 y = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1]
                                 theta = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2]
                                 if ts_idx%10 == 0:
-                                    axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], '.', color=cmap[trial_key], alpha=0.75, markersize=0.8)
+                                    axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], '.', color=cmap[trial_key], alpha=0.75, markersize=0.6)
                                     #axs[col_axis_num, row_axis_num].plot([mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0] + 20*np.sin(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2])], [mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0] + 20*np.cos(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][3])], '-', color=cmap[trial_key+1])
-                                    axs[col_axis_num, row_axis_num].plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'-', color=cmap[trial_key], markersize=0.1)
+                                    axs[col_axis_num, row_axis_num].plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'-', color=cmap[trial_key], markersize=0.05)
                                     axs[col_axis_num, row_axis_num].set_title(str(pid))
                                     #axs[col_axis_num, row_axis_num].set_xlim([0, 900])
                                     #axs[col_axis_num, row_axis_num].set_ylim([0, 900])
@@ -677,8 +684,8 @@ class visualizer:
                                     x = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0]
                                     y = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1]
                                     theta = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2]
-                                    plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], '.', color=cmap[trial_key])
-                                    plt.plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'--', color=cmap[trial_key], markersize=0.3)
+                                    plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], '.', color=cmap[trial_key], alpha=0.75, markersize=0.6)
+                                    plt.plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'-', color=cmap[trial_key], markersize=0.05)
                         except:
                             #print('\t\t[WARNING]: no timesteps found')
                             pass
@@ -686,9 +693,9 @@ class visualizer:
                 plt.ylabel('y')
                 plt.title(str(pid) + ' ' + str(train_or_test) + ' Pose Data for Motion Primitive: ' + str(mp))
 
-                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/'):
-                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/')
-                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/' + str(mp) + '_' + str(train_or_test) + '_pose_data_' + str(pid) + '.png', dpi=800, facecolor='w', transparent=True)
+                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/' + str(mp) + '/'):
+                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/' + str(mp) + '/')
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_pose_data_' + str(pid) + '.png', dpi=800, facecolor='w', transparent=True)
             
         #plt.show()
         plt.clf()
@@ -698,6 +705,120 @@ class visualizer:
 
     # plot control signals
     def visualize_controls(self, mp_location, mp_list, mp=0, train_or_test=0, participantID=0):
+
+        cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
+
+        # case for unspecified phase; includes both training and testing phase data
+        if train_or_test == 0:
+            print('\n[NOTE]: training or testing unspecified!\n')
+            if participantID == 0:
+                pid_list = self.get_participantID_list()
+                pid_num = len(pid_list)
+                pid_col = 3
+                pid_row = 6
+                fig, axs = plt.subplots(pid_col, pid_row, sharey=True, sharex=True)
+                col_axis_num = 0
+                row_axis_num = 0
+                for pid in mp_location['pid'].keys():                
+                    print('plotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
+                    for trial_key in mp_location['pid'][pid].keys():
+                        for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
+                            axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.', alpha=0.75, markersize=0.6)
+                            axs[col_axis_num, row_axis_num].set_title(str(pid))
+                    if col_axis_num < pid_col-1:
+                        col_axis_num += 1
+                    else:
+                        if row_axis_num < pid_row-1:
+                            row_axis_num += 1
+                            col_axis_num = 0
+                        else:
+                            break
+            else:
+                if type(participantID) == int:
+                    pid = 'P' + str(participantID)
+                else:
+                    pid = participantID
+                #print(pid)
+                #print(mp_location['pid'].keys())
+                #print(mp_location['pid'][pid])
+                for trial_key in mp_location['pid'][pid].keys():
+                        for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
+                            plt.plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.', alpha=0.75, markersize=0.6)
+
+        # case where training/testing phase is specified
+        else:
+            #print('\n[NOTE]: training or testing specified as argument!\n')
+            # pid not provided; show data for all participants
+            if participantID == 0:
+                pid_list = self.get_participantID_list()
+                pid_num = len(pid_list)
+                pid_col = 3
+                pid_row = 6
+                fig, axs = plt.subplots(pid_col, pid_row, sharey=True, sharex=True)
+                col_axis_num = 0
+                row_axis_num = 0
+                for pid in mp_location['pid'].keys():                
+                    print('\nplotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
+                    for trial_key in mp_location['pid'][pid][mp].keys():
+                        print('\tcurrently on trial: ' + str(trial_key))
+                        axs[col_axis_num, row_axis_num].plot([-0.5, 0.5], [0, 0], '--k', markersize=0.2)
+                        axs[col_axis_num, row_axis_num].plot([0, 0], [-0.2, 0.2], '--k', markersize=0.2)
+                        try:
+                            for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
+                                if ts_idx%10 == 0:
+                                    axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=0.6)
+                                    axs[col_axis_num, row_axis_num].set_title(str(pid))
+                                    #axs[col_axis_num, row_axis_num].set_xlim([-0, 900])
+                                    #axs[col_axis_num, row_axis_num].set_ylim([-0, 900])
+                                    axs[col_axis_num, row_axis_num].set_box_aspect(1)
+                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3)
+                                    
+                        except:
+                            print('\t\t[WARNING]: no timesteps found')
+                            pass
+                    if col_axis_num < pid_col-1:
+                        col_axis_num += 1
+                    else:
+                        if row_axis_num < pid_row-1:
+                            row_axis_num += 1
+                            col_axis_num = 0
+                        else:
+                            break
+                fig.text(0.5, 0.04, 'linear velocity (m/s)', ha='center', va='center')
+                fig.text(0.06, 0.5, 'angular velocity (rad/s)', ha='center', va='center', rotation='vertical')
+                fig.suptitle(str(train_or_test) + ' Control Data for Motion Primitive: ' + str(mp))
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_control_data_all_participants.png', dpi=800, facecolor='w', transparent=True)
+
+            else:
+                if type(participantID) == int:
+                    pid = 'P' + str(participantID)
+                else:
+                    pid = participantID
+                for trial_key in mp_location['pid'][pid][mp].keys():
+                    plt.plot([-0.5, 0.5], [0, 0], '--k', markersize=0.2)
+                    plt.plot([0, 0], [-0.2, 0.2], '--k', markersize=0.2)
+                    try:
+                        for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
+                            if ts_idx%10 == 0:
+                                plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=0.6)
+                    except:
+                        #print('\t\t[WARNING]: no timesteps found')
+                        pass
+                plt.xlabel('linear velocity (m/s)')
+                plt.ylabel('angular velocity (rad/s)')
+                plt.title(str(pid) + ' ' + str(train_or_test) + ' Control Data for Motion Primitive: ' + str(mp))
+
+                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/'):
+                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/')
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_control_data_' + str(pid) + '.png', dpi=800, facecolor='w', transparent=True)
+
+        #plt.show()
+        plt.clf()
+        
+        return
+   
+    # plot convex hull
+    def visualize_convex_hull(self, mp_location, mp_list, mp=0, train_or_test=0, participantID=0):
 
         cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
 
@@ -810,11 +931,174 @@ class visualizer:
         
         return
 
+    # computes the convex hull of a set of control points using scipy's ConvexHull() method ## opencv-python's convexHull() method
+    def compute_convex_hull(self, mp_list, mp, train_or_test=0, participantID=0):
+
+        cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
+        
+        if type(participantID) == int:
+            pid = 'P' + str(participantID)
+        else:
+            pid = participantID
+        
+        # case for specified testing vs. training phase
+        if train_or_test != 0:
+            if train_or_test == 'Training':
+                    mp_location = self.training_all_moprim_all_pid_array
+            elif train_or_test == 'Testing':
+                mp_location = self.testing_all_moprim_all_pid_array
+
+            mp_control_array = np.array([[0, 0]])
+            for trial_key in mp_location['pid'][pid][mp].keys():
+                try:
+                    #trial_array = self.get_trial_array(pid, train_or_test, block_num, trial_key)
+                    for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
+                        lv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5]
+                        tv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6]
+                    
+                        arr_to_append = np.array([lv, tv])
+                        mp_control_array = np.append(mp_control_array, [arr_to_append], axis=0)
+                    
+                except:
+                    print('\t\t[WARNING]: no timesteps found for trial: ' + str(trial_key))
+                    pass
+            
+            # remove the initial row of zeros (included for initializing the numpy array)
+            mp_control_array = np.delete(mp_control_array, 0, 0)
+            #plt.plot([-0.583, 0.583], [0, 0], '--k', markersize=0.2) # 35 (maxangvel) / 60 (fps)
+            #plt.plot([0, 0], [-1.583, 1.583], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
+            plt.plot([-0.05, 0.05], [0, 0], '--k', markersize=0.2) # 35 (maxangvel) / 60 (fps)
+            plt.plot([0, 0], [-0.05, 0.05], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
+        
+            print('\n[1] beginning to compute convex hull for PID: ' + str(pid) + ', MP: ' + str(mp) + '...')
+            hull = ConvexHull(mp_control_array)
+            print('\t...hull computed!')
+
+            print('[2] beginning to plot control points...')
+            plt.plot(mp_control_array[:,0], mp_control_array[:,1], 'o', markersize=0.75, alpha=0.6)
+            print('\t...control points plotted!')
+
+            #print(hull)
+            #print(hull.simplices)
+            hull_area = hull.area
+            hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
+            simplex_plot_counter = 0
+            print('[3] beginning to plot simplices...')
+            for simplex in hull.simplices:
+                print('\t...plotting simplex #' + str(simplex_plot_counter) + ' ...')
+                plt.plot(mp_control_array[simplex, 0], mp_control_array[simplex,1], 'k-')
+                simplex_plot_counter += 1
+            print('\t...all simplices plotted!')
+            
+            print('beginning to plot vertices...')
+            #plt.plot(mp_control_array[hull.vertices,0], mp_control_array[hull.vertices,1], 'r--', lw=2)
+            plt.plot(mp_control_array[hull.vertices[0],0], mp_control_array[hull.vertices[0],1], 'ro') # plot outermost points (used as vertices)
+            #print('\t...vertices plotted! Preparing to show plot.')
+            plt.title('Convex Hull for ' + str(train_or_test) + ' Phase' + '\nParticipant: ' + str(pid) + '; Motion Primitive: ' + str(mp) + '\nArea: ' + str(hull_area) + '; Centroid: ' + str(hull_centroid) )
+            plt.xlabel('angular velocity component of control signals')
+            plt.ylabel('linear velocity component of control signals')
+            #plt.show()
+
+            print('\t...vertices plotted! Preparing to save plot...')
+            if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/'):
+                os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/')
+            plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/' + str(pid) + '_' + str(mp) + '_CHO_' + str(train_or_test) + 'phase_control_data_' + '.png', dpi=800, facecolor='w', transparent=True)
+
+        # case for unspecified training vs. testing phase (plots side-by-side for comparison)
+        else:
+            
+            # pid_row = 1
+            # pid_col = 2
+            fig, (axs1, axs2) = plt.subplots(1, 2, sharey=True, sharex=True)
+            # row_axis_num = 0
+            # col_axis_num = 0
+
+            phase_array = ['Training', 'Testing']
+            for phase in phase_array:
+                if phase == 'Training':
+                    mp_location = self.training_all_moprim_all_pid_array
+                    axs = axs1
+                elif phase == 'Testing':
+                    mp_location = self.testing_all_moprim_all_pid_array
+                    axs = axs2
+
+                mp_control_array = np.array([[0, 0]])
+                for trial_key in mp_location['pid'][pid][mp].keys():
+                    try:
+                        #trial_array = self.get_trial_array(pid, train_or_test, block_num, trial_key)
+                        for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
+                            lv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5]
+                            tv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6]
+                        
+                            arr_to_append = np.array([lv, tv])
+                            mp_control_array = np.append(mp_control_array, [arr_to_append], axis=0)
+                        
+                    except:
+                        print('\t\t[WARNING]: no timesteps found for trial: ' + str(trial_key))
+                        pass
+                
+                # remove the initial row of zeros (included for initializing the numpy array)
+                mp_control_array = np.delete(mp_control_array, 0, 0)
+
+                # plot coordinate frame on subplot
+                #axs.plot([-0.583, 0.583], [0, 0], '--k', markersize=0.2) # 35 (maxangvel) / 60 (fps)
+                #axs.plot([0, 0], [-1.583, 1.583], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
+                axs.plot([-0.05, 0.05], [0, 0], '--k', markersize=0.2) # 35 (maxangvel) / 60 (fps)
+                axs.plot([0, 0], [-0.05, 0.05], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
+            
+                print('\n[1] beginning to compute convex hull for PID: ' + str(pid) + ', MP: ' + str(mp) + '...')
+                hull = ConvexHull(mp_control_array)
+                print('\t...hull computed!')
+
+                print('[2] beginning to plot ' + str(phase) + ' data control points...')
+                axs.plot(mp_control_array[:,0], mp_control_array[:,1], 'o', markersize=0.75, alpha=0.6)
+                print('\t...control points plotted!')
+
+                hull_area = hull.area
+                hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
+                simplex_plot_counter = 0
+                print('[3] beginning to plot simplices...')
+                for simplex in hull.simplices:
+                    print('\t...plotting simplex #' + str(simplex_plot_counter) + ' ...')
+                    axs.plot(mp_control_array[simplex, 0], mp_control_array[simplex,1], 'k-')
+                    simplex_plot_counter += 1
+                print('\t...all simplices plotted!')
+                
+                print('beginning to plot vertices...')
+                #plt.plot(mp_control_array[hull.vertices,0], mp_control_array[hull.vertices,1], 'r--', lw=2)
+                axs.plot(mp_control_array[hull.vertices[:],0], mp_control_array[hull.vertices[:],1], 'ro') # plot outermost points (used as vertices)
+                print('\t...vertices plotted!')
+                axs.set_box_aspect(1)
+                axs.tick_params(direction='in', length=3)
+                axs.set_title(str(phase) + ' Phase\nArea: ' + str(hull_area) + '; Centroid: ' + str(hull_centroid) )
+                axs.plot(hull_centroid[0],'*y')
+
+            fig.text(0.5, 0.04, 'linear velocity (m/s)', ha='center', va='center')
+            fig.text(0.06, 0.5, 'angular velocity (rad/s)', ha='center', va='center', rotation='vertical')
+            fig.suptitle('Control Signal Hulls for Training vs. Testing\nParticipant: ' + str(pid) + '; Motion Primitive: ' + str(mp))
+            #print('Preparing to show plot...')
+            #plt.show()
+            
+            print('Preparing to save plot...')
+            if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/'):
+                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/')
+            plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/' + str(pid) + '_' + str(mp) + '_CHO_phase_comparison' + '_control_data_' + '.png', dpi=800, facecolor='w', transparent=True)
+
+
+
+        plt.clf()
+
+        return
+
+
+
 ####################### MAIN FUNCTION #######################################################################################
 
 def main():
     vmd = visualizer()
     vmd.load_dict()
+    
+    ############ MOPRIM INFORMATION #########################################################################################
 
     # get the distribution of motion primitives across all participants
     moprim_dict_all_pid, moprim_location_all_pid, moprim_list = vmd.get_moprim_dist()
@@ -825,55 +1109,42 @@ def main():
     with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_list.json', "w") as write_json:
         json.dump(moprim_list, write_json)
 
-    ##
-
-
-
-    # # get all instances of a single motion primitive from a single participant
-    # single_moprim_single_pid_array = vmd.get_single_moprim_single_pid(11, moprim_location_all_pid, 'fwr')
-    # with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/single_moprim_single_pid_test.json', "w") as write_json:
-    #     json.dump(single_moprim_single_pid_array, write_json)
-    
     # get all instances of a single motion primitive from all participants
     single_moprim_all_pid_array = vmd.get_single_moprim_all_pid(moprim_location_all_pid, 'fwr')
     with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/single_moprim_all_pid_test.json', "w") as write_json:
         json.dump(single_moprim_all_pid_array, write_json)
 
      # get all instances of all motion primitives during the TRAINING phase from all participants
-    training_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Training')
+    vmd.training_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Training')
     with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/training_all_moprim_all_pid_test.json', "w") as write_json:
-        json.dump(training_all_moprim_all_pid_array, write_json)
+        json.dump(vmd.training_all_moprim_all_pid_array, write_json)
 
     # get all instances of all motion primitives during the TRAINING phase from all participants
-    testing_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Testing')
+    vmd.testing_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Testing')
     with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/testing_all_moprim_all_pid_test.json', "w") as write_json:
-        json.dump(testing_all_moprim_all_pid_array, write_json)
+        json.dump(vmd.testing_all_moprim_all_pid_array, write_json)
 
-
-    #vmd.visualize_odom(single_moprim_all_pid_array, moprim_list, 'fwr', 'P11')
-
-    ##
+    #vmd.compute_convex_hull(moprim_list, 'fwr', 0, participantID=3)
+    #print(mp_control_array)
+    
 
     pid_list = vmd.get_participantID_list()
-
-    # for pid in pid_list:
-    #     for mp_idx in moprim_list['P11']:
-    #         print(str(pid) + ', ' + str(mp_idx))
-    #         vmd.visualize_odom(training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training', pid)
-    #         vmd.visualize_controls(training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training', pid)
-
-    #         vmd.visualize_odom(testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing', pid)
-    #         vmd.visualize_controls(testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing', pid)
-
-    
+    phase_array = [0, 'Training', 'Testing']
+    for pid in pid_list:
+        for mp_idx in moprim_list['P11']:
+            for phase in phase_array:
+                try:
+                    vmd.compute_convex_hull(moprim_list, mp_idx, phase, pid)
+                except:
+                    print('encountered issue with convex hull computation for: ' + str(pid) + '; ' + str(mp_idx) + '; PHASE: ' + str(phase))
     
     for mp_idx in moprim_list['P11']:
         print(mp_idx)
-        vmd.visualize_odom(training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training')
-        vmd.visualize_controls(training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training')
+        vmd.visualize_odom(vmd.training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training')
+        vmd.visualize_controls(vmd.training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training')
 
-        vmd.visualize_odom(testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing')
-        vmd.visualize_controls(testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing')
+        vmd.visualize_odom(vmd.testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing')
+        vmd.visualize_controls(vmd.testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing')
 
 
     return
