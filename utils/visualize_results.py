@@ -1015,8 +1015,8 @@ class visualizer:
 
             stdev = np.std(mp_control_array, axis=0)
             
-            stdev_lv = "{:.5f}".format(stdev[0])
-            stdev_tv = "{:.5f}".format(stdev[1])
+            stdev_tv = "{:.5f}".format(stdev[0])
+            stdev_lv = "{:.5f}".format(stdev[1])
             #print(stdev)
             #print(stdev[0])
             #print(stdev[1])
@@ -1106,8 +1106,8 @@ class visualizer:
 
                 stdev = np.std(mp_control_array, axis=0)
             
-                stdev_lv = "{:.5f}".format(stdev[0])
-                stdev_tv = "{:.5f}".format(stdev[1])
+                stdev_tv = "{:.5f}".format(stdev[0])
+                stdev_lv = "{:.5f}".format(stdev[1])
                 #print(stdev)
                 #print(stdev[0])
                 #print(stdev[1])
