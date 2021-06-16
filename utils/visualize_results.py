@@ -9,10 +9,13 @@ import random
 import requests
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+#import matplotlib.rcParams as rcp
 import cv2 as cv
 import scipy as sp
 from scipy.spatial import ConvexHull, convex_hull_plot_2d
 from scipy import ndimage
+from decimal import Decimal
 
 class visualizer:
     def __init__(self):
@@ -644,7 +647,7 @@ class visualizer:
                                 x = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0]
                                 y = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1]
                                 theta = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2]
-                                if ts_idx%10 == 0:
+                                if ts_idx%20 == 0:
                                     axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], '.', color=cmap[trial_key], alpha=0.75, markersize=0.6)
                                     #axs[col_axis_num, row_axis_num].plot([mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0] + 20*np.sin(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2])], [mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0] + 20*np.cos(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][3])], '-', color=cmap[trial_key+1])
                                     axs[col_axis_num, row_axis_num].plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'-', color=cmap[trial_key], markersize=0.05)
@@ -652,7 +655,7 @@ class visualizer:
                                     #axs[col_axis_num, row_axis_num].set_xlim([0, 900])
                                     #axs[col_axis_num, row_axis_num].set_ylim([0, 900])
                                     axs[col_axis_num, row_axis_num].set_box_aspect(1)
-                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3)
+                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3, labelsize=5)
                                 
                         except:
                             print('\t\t[WARNING]: no timesteps found')
@@ -665,10 +668,14 @@ class visualizer:
                             col_axis_num = 0
                         else:
                             break
-                fig.text(0.5, 0.04, 'x', ha='center', va='center')
-                fig.text(0.06, 0.5, 'y', ha='center', va='center', rotation='vertical')
+                fig.text(0.5, 0.04, 'x (px)', ha='center', va='center')
+                fig.text(0.06, 0.5, 'y (px)', ha='center', va='center', rotation='vertical')
                 fig.suptitle(str(train_or_test) + ' Pose Data for Motion Primitive: ' + str(mp))
+                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/'):
+                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/')
                 plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_pose_data_all_participants.png', dpi=800, facecolor='w', transparent=True)
+
+            # case where pid is provided
             else:
                 if type(participantID) == int:
                     pid = 'P' + str(participantID)
@@ -680,22 +687,22 @@ class visualizer:
                         #print('training_all_moprim_all_pid_test.json > pid > ' + str(pid) + ' > ' + str(mp) + str(trial_key))
                         try:
                             for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
-                                if ts_idx%10 == 0:
+                                if ts_idx%20 == 0:
                                     x = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0]
                                     y = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1]
                                     theta = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2]
                                     plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], '.', color=cmap[trial_key], alpha=0.75, markersize=0.6)
-                                    plt.plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'-', color=cmap[trial_key], markersize=0.05)
+                                    plt.plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'-', color=cmap[trial_key], markersize=0.01)
                         except:
-                            #print('\t\t[WARNING]: no timesteps found')
+                            print('\t\t[WARNING]: no timesteps found')
                             pass
-                plt.xlabel('x')
-                plt.ylabel('y')
+                plt.xlabel('x (px)')
+                plt.ylabel('y (px)')
                 plt.title(str(pid) + ' ' + str(train_or_test) + ' Pose Data for Motion Primitive: ' + str(mp))
 
                 if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/' + str(mp) + '/'):
                     os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/' + str(mp) + '/')
-                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_pose_data_' + str(pid) + '.png', dpi=800, facecolor='w', transparent=True)
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/pose/' + str(mp) + '/' + str(pid) + '_' + str(mp) + '_' + str(train_or_test) + '_pose_data_.png', dpi=800, facecolor='w', transparent=True)
             
         #plt.show()
         plt.clf()
@@ -719,12 +726,19 @@ class visualizer:
                 fig, axs = plt.subplots(pid_col, pid_row, sharey=True, sharex=True)
                 col_axis_num = 0
                 row_axis_num = 0
+                
                 for pid in mp_location['pid'].keys():                
                     print('plotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
                     for trial_key in mp_location['pid'][pid].keys():
+                        ms_iterate = 0.2
                         for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
-                            axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.', alpha=0.75, markersize=0.6)
-                            axs[col_axis_num, row_axis_num].set_title(str(pid))
+                            if ts_idx%10 == 0:
+                                ms_iterate += 0.05
+                                #axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.', alpha=0.75, markersize=0.6)
+                                axs[col_axis_num, row_axis_num].plot(-mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.', alpha=0.75, markersize=ms_iterate)
+                                axs[col_axis_num, row_axis_num].set_title(str(pid))
+                                axs[col_axis_num, row_axis_num].set_box_aspect(1)
+                                axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3, labelsize=5)
                     if col_axis_num < pid_col-1:
                         col_axis_num += 1
                     else:
@@ -733,6 +747,10 @@ class visualizer:
                             col_axis_num = 0
                         else:
                             break
+                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/'):
+                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/')
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + 'comparison_control_data_all_participants.png', dpi=800, facecolor='w', transparent=True)
+
             else:
                 if type(participantID) == int:
                     pid = 'P' + str(participantID)
@@ -742,8 +760,15 @@ class visualizer:
                 #print(mp_location['pid'].keys())
                 #print(mp_location['pid'][pid])
                 for trial_key in mp_location['pid'][pid].keys():
-                        for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
-                            plt.plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.', alpha=0.75, markersize=0.6)
+                    ms_iterate = 0.2
+                    for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
+                        if ts_idx%10 == 0:
+                            ms_iterate += 0.05
+                            plt.plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], -mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.', alpha=0.75, markersize=ms_iterate)
+                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/'):
+                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/')
+                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/' + str(pid) + '_' + str(mp) + '_comparison_control_data.png', dpi=800, facecolor='w', transparent=True)
+
 
         # case where training/testing phase is specified
         else:
@@ -760,18 +785,20 @@ class visualizer:
                 for pid in mp_location['pid'].keys():                
                     print('\nplotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
                     for trial_key in mp_location['pid'][pid][mp].keys():
+                        ms_iterate = 0.2
                         print('\tcurrently on trial: ' + str(trial_key))
-                        axs[col_axis_num, row_axis_num].plot([-0.5, 0.5], [0, 0], '--k', markersize=0.2)
-                        axs[col_axis_num, row_axis_num].plot([0, 0], [-0.2, 0.2], '--k', markersize=0.2)
+                        axs[col_axis_num, row_axis_num].plot([-0.05, 0.05], [0, 0], '--k', markersize=0.05)
+                        axs[col_axis_num, row_axis_num].plot([0, 0], [-0.05, 0.05], '--k', markersize=0.05)
                         try:
                             for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
                                 if ts_idx%10 == 0:
-                                    axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=0.6)
+                                    ms_iterate += 0.05
+                                    axs[col_axis_num, row_axis_num].plot(-mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=ms_iterate)
                                     axs[col_axis_num, row_axis_num].set_title(str(pid))
                                     #axs[col_axis_num, row_axis_num].set_xlim([-0, 900])
                                     #axs[col_axis_num, row_axis_num].set_ylim([-0, 900])
                                     axs[col_axis_num, row_axis_num].set_box_aspect(1)
-                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3)
+                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3, labelsize=5)
                                     
                         except:
                             print('\t\t[WARNING]: no timesteps found')
@@ -784,9 +811,12 @@ class visualizer:
                             col_axis_num = 0
                         else:
                             break
-                fig.text(0.5, 0.04, 'linear velocity (m/s)', ha='center', va='center')
-                fig.text(0.06, 0.5, 'angular velocity (rad/s)', ha='center', va='center', rotation='vertical')
+                fig.text(0.5, 0.04, 'angular velocity (rad/s)', ha='center', va='center')
+                fig.text(0.06, 0.5, 'linear velocity (m/s)', ha='center', va='center', rotation='vertical')
                 fig.suptitle(str(train_or_test) + ' Control Data for Motion Primitive: ' + str(mp))
+
+                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/'):
+                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/')
                 plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_control_data_all_participants.png', dpi=800, facecolor='w', transparent=True)
 
             else:
@@ -795,17 +825,19 @@ class visualizer:
                 else:
                     pid = participantID
                 for trial_key in mp_location['pid'][pid][mp].keys():
-                    plt.plot([-0.5, 0.5], [0, 0], '--k', markersize=0.2)
-                    plt.plot([0, 0], [-0.2, 0.2], '--k', markersize=0.2)
+                    ms_iterate = 0.2
+                    plt.plot([-0.05, 0.05], [0, 0], '--k', markersize=0.05)
+                    plt.plot([0, 0], [-0.05, 0.05], '--k', markersize=0.05)
                     try:
                         for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
                             if ts_idx%10 == 0:
-                                plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=0.6)
+                                ms_iterate += 0.05
+                                plt.plot(-mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=ms_iterate)
                     except:
                         #print('\t\t[WARNING]: no timesteps found')
                         pass
-                plt.xlabel('linear velocity (m/s)')
-                plt.ylabel('angular velocity (rad/s)')
+                plt.xlabel('angular velocity (rad/s)')
+                plt.ylabel('linear velocity (m/s)')                
                 plt.title(str(pid) + ' ' + str(train_or_test) + ' Control Data for Motion Primitive: ' + str(mp))
 
                 if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/'):
@@ -817,7 +849,7 @@ class visualizer:
         
         return
    
-    # plot convex hull
+    # plot convex hull ## NOTE: METHOD INCOMPLETE ##
     def visualize_convex_hull(self, mp_location, mp_list, mp=0, train_or_test=0, participantID=0):
 
         cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
@@ -837,7 +869,7 @@ class visualizer:
                     print('plotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
                     for trial_key in mp_location['pid'][pid].keys():
                         for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
-                            axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.')
+                            axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], -mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.')
                             axs[col_axis_num, row_axis_num].set_title(str(pid))
                     if col_axis_num < pid_col-1:
                         col_axis_num += 1
@@ -857,7 +889,7 @@ class visualizer:
                 #print(mp_location['pid'][pid])
                 for trial_key in mp_location['pid'][pid].keys():
                         for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
-                            plt.plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.')
+                            plt.plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], -mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.')
 
         # case where training/testing phase is specified
         else:
@@ -880,12 +912,10 @@ class visualizer:
                         try:
                             for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
                                 if ts_idx%10 == 0:
-                                    axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=0.8)
+                                    axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], -mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=0.8)
                                     axs[col_axis_num, row_axis_num].set_title(str(pid))
-                                    #axs[col_axis_num, row_axis_num].set_xlim([-0, 900])
-                                    #axs[col_axis_num, row_axis_num].set_ylim([-0, 900])
                                     axs[col_axis_num, row_axis_num].set_box_aspect(1)
-                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3)
+                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3, labelsize=5)
                                     
                         except:
                             print('\t\t[WARNING]: no timesteps found')
@@ -914,7 +944,7 @@ class visualizer:
                     try:
                         for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
                             if ts_idx%10 == 0:
-                                plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], markersize=0.5)
+                                plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], -mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], markersize=0.5)
                     except:
                         #print('\t\t[WARNING]: no timesteps found')
                         pass
@@ -933,6 +963,7 @@ class visualizer:
 
     # computes the convex hull of a set of control points using scipy's ConvexHull() method ## opencv-python's convexHull() method
     def compute_convex_hull(self, mp_list, mp, train_or_test=0, participantID=0):
+        #mpl.rcParams['axes.titlesize'] = 10
 
         cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
         
@@ -956,7 +987,8 @@ class visualizer:
                         lv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5]
                         tv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6]
                     
-                        arr_to_append = np.array([lv, tv])
+                        #arr_to_append = np.array([lv, -tv]) # tv made - to reflect polar coordinates used in simulation
+                        arr_to_append = np.array([-lv, tv])
                         mp_control_array = np.append(mp_control_array, [arr_to_append], axis=0)
                     
                 except:
@@ -967,8 +999,8 @@ class visualizer:
             mp_control_array = np.delete(mp_control_array, 0, 0)
             #plt.plot([-0.583, 0.583], [0, 0], '--k', markersize=0.2) # 35 (maxangvel) / 60 (fps)
             #plt.plot([0, 0], [-1.583, 1.583], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
-            plt.plot([-0.05, 0.05], [0, 0], '--k', markersize=0.2) # 35 (maxangvel) / 60 (fps)
-            plt.plot([0, 0], [-0.05, 0.05], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
+            plt.plot([-0.05, 0.05], [0, 0], '--k', markersize=0.05) # 35 (maxangvel) / 60 (fps)
+            plt.plot([0, 0], [-0.05, 0.05], '--k', markersize=0.05) # 95 (maxlinvel) / 50 (fps)
         
             print('\n[1] beginning to compute convex hull for PID: ' + str(pid) + ', MP: ' + str(mp) + '...')
             hull = ConvexHull(mp_control_array)
@@ -980,8 +1012,29 @@ class visualizer:
 
             #print(hull)
             #print(hull.simplices)
+
+            stdev = np.std(mp_control_array, axis=0)
+            
+            stdev_lv = "{:.5f}".format(stdev[0])
+            stdev_tv = "{:.5f}".format(stdev[1])
+            #print(stdev)
+            #print(stdev[0])
+            #print(stdev[1])
+            #print(Decimal(stdev[0]))
+            #print(Decimal(stdev[1]))
+            #stdev[0] = self.format_e(Decimal(stdev[0]))
+            #stdev[1] = self.format_e(Decimal(stdev[1]))
             hull_area = hull.area
+            hull_area_reduced = "{:.5f}".format(hull_area)
+            #hull_area = self.format_e(Decimal(hull_area))
+            #hull_area = self.format_e(Decimal(hull_area))
             hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
+            hull_centroid_lv = "{:.5f}".format(hull_centroid[0])
+            hull_centroid_tv = "{:.5f}".format(hull_centroid[1])
+            hull_centroid_reduced = [float(hull_centroid_lv), float(hull_centroid_tv)]
+            #hull_centroid[0][0] = self.format_e(Decimal(hull_centroid[0][0]))
+            #hull_centroid[0][1] = self.format_e(Decimal(hull_centroid[0][1]))
+            #hull_centroid[1] = self.format_e(Decimal(hull_centroid[1]))
             simplex_plot_counter = 0
             print('[3] beginning to plot simplices...')
             for simplex in hull.simplices:
@@ -990,28 +1043,24 @@ class visualizer:
                 simplex_plot_counter += 1
             print('\t...all simplices plotted!')
             
-            print('beginning to plot vertices...')
+            print('[4] beginning to plot vertices...')
             #plt.plot(mp_control_array[hull.vertices,0], mp_control_array[hull.vertices,1], 'r--', lw=2)
-            plt.plot(mp_control_array[hull.vertices[0],0], mp_control_array[hull.vertices[0],1], 'ro') # plot outermost points (used as vertices)
+            plt.plot(mp_control_array[hull.vertices[:],0], mp_control_array[hull.vertices[:],1], 'ro', markersize=0.6) # plot outermost points (used as vertices)
             #print('\t...vertices plotted! Preparing to show plot.')
-            plt.title('Convex Hull for ' + str(train_or_test) + ' Phase' + '\nParticipant: ' + str(pid) + '; Motion Primitive: ' + str(mp) + '\nArea: ' + str(hull_area) + '; Centroid: ' + str(hull_centroid) )
-            plt.xlabel('angular velocity component of control signals')
-            plt.ylabel('linear velocity component of control signals')
+            plt.title('Convex Hull for ' + str(train_or_test) + ' Phase' + '\nParticipant: ' + str(pid) + '; Motion Primitive: ' + str(mp) + '\nArea: ' + str(hull_area_reduced) + '; Centroid: ' + str(hull_centroid_reduced) + '\nLinear st.dev.: ' + str(stdev_lv) + '; Angular st.dev.: ' + str(stdev_tv), fontsize=6)
+            plt.xlabel('angular velocity (m/s)')
+            plt.ylabel('linear velocity (rad/s)')
             #plt.show()
 
             print('\t...vertices plotted! Preparing to save plot...')
             if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/'):
                 os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/')
-            plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/' + str(pid) + '_' + str(mp) + '_CHO_' + str(train_or_test) + 'phase_control_data_' + '.png', dpi=800, facecolor='w', transparent=True)
+            plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '/' + str(pid) + '_' + str(mp) + '_CHO_' + str(train_or_test) + '_phase_control_data_' + '.png', dpi=800, facecolor='w', transparent=True)
 
         # case for unspecified training vs. testing phase (plots side-by-side for comparison)
         else:
             
-            # pid_row = 1
-            # pid_col = 2
             fig, (axs1, axs2) = plt.subplots(1, 2, sharey=True, sharex=True)
-            # row_axis_num = 0
-            # col_axis_num = 0
 
             phase_array = ['Training', 'Testing']
             for phase in phase_array:
@@ -1030,7 +1079,8 @@ class visualizer:
                             lv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5]
                             tv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6]
                         
-                            arr_to_append = np.array([lv, tv])
+                            #arr_to_append = np.array([lv, -tv]) # tv made - to reflect polar coordinates used in simulation
+                            arr_to_append = np.array([-lv, tv])
                             mp_control_array = np.append(mp_control_array, [arr_to_append], axis=0)
                         
                     except:
@@ -1054,8 +1104,34 @@ class visualizer:
                 axs.plot(mp_control_array[:,0], mp_control_array[:,1], 'o', markersize=0.75, alpha=0.6)
                 print('\t...control points plotted!')
 
+                stdev = np.std(mp_control_array, axis=0)
+            
+                stdev_lv = "{:.5f}".format(stdev[0])
+                stdev_tv = "{:.5f}".format(stdev[1])
+                #print(stdev)
+                #print(stdev[0])
+                #print(stdev[1])
+                #print(Decimal(stdev[0]))
+                #print(Decimal(stdev[1]))
+                #stdev[0] = self.format_e(Decimal(stdev[0]))
+                #stdev[1] = self.format_e(Decimal(stdev[1]))
                 hull_area = hull.area
+                hull_area_reduced = "{:.5f}".format(hull_area)
+                #hull_area = self.format_e(Decimal(hull_area))
+                #hull_area = self.format_e(Decimal(hull_area))
                 hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
+                hull_centroid_lv = "{:.5f}".format(hull_centroid[0])
+                hull_centroid_tv = "{:.5f}".format(hull_centroid[1])
+                hull_centroid_reduced = [float(hull_centroid_lv), float(hull_centroid_tv)]
+
+                # stdev = np.std(mp_control_array, axis=0)
+                #hull_area = hull.area
+                #hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
+                # hull_area = hull.area
+                #hull_area = self.format_e(Decimal(hull_area))
+                # hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
+                #hull_centroid[0] = self.format_e(Decimal(hull_centroid[0]))
+                #hull_centroid[1] = self.format_e(Decimal(hull_centroid[1]))
                 simplex_plot_counter = 0
                 print('[3] beginning to plot simplices...')
                 for simplex in hull.simplices:
@@ -1069,12 +1145,12 @@ class visualizer:
                 axs.plot(mp_control_array[hull.vertices[:],0], mp_control_array[hull.vertices[:],1], 'ro') # plot outermost points (used as vertices)
                 print('\t...vertices plotted!')
                 axs.set_box_aspect(1)
-                axs.tick_params(direction='in', length=3)
-                axs.set_title(str(phase) + ' Phase\nArea: ' + str(hull_area) + '; Centroid: ' + str(hull_centroid) )
+                axs.tick_params(direction='in', length=3, labelsize=5)
+                axs.set_title(str(phase) + ' Phase\nArea: ' + str(hull_area_reduced) + '; Centroid: ' + str(hull_centroid_reduced) + '\nLinear st.dev.: ' + str(stdev_lv) + '; Angular st.dev.: ' + str(stdev_tv))#, size=3)#, fontdict['fontsize']=10)#, fontsize=10)
                 axs.plot(hull_centroid[0],'*y')
 
-            fig.text(0.5, 0.04, 'linear velocity (m/s)', ha='center', va='center')
-            fig.text(0.06, 0.5, 'angular velocity (rad/s)', ha='center', va='center', rotation='vertical')
+            fig.text(0.5, 0.04, 'angular velocity (rad/s)', ha='center', va='center')
+            fig.text(0.06, 0.5, 'linear velocity (m/s)', ha='center', va='center', rotation='vertical')
             fig.suptitle('Control Signal Hulls for Training vs. Testing\nParticipant: ' + str(pid) + '; Motion Primitive: ' + str(mp))
             #print('Preparing to show plot...')
             #plt.show()
@@ -1090,7 +1166,10 @@ class visualizer:
 
         return
 
-
+    # adapted from user 'eumiro' @ url: https://stackoverflow.com/questions/6913532/display-a-decimal-in-scientific-notation
+    def format_e(n):
+        a = '%E' % n
+        return a.split('E')[0].rstrip('0').rstrip('.') + 'E' + a.split('E')[1]
 
 ####################### MAIN FUNCTION #######################################################################################
 
@@ -1138,6 +1217,14 @@ def main():
                 except:
                     print('encountered issue with convex hull computation for: ' + str(pid) + '; ' + str(mp_idx) + '; PHASE: ' + str(phase))
     
+    #try:
+    # mp_idx = 'fwr_cw'
+    # phase = 'Testing'
+    # pid = 9
+    # vmd.compute_convex_hull(moprim_list, mp_idx, phase, pid)
+    #except:
+    #   print('encountered issue with convex hull computation for: ' + str(pid) + '; ' + str(mp_idx) + '; PHASE: ' + str(phase))
+    
     for mp_idx in moprim_list['P11']:
         print(mp_idx)
         vmd.visualize_odom(vmd.training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training')
@@ -1147,7 +1234,7 @@ def main():
         vmd.visualize_controls(vmd.testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing')
 
 
-    return
+    # return
 
     ############ MOPRIM INFORMATION #########################################################################################
 
