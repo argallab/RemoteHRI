@@ -16,6 +16,7 @@ import scipy as sp
 from scipy.spatial import ConvexHull, convex_hull_plot_2d
 from scipy import ndimage
 from decimal import Decimal
+import pandas as pd
 
 class visualizer:
     def __init__(self):
@@ -41,6 +42,8 @@ class visualizer:
                                 "P9": "P17",
                                 "P14": "P18"
                                 }
+        self.cho_metric_array = collections.OrderedDict()
+        self.questionnaire_array = collections.OrderedDict()
      
     def load_dict(self):
         with open(self.dpath, "r") as read_json:
@@ -107,7 +110,10 @@ class visualizer:
     #     return
 
     def get_questionnaire_response(self, participantID, date=0): # TODO: check
-        pid = 'P' + str(participantID)
+        if type(participantID) == int:
+            pid = 'P' + str(participantID)
+        else:
+            pid = participantID
         if date == 0:
             date_from_dict, date_key = self.get_date_auto(participantID)
         else:
@@ -116,6 +122,19 @@ class visualizer:
         questionnaire = self.md['participantID'][pid]['date'][date_key]['Questionnaire']
 
         return questionnaire
+
+    def initialize_cho_metric_array(self, pid_array, train_or_test, mp_list):
+        print(mp_list)
+        for pid in pid_array:
+            self.cho_metric_array[pid] = {}
+            for phase in train_or_test:
+                self.cho_metric_array[pid][phase] = {}
+
+                for mp in mp_list:
+                    self.cho_metric_array[pid][phase][mp] = {}
+                    print(str(pid) + ' ' + str(phase) + ' ' + str(mp))
+        return
+
 
 ################################################################################################################################################### [ ACCESS TRIAL BLOCKS ]
 
@@ -242,6 +261,8 @@ class visualizer:
 
     # returns the distribution of motion primitives from either all participants or a single participant (wraps self.get_morpims())
     def get_moprim_dist(self, participantID='na', date=0):
+
+        # IF/ELSE to handle PID as either an int (#) or a string ('P#')
         if type(participantID) == int:
             pid = 'P' + str(participantID)
         else:
@@ -328,6 +349,10 @@ class visualizer:
                         test_moprim_dist, test_moprim_location = self.get_moprims(pid, moprim_list, test_moprim_dist, test_moprim_location, 'Testing', test_block_idx, trial_num_idx, date_key)
                         moprim_dist, moprim_location = self.get_moprims(pid, moprim_list, moprim_dist, moprim_location, 'Testing', test_block_idx, trial_num_idx, date_key)
 
+                # TODO: test this (questionnaire response logging)
+                questionnaire_temp = self.get_questionnaire_response(pid)
+                self.questionnaire_array[pid] = {pid: questionnaire_temp}
+
         else:
 
             if date == 0:
@@ -410,10 +435,13 @@ class visualizer:
 
     # returns a single participant's distribution of motion primitives
     def get_moprims(self, participantID, moprim_list, mp_dist, mp_location, test_or_train=0, block_num=0, trial_num=0, date=0):
+
+        # IF/ELSE to handle PID as either an int (#) or a string ('P#')
         if type(participantID) == int:
             pid = 'P' + str(participantID)
         else:
             pid = participantID
+            
         block_key = test_or_train + ' Block ' + str(block_num)
         trial_key = 'Trial ' + str(trial_num)
         if date == 0:
@@ -430,19 +458,27 @@ class visualizer:
 
     # returns a single trial array
     def get_trial_array(self, participantID, test_or_train, block_num, trial_num, date=0):
+
+        # IF/ELSE to handle PID as either an int (#) or a string ('P#')
         if type(participantID) == int:
             pid = 'P' + str(participantID)
         else:
-            #print('entered pid else statement')
             pid = participantID
+
+        # IF/ELSE to handle block number as either an int (#) or a string ('${test_or_train} Block #')
         if type(block_num) == int:
             block2get = test_or_train + ' Block ' + str(block_num)
         else:
             block2get = block_num
+
+        # IF/ELSE to handle trial number as either an int (#) or a string ('Trial #')
         if type(trial_num) == int:
             trial2get = 'Trial ' + str(trial_num)
         else:
             trial2get = trial_num
+
+        # if a specific date is not provided, it is retrieved from the visualizer's get_date_auto() method
+        # NOTE: TODO: this will need to be tweaked considerably to handle multiple experiments over multiple days for a single participant
         if date == 0:
             date_from_dict, date_key = self.get_date_auto(participantID)
 
@@ -471,6 +507,8 @@ class visualizer:
 
     # returns single motion primitive from a single participant
     def get_single_moprim_single_pid(self, participantID, mp_location, moprim, train_or_test=0):
+
+        # IF/ELSE to handle PID as either an int (#) or a string ('P#')
         if type(participantID) == int:
             pid = 'P' + str(participantID)
         else:
@@ -499,6 +537,8 @@ class visualizer:
 
     # returns all motion primitives from a single participant
     def get_all_moprim_single_pid(self, participantID, mp_location, mp_list, train_or_test=0):
+
+        # IF/ELSE to handle PID as either an int (#) or a string ('P#')
         if type(participantID) == int:
             pid = 'P' + str(participantID)
         else:
@@ -604,9 +644,10 @@ class visualizer:
     # plot odometry
     def visualize_odom(self, mp_location, mp_list, mp=0, train_or_test=0, participantID=0):
 
+        # hard-coded custom colormap
         cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
 
-        # case for unspecified phase; includes both training and testing phase data
+        # IF case for unspecified phase; includes both training and testing phase data
         if train_or_test == 0:
             print('\n[NOTE]: training or testing unspecified!\n')
             if participantID == 0:
@@ -643,10 +684,9 @@ class visualizer:
                         for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
                             plt.plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][1], '.')
 
-        # case where training/testing phase is specified
+        # ELSE case where training/testing phase is specified
         else:
-            #print('\n[NOTE]: training or testing specified as argument!\n')
-            # pid not provided; show data for all participants
+            # IF case for pid not provided; show data for all participants
             if participantID == 0:
                 pid_list = self.get_participantID_list()
                 pid_num = len(pid_list)
@@ -655,31 +695,41 @@ class visualizer:
                 fig, axs = plt.subplots(pid_col, pid_row, sharey=True, sharex=True)
                 col_axis_num = 0
                 row_axis_num = 0
+
+                # iterate through PIDs for a given motion primitive
                 for pid in mp_location['pid'].keys():
+
+                    # NOTE: temporary mapping to change PIDs to ascending order
+                    # TODO: figure out a better, more flexible way to handle this besides a hardcoded mapping
                     pid2 = self.pid_to_pid2_map[pid]
+
                     print('\nplotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
+
+                    # iterate through trials for a given PID + motion primitive
                     for trial_key in mp_location['pid'][pid][mp].keys():
                         print('\tcurrently on trial: ' + str(trial_key))
                         axs[col_axis_num, row_axis_num].plot([410, 440], [425, 425], '--k', markersize=0.2)
                         axs[col_axis_num, row_axis_num].plot([425, 425], [415, 440], '--k', markersize=0.2)
                         try:
+                            # iterate trough timesteps for given PID + motion primitive + current trial
                             for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
                                 x = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0]
                                 y = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1]
                                 theta = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2]
+
+                                # this conditional is to trim down the number of samples plotted; change the value after the module (%) operator to choose a new trajectory resolution to plot
                                 if ts_idx%20 == 0:
                                     axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], '.', color=cmap[trial_key], alpha=0.75, markersize=0.6)
-                                    #axs[col_axis_num, row_axis_num].plot([mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0] + 20*np.sin(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][2])], [mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][1], mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][0] + 20*np.cos(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][3])], '-', color=cmap[trial_key+1])
                                     axs[col_axis_num, row_axis_num].plot([x, x + (10*np.cos(theta))],[y, y + (10*np.sin(theta))],'-', color=cmap[trial_key], markersize=0.05)
                                     axs[col_axis_num, row_axis_num].set_title(str(pid2))
-                                    #axs[col_axis_num, row_axis_num].set_xlim([0, 900])
-                                    #axs[col_axis_num, row_axis_num].set_ylim([0, 900])
                                     axs[col_axis_num, row_axis_num].set_box_aspect(1)
                                     axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3, labelsize=5)
-                                
+   
                         except:
                             print('\t\t[WARNING]: no timesteps found')
                             pass
+                    
+                    # IF/ELSE handles iteration through subplot indices
                     if col_axis_num < pid_col-1:
                         col_axis_num += 1
                     else:
@@ -688,24 +738,38 @@ class visualizer:
                             col_axis_num = 0
                         else:
                             break
+                
+                # generate text for figure
                 fig.text(0.5, 0.04, 'x (px)', ha='center', va='center')
                 fig.text(0.06, 0.5, 'y (px)', ha='center', va='center', rotation='vertical')
                 fig.suptitle(str(train_or_test) + ' Pose Data for Motion Primitive: ' + str(mp))
+
+                # TODO: make this a toggle argument (whether to save or show plots)
+                #print('\t...vertices plotted! Preparing to show plot.')
+                #plt.show()
+
+                # save plots according to provided file path & formatting  
                 if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/'):
                     os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/')
                 plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_pose_data_all_participants.png', dpi=800, facecolor='w', transparent=True)
 
-            # case where pid is provided
+            # ELSE case where pid is provided
             else:
+
+                # IF/ELSE to handle PID as either an int (#) or a string ('P#')
                 if type(participantID) == int:
                     pid = 'P' + str(participantID)
                 else:
                     pid = participantID
+                
+                # NOTE: temporary mapping to change PIDs to ascending order
+                # TODO: figure out a better, more flexible way to handle this besides a hardcoded mapping
                 pid2 = self.pid_to_pid2_map[pid]
+
+                # iterate through all trials for specified PID + motion primitive
                 for trial_key in mp_location['pid'][pid][mp].keys():
                     plt.plot([410, 440], [425, 425], '--k', markersize=0.2)
                     plt.plot([425, 425], [415, 440], '--k', markersize=0.2)
-                    #print('training_all_moprim_all_pid_test.json > pid > ' + str(pid) + ' > ' + str(mp) + str(trial_key))
                     try:
                         for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
                             if ts_idx%20 == 0:
@@ -717,15 +781,24 @@ class visualizer:
                     except:
                         print('\t\t[WARNING]: no timesteps found')
                         pass
+
+                # generate text for figure
                 plt.xlabel('x (px)')
                 plt.ylabel('y (px)')
                 plt.title(str(pid2) + ' ' + str(train_or_test) + ' Pose Data for Motion Primitive: ' + str(mp))
 
+                # TODO: make this a toggle argument (whether to save or show plots)
+                #print('\t...vertices plotted! Preparing to show plot.')
+                #plt.show()
+
+                # save plots according to provided file path & formatting        
                 if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/pose/' + str(mp) + '/'):
                     os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/pose/' + str(mp) + '/')
                 plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/pose/' + str(mp) + '/' + str(pid2) + '_' + str(mp) + '_' + str(train_or_test) + '_pose_data_.png', dpi=800, facecolor='w', transparent=True)
             
         #plt.show()
+
+        # clear figure
         plt.clf()
         
 
@@ -873,122 +946,9 @@ class visualizer:
         plt.clf()
         
         return
-   
-    # plot convex hull ## NOTE: METHOD INCOMPLETE ##
-    def visualize_convex_hull(self, mp_location, mp_list, mp=0, train_or_test=0, participantID=0):
-
-        cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
-
-        # case for unspecified phase; includes both training and testing phase data
-        if train_or_test == 0:
-            print('\n[NOTE]: training or testing unspecified!\n')
-            if participantID == 0:
-                pid_list = self.get_participantID_list()
-                pid_num = len(pid_list)
-                pid_col = 3
-                pid_row = 6
-                fig, axs = plt.subplots(pid_col, pid_row, sharey=True, sharex=True)
-                col_axis_num = 0
-                row_axis_num = 0
-                for pid in mp_location['pid'].keys():                
-                    print('plotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
-                    for trial_key in mp_location['pid'][pid].keys():
-                        for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
-                            axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], -mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.')
-                            axs[col_axis_num, row_axis_num].set_title(str(pid))
-                    if col_axis_num < pid_col-1:
-                        col_axis_num += 1
-                    else:
-                        if row_axis_num < pid_row-1:
-                            row_axis_num += 1
-                            col_axis_num = 0
-                        else:
-                            break
-            else:
-                if type(participantID) == int:
-                    pid = 'P' + str(participantID)
-                else:
-                    pid = participantID
-                #print(pid)
-                #print(mp_location['pid'].keys())
-                #print(mp_location['pid'][pid])
-                for trial_key in mp_location['pid'][pid].keys():
-                        for ts_idx in mp_location['pid'][pid][trial_key]['ts_idx']:
-                            plt.plot(mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][5], -mp_location['pid'][pid][trial_key]['ts_idx'][ts_idx][6], '.')
-
-        # case where training/testing phase is specified
-        else:
-            #print('\n[NOTE]: training or testing specified as argument!\n')
-            # pid not provided; show data for all participants
-            if participantID == 0:
-                pid_list = self.get_participantID_list()
-                pid_num = len(pid_list)
-                pid_col = 3
-                pid_row = 6
-                fig, axs = plt.subplots(pid_col, pid_row, sharey=True, sharex=True)
-                col_axis_num = 0
-                row_axis_num = 0
-                for pid in mp_location['pid'].keys():                
-                    print('\nplotting ' + str(pid) + ' on subplot axis: ' + str(col_axis_num) + ', ' + str(row_axis_num))
-                    for trial_key in mp_location['pid'][pid][mp].keys():
-                        print('\tcurrently on trial: ' + str(trial_key))
-                        axs[col_axis_num, row_axis_num].plot([-0.5, 0.5], [0, 0], '--k', markersize=0.2)
-                        axs[col_axis_num, row_axis_num].plot([0, 0], [-0.2, 0.2], '--k', markersize=0.2)
-                        try:
-                            for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
-                                if ts_idx%10 == 0:
-                                    axs[col_axis_num, row_axis_num].plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], -mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], alpha=0.75, markersize=0.8)
-                                    axs[col_axis_num, row_axis_num].set_title(str(pid))
-                                    axs[col_axis_num, row_axis_num].set_box_aspect(1)
-                                    axs[col_axis_num, row_axis_num].tick_params(direction='in', length=3, labelsize=5)
-                                    
-                        except:
-                            print('\t\t[WARNING]: no timesteps found')
-                            pass
-                    if col_axis_num < pid_col-1:
-                        col_axis_num += 1
-                    else:
-                        if row_axis_num < pid_row-1:
-                            row_axis_num += 1
-                            col_axis_num = 0
-                        else:
-                            break
-                fig.text(0.5, 0.04, 'linear velocity (m/s)', ha='center', va='center')
-                fig.text(0.06, 0.5, 'angular velocity (rad/s)', ha='center', va='center', rotation='vertical')
-                fig.suptitle(str(train_or_test) + ' Control Data for Motion Primitive: ' + str(mp))
-                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/all_participants/' + str(mp) + '/' + str(mp) + '_' + str(train_or_test) + '_control_data_all_participants.png', dpi=800, facecolor='w', transparent=True)
-
-            else:
-                if type(participantID) == int:
-                    pid = 'P' + str(participantID)
-                else:
-                    pid = participantID
-                for trial_key in mp_location['pid'][pid][mp].keys():
-                    plt.plot([-0.5, 0.5], [0, 0], '--k', markersize=0.2)
-                    plt.plot([0, 0], [-0.2, 0.2], '--k', markersize=0.2)
-                    try:
-                        for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
-                            if ts_idx%10 == 0:
-                                plt.plot(mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5], -mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6], '.', color=cmap[trial_key], markersize=0.5)
-                    except:
-                        #print('\t\t[WARNING]: no timesteps found')
-                        pass
-                plt.xlabel('linear velocity (m/s)')
-                plt.ylabel('angular velocity (rad/s)')
-                plt.title(str(pid) + ' ' + str(train_or_test) + ' Control Data for Motion Primitive: ' + str(mp))
-
-                if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/'):
-                    os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/')
-                plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid) + '/controls/' + str(mp) + '_' + str(train_or_test) + '_control_data_' + str(pid) + '.png', dpi=800, facecolor='w', transparent=True)
-
-        #plt.show()
-        plt.clf()
-        
-        return
 
     # computes the convex hull of a set of control points using scipy's ConvexHull() method ## opencv-python's convexHull() method
     def compute_convex_hull(self, mp_list, mp, train_or_test=0, participantID=0):
-        #mpl.rcParams['axes.titlesize'] = 10
 
         cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen']
         
@@ -998,7 +958,7 @@ class visualizer:
             pid = participantID
         pid2 = self.pid_to_pid2_map[pid]
         
-        # case for specified testing vs. training phase
+        # IF case for specified testing vs. training phase
         if train_or_test != 0:
             if train_or_test == 'Training':
                     mp_location = self.training_all_moprim_all_pid_array
@@ -1008,12 +968,10 @@ class visualizer:
             mp_control_array = np.array([[0, 0]])
             for trial_key in mp_location['pid'][pid][mp].keys():
                 try:
-                    #trial_array = self.get_trial_array(pid, train_or_test, block_num, trial_key)
                     for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
                         lv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5]
                         tv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6]
                     
-                        #arr_to_append = np.array([lv, -tv]) # tv made - to reflect polar coordinates used in simulation
                         arr_to_append = np.array([-lv, tv])
                         mp_control_array = np.append(mp_control_array, [arr_to_append], axis=0)
                     
@@ -1023,44 +981,48 @@ class visualizer:
             
             # remove the initial row of zeros (included for initializing the numpy array)
             mp_control_array = np.delete(mp_control_array, 0, 0)
-            #plt.plot([-0.583, 0.583], [0, 0], '--k', markersize=0.2) # 35 (maxangvel) / 60 (fps)
-            #plt.plot([0, 0], [-1.583, 1.583], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
+
+            ## NOTE: TODO: FURTHER TRIMMING OF CONTROL POINTS WOULD BE HELPFUL; re: the importance of omission (TOGGLE)
+
+            # plot coordinate frame on subplot
             plt.plot([-0.05, 0.05], [0, 0], '--k', markersize=0.05) # 35 (maxangvel) / 60 (fps)
             plt.plot([0, 0], [-0.05, 0.05], '--k', markersize=0.05) # 95 (maxlinvel) / 50 (fps)
         
+
+            # compute convex hull (CHO) for motion primitive timeseries
             print('\n[1] beginning to compute convex hull for PID: ' + str(pid) + ', MP: ' + str(mp) + '...')
             hull = ConvexHull(mp_control_array)
             print('\t...hull computed!')
 
+            # plot control points for visualization purposes
             print('[2] beginning to plot control points...')
             plt.plot(mp_control_array[:,0], mp_control_array[:,1], 'o', markersize=0.75, alpha=0.6)
             print('\t...control points plotted!')
 
-            #print(hull)
-            #print(hull.simplices)
-
+            # compute the standard deviation of control signals across motion primitive timeseries
             stdev = np.std(mp_control_array, axis=0)
-            
+            # format the standard deviation of angular (tv) and linear (lv) velocities to cap # of significant figures
             stdev_tv = "{:.5f}".format(stdev[0])
             stdev_lv = "{:.5f}".format(stdev[1])
-            #print(stdev)
-            #print(stdev[0])
-            #print(stdev[1])
-            #print(Decimal(stdev[0]))
-            #print(Decimal(stdev[1]))
-            #stdev[0] = self.format_e(Decimal(stdev[0]))
-            #stdev[1] = self.format_e(Decimal(stdev[1]))
+
+            # compute the area of the hull computed via CHO
             hull_area = hull.area
+            # format the hull's area to cap # of significant figures
             hull_area_reduced = "{:.5f}".format(hull_area)
-            #hull_area = self.format_e(Decimal(hull_area))
-            #hull_area = self.format_e(Decimal(hull_area))
-            hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
+
+            # compute the bi-axial centroids of the hull computed via CHO
+            hull_centroid = mp_control_array.mean(axis=0)
+            # format the centroids along the angular (tv) and linear (lv) velocity axes to cap # of significant figures
             hull_centroid_lv = "{:.5f}".format(hull_centroid[0])
             hull_centroid_tv = "{:.5f}".format(hull_centroid[1])
+            # store the reduced format centroids in a single array
             hull_centroid_reduced = [float(hull_centroid_lv), float(hull_centroid_tv)]
-            #hull_centroid[0][0] = self.format_e(Decimal(hull_centroid[0][0]))
-            #hull_centroid[0][1] = self.format_e(Decimal(hull_centroid[0][1]))
-            #hull_centroid[1] = self.format_e(Decimal(hull_centroid[1]))
+
+            # TODO: test for functionality (CHO metric logging)
+            cho_metric_list = [float(stdev_tv), float(stdev_lv), float(hull_area_reduced), float(hull_centroid_lv), float(hull_centroid_tv)]
+            self.cho_metric_array[pid][train_or_test][mp] = cho_metric_list
+
+            # plot simplices from CHO
             simplex_plot_counter = 0
             print('[3] beginning to plot simplices...')
             for simplex in hull.simplices:
@@ -1069,25 +1031,31 @@ class visualizer:
                 simplex_plot_counter += 1
             print('\t...all simplices plotted!')
             
+            # plot vertices from CHO
             print('[4] beginning to plot vertices...')
-            #plt.plot(mp_control_array[hull.vertices,0], mp_control_array[hull.vertices,1], 'r--', lw=2)
             plt.plot(mp_control_array[hull.vertices[:],0], mp_control_array[hull.vertices[:],1], 'ro', markersize=0.6) # plot outermost points (used as vertices)
-            #print('\t...vertices plotted! Preparing to show plot.')
             plt.title('Convex Hull for ' + str(train_or_test) + ' Phase' + '\nParticipant: ' + str(pid2) + '; Motion Primitive: ' + str(mp) + '\nArea: ' + str(hull_area_reduced) + '; Centroid: ' + str(hull_centroid_reduced) + '\nLinear st.dev.: ' + str(stdev_lv) + '; Angular st.dev.: ' + str(stdev_tv), fontsize=6)
             plt.xlabel('angular velocity (m/s)')
             plt.ylabel('linear velocity (rad/s)')
+
+
+            # TODO: make this a toggle argument (whether to save or show plots)
+            #print('\t...vertices plotted! Preparing to show plot.')
             #plt.show()
 
+            # save plots according to provided file path & formatting
             print('\t...vertices plotted! Preparing to save plot...')
             if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/controls/' + str(mp) + '/'):
                 os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/controls/' + str(mp) + '/')
             plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/controls/' + str(mp) + '/' + str(pid2) + '_' + str(mp) + '_CHO_' + str(train_or_test) + '_phase_control_data_' + '.png', dpi=800, facecolor='w', transparent=True)
 
-        # case for unspecified training vs. testing phase (plots side-by-side for comparison)
+        # ELSE case for unspecified training vs. testing phase (plots side-by-side for comparison)
         else:
             
+            # set up subplots w/ shared axes
             fig, (axs1, axs2) = plt.subplots(1, 2, sharey=True, sharex=True)
 
+            # phase_array allows us to increment through both the Training and Testing phases
             phase_array = ['Training', 'Testing']
             for phase in phase_array:
                 if phase == 'Training':
@@ -1096,68 +1064,78 @@ class visualizer:
                 elif phase == 'Testing':
                     mp_location = self.testing_all_moprim_all_pid_array
                     axs = axs2
-
+                
+                # initialize the numpy array which will store linear and angular velocities (control signals)
                 mp_control_array = np.array([[0, 0]])
+
+                # iterate through all trials for a given pid + motion primitive
                 for trial_key in mp_location['pid'][pid][mp].keys():
                     try:
-                        #trial_array = self.get_trial_array(pid, train_or_test, block_num, trial_key)
+                        # iterate through all timesteps in the current trial
                         for ts_idx in mp_location['pid'][pid][mp][trial_key]['ts_idx']:
+                            # assign the linear (lv) and angular (tv) velocities for the given timestep to lv, tv
                             lv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][5]
                             tv = mp_location['pid'][pid][mp][trial_key]['ts_idx'][ts_idx][6]
-                        
-                            #arr_to_append = np.array([lv, -tv]) # tv made - to reflect polar coordinates used in simulation
+                    
                             arr_to_append = np.array([-lv, tv])
                             mp_control_array = np.append(mp_control_array, [arr_to_append], axis=0)
-                        
+                    
+                    # NOTE: at present, the 'except' will trigger (at least) once for each block because of an empty trial sub-dict in the json files
+                    # TODO: fix this (non-intrusive but annoying) formatting issue in parse_results.py (!)
                     except:
                         print('\t\t[WARNING]: no timesteps found for trial: ' + str(trial_key))
                         pass
                 
                 # remove the initial row of zeros (included for initializing the numpy array)
                 mp_control_array = np.delete(mp_control_array, 0, 0)
+                
+                ## NOTE: TODO: FURTHER TRIMMING OF CONTROL POINTS WOULD BE HELPFUL; re: the importance of omission (TOGGLE)
 
                 # plot coordinate frame on subplot
-                #axs.plot([-0.583, 0.583], [0, 0], '--k', markersize=0.2) # 35 (maxangvel) / 60 (fps)
-                #axs.plot([0, 0], [-1.583, 1.583], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
                 axs.plot([-0.05, 0.05], [0, 0], '--k', markersize=0.2) # 35 (maxangvel) / 60 (fps)
                 axs.plot([0, 0], [-0.05, 0.05], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
             
+                # compute convex hull (CHO) for motion primitive timeseries
                 print('\n[1] beginning to compute convex hull for PID: ' + str(pid) + ', MP: ' + str(mp) + '...')
                 hull = ConvexHull(mp_control_array)
                 print('\t...hull computed!')
 
+                # plot control points for visualization purposes
                 print('[2] beginning to plot ' + str(phase) + ' data control points...')
                 axs.plot(mp_control_array[:,0], mp_control_array[:,1], 'o', markersize=0.75, alpha=0.6)
                 print('\t...control points plotted!')
 
+                # compute the standard deviation of control signals across motion primitive timeseries
                 stdev = np.std(mp_control_array, axis=0)
-            
+                # format the standard deviation of angular (tv) and linear (lv) velocities to cap # of significant figures
                 stdev_tv = "{:.5f}".format(stdev[0])
                 stdev_lv = "{:.5f}".format(stdev[1])
-                #print(stdev)
-                #print(stdev[0])
-                #print(stdev[1])
-                #print(Decimal(stdev[0]))
-                #print(Decimal(stdev[1]))
-                #stdev[0] = self.format_e(Decimal(stdev[0]))
-                #stdev[1] = self.format_e(Decimal(stdev[1]))
+
+                # compute the area of the hull computed via CHO
                 hull_area = hull.area
+                # format the hull's area to cap # of significant figures
                 hull_area_reduced = "{:.5f}".format(hull_area)
-                #hull_area = self.format_e(Decimal(hull_area))
-                #hull_area = self.format_e(Decimal(hull_area))
-                hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
+
+                # compute the bi-axial centroids of the hull computed via CHO
+                hull_centroid = mp_control_array.mean(axis=0)
+                # format the centroids along the angular (tv) and linear (lv) velocity axes to cap # of significant figures
                 hull_centroid_lv = "{:.5f}".format(hull_centroid[0])
                 hull_centroid_tv = "{:.5f}".format(hull_centroid[1])
+                # store the reduced format centroids in a single array
                 hull_centroid_reduced = [float(hull_centroid_lv), float(hull_centroid_tv)]
 
-                # stdev = np.std(mp_control_array, axis=0)
-                #hull_area = hull.area
-                #hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
-                # hull_area = hull.area
-                #hull_area = self.format_e(Decimal(hull_area))
-                # hull_centroid = mp_control_array.mean(axis=0)#ndimage.measurements.center_of_mass(mp_control_array)
-                #hull_centroid[0] = self.format_e(Decimal(hull_centroid[0]))
-                #hull_centroid[1] = self.format_e(Decimal(hull_centroid[1]))
+                # TODO: test for functionality (CHO metric logging) # NOTE: INITIAL TEST LOOKS SUCCESSFUL
+                cho_metric_list = [float(stdev_tv), float(stdev_lv), float(hull_area_reduced), float(hull_centroid_lv), float(hull_centroid_tv)]
+                self.cho_metric_array[pid][train_or_test][mp] = cho_metric_list
+
+                # if pid in self.cho_metric_array.keys() == False:
+                #     #    self.cho_metric_array[pid] =
+                #     if train_or_test in self.cho_metric_array[pid].keys() == False:
+                #         self.cho_metric_array[pid] = {train_or_test : mp}
+                # if mp in self.cho_metric_array[pid][train_or_test].keys() == False:
+                #     self.cho_metric_array[pid][train_or_test] = {mp: cho_metric_list}
+
+                # plot simplices from CHO
                 simplex_plot_counter = 0
                 print('[3] beginning to plot simplices...')
                 for simplex in hull.simplices:
@@ -1166,8 +1144,8 @@ class visualizer:
                     simplex_plot_counter += 1
                 print('\t...all simplices plotted!')
                 
+                # plot vertices from CHO
                 print('beginning to plot vertices...')
-                #plt.plot(mp_control_array[hull.vertices,0], mp_control_array[hull.vertices,1], 'r--', lw=2)
                 axs.plot(mp_control_array[hull.vertices[:],0], mp_control_array[hull.vertices[:],1], 'ro') # plot outermost points (used as vertices)
                 print('\t...vertices plotted!')
                 axs.set_box_aspect(1)
@@ -1175,27 +1153,158 @@ class visualizer:
                 axs.set_title(str(phase) + ' Phase\nArea: ' + str(hull_area_reduced) + '; Centroid: ' + str(hull_centroid_reduced) + '\nLinear st.dev.: ' + str(stdev_lv) + '; Angular st.dev.: ' + str(stdev_tv))#, size=3)#, fontdict['fontsize']=10)#, fontsize=10)
                 axs.plot(hull_centroid[0],'*y')
 
+            # generate text for figure
             fig.text(0.5, 0.04, 'angular velocity (rad/s)', ha='center', va='center')
             fig.text(0.06, 0.5, 'linear velocity (m/s)', ha='center', va='center', rotation='vertical')
             fig.suptitle('Control Signal Hulls for Training vs. Testing\nParticipant: ' + str(pid2) + '; Motion Primitive: ' + str(mp))
-            #print('Preparing to show plot...')
+
+            # TODO: make this a toggle argument (whether to save or show plots)
+            #print('\t...vertices plotted! Preparing to show plot.')
             #plt.show()
-            
+
+            # save plots according to provided file path & formatting           
             print('Preparing to save plot...')
             if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/controls/' + str(mp) + '/'):
                     os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/controls/' + str(mp) + '/')
             plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/controls/' + str(mp) + '/' + str(pid2) + '_' + str(mp) + '_CHO_phase_comparison' + '_control_data_' + '.png', dpi=800, facecolor='w', transparent=True)
 
-
-
+        # clear figure
         plt.clf()
 
         return
+
+    #
+    def get_cho_params_from_log(self, pid='na', test_or_train='na', mp='na'):
+        if pid != 'na':
+            cho_metric_temp = self.cho_metric_array[pid]
+            if test_or_train != 'na':
+                cho_metric_temp = cho_metric_temp[test_or_train]
+                if mp !='na':
+                    cho_metric_temp = cho_metric_temp[mp]
+                else:
+                    return cho_metric_temp
+            else:
+                return cho_metric_temp
+        else:
+            print('returning entire array; error encountered at pid selection')
+            return self.cho_metric_array
+
+        return
+
+    # 
+    # NOTE: population=0 refers to visualizing results from the entire population
+    def visualize_cho_data(self, pid_list, phase_array, mp_list, plot_choice, population=0, test_or_train='na', moprim='na'):
+
+        ## NOTE: 
+        ## [0] = stdev_tv
+        ## [1] = stdev_lv
+        ## [2] = hull_area_reduced
+        ## [3] = hull_centroid_lv
+        ## [4] = hull_centroid_tv
+
+        #array = np.array([0, 0, 0, 0, 0, 0, 0])
+
+        # flag for plotting individual distributions
+
+
+        # flag for plotting all distributions
+
+        # plot objects
+        labels = mp_list
+
+        x = np.arange(len(labels))
+        width = 0.2
+
+        fig, ax = plt.subplots()
+
+        ave_list = np.array([[0, 0, 0, 0, 0, 0, 0]])
+
+
+        # [plot choice 1] plot CHO distribution across all participants, per motion primitive
+        for pid in pid_list:
+
+            for phase in phase_array:
+
+
+                for mp in mp_list:
+                    try:
+                        
+
+                        #print(pid)
+                        #print(phase)
+                        #print(mp)
+                        #cho_metric = self.get_cho_params_from_log(pid, phase, mp)
+                        cho_metric = self.cho_metric_array[pid][phase][mp]
+                        # flattern out cho_metrics into large array
+                        #ave_list = np.append(ave_list, [cho_metric[0]])
+
+
+                        print('\n\ncho_metric below:\n')
+                        print(cho_metric)
+                        
+                        #index = mp_list.index(mp)
+                        #bar_space = 
+
+
+                        #ax.bar(x, cho_metric[0], width)
+
+                        # rects1 = ax.bar(x - 2*(width/len(labels)), cho_metric[0], width, label='stdev_tv')
+                        # rects2 = ax.bar(x - width/len(labels), cho_metric[1], width, label='stdev_lv')
+                        # rects3 = ax.bar(x, cho_metric[2], width, label='hull_area')
+                        # rects4 = ax.bar(x + width/len(labels), cho_metric[3], width, label='centroid_lv')
+                        # rects5 = ax.bar(x + 2*(width/len(labels)), cho_metric[4], width, label='centroid_tv')
+
+
+
+                        #print(cho_metric)
+
+                        ave_list = np.append(ave_list, np.array([[pid, mp, cho_metric[0], cho_metric[1], cho_metric[2], cho_metric[3], cho_metric[4]]]), axis=0)
+                        print('\t\t\tave_list successfully appended')
+
+
+                        #df = pd.DataFrame(cho_metric, columns=cho_metric.keys())
+                        #print(df.to_string)
+                    except:
+                        pass
+                        # rects1 = ax.bar(x - 2*(width/len(labels)), 0.0, width, label='stdev_tv')
+                        # rects2 = ax.bar(x - width/len(labels), 0.0, width, label='stdev_lv')
+                        # rects3 = ax.bar(x, 0.0, width, label='hull_area')
+                        # rects4 = ax.bar(x + width/len(labels), 0.0, width, label='centroid_lv')
+                        # rects5 = ax.bar(x + 2*(width/len(labels)), 0.0, width, label='centroid_tv')
+
+            ax.set_ylabel('#')
+            ax.set_title('Scores by motion primitive for: ' + str(pid))
+            ax.set_xticks(x)
+            ax.set_xticklabels(labels)
+            #ax.legend()
+
+            #ax.bar_label(rects1, padding=3)
+            #ax.bar_label(rects2, padding=3)
+            #ax.bar_label(rects3, padding=3)
+            #ax.bar_label(rects4, padding=3)
+            #ax.bar_label(rects5, padding=3)
+
+            fig.tight_layout()
+            #plt.show()
+
+        print('\n[NOTE:] printing ave_list below: ')
+        print(ave_list)
+
+        return
+
 
     # adapted from user 'eumiro' @ url: https://stackoverflow.com/questions/6913532/display-a-decimal-in-scientific-notation
     def format_e(n):
         a = '%E' % n
         return a.split('E')[0].rstrip('0').rstrip('.') + 'E' + a.split('E')[1]
+
+    #
+    def export_logs(self):
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/questionnaire_responses.json', "w") as write_json:
+            json.dump(self.questionnaire_array, write_json)
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/cho_metrics.json', "w") as write_json:
+            json.dump(self.cho_metric_array, write_json)
+
 
 ####################### MAIN FUNCTION #######################################################################################
 
@@ -1229,38 +1338,63 @@ def main():
     with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/testing_all_moprim_all_pid_test.json', "w") as write_json:
         json.dump(vmd.testing_all_moprim_all_pid_array, write_json)
 
-    #vmd.compute_convex_hull(moprim_list, 'fwr', 0, participantID=3)
-    #print(mp_control_array)
-    
+    # generate a list of all participant IDs
+    pid_list = ['P11', 'P28'] #vmd.get_participantID_list()
+    # generate an array for storing current phase
+    #phase_array = [0, 'Training', 'Testing']
+    phase_array = ['Training', 'Testing']
 
-    pid_list = vmd.get_participantID_list()
-    phase_array = [0, 'Training', 'Testing']
+    # initalize cho_metric_array class object
+    vmd.initialize_cho_metric_array(pid_list, phase_array, moprim_list['P11'])
+
+    #vmd.export_logs()
+
+    #return
+
+    # iterate through all participants
     for pid in pid_list:
+        # iterate through all motion primitives
         for mp_idx in moprim_list['P11']:
+            # iterate through all phases (NOTE: different behavior for phase_array[0] = 0)
             for phase in phase_array:
                 try:
                     vmd.compute_convex_hull(moprim_list, mp_idx, phase, pid)
                 except:
                     print('encountered issue with convex hull computation for: ' + str(pid) + '; ' + str(mp_idx) + '; PHASE: ' + str(phase))
-    
-    #try:
-    # mp_idx = 'fwr_cw'
-    # phase = 'Testing'
-    # pid = 9
-    # vmd.compute_convex_hull(moprim_list, mp_idx, phase, pid)
-    #except:
-    #   print('encountered issue with convex hull computation for: ' + str(pid) + '; ' + str(mp_idx) + '; PHASE: ' + str(phase))
-    
+ 
+    # export additional information as .json files, organized by PID
+    vmd.export_logs()
+
+    # NOTE: testing using dataframes (pandas) w/ json
+    #df = pd.read_json('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_list.json')
+    #print(df.to_string())
+    #print(df.info())
+
+    vmd.visualize_cho_data(pid_list, phase_array, moprim_list['P11'], 0)
+
+    # export additional information as .json files, organized by PID
+    #vmd.export_logs()
+
+
+
+    return   
+
+    # FOR loop of all motion primitives in a given motion primitive list ('P11' here contains all moprims, and so this is the case for a complete list)
+    # NOTE: this is for all participants
     for mp_idx in moprim_list['P11']:
         print(mp_idx)
+        # visualize the odometry and controls for the training phase
         vmd.visualize_odom(vmd.training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training')
         vmd.visualize_controls(vmd.training_all_moprim_all_pid_array, moprim_list, mp_idx, 'Training')
 
+        # visualize the odometry and controls for the testing phases
         vmd.visualize_odom(vmd.testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing')
         vmd.visualize_controls(vmd.testing_all_moprim_all_pid_array, moprim_list, mp_idx, 'Testing')
 
+    # export additional information as .json files, organized by PID
+    vmd.export_logs()
 
-    # return
+    return
 
     ############ MOPRIM INFORMATION #########################################################################################
 
