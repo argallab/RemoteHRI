@@ -148,6 +148,7 @@ class master_dict:
         # beginning of per-trial data formatting loop; everything above is experiment-wide #
         for keyidx1 in range(0, len(self.current_data['Stimuli'])):
             ##print(self.md)
+
             # first, we branch off the training and test phases from the date #;
             # afterwards, the training and test phases are set as keys to lists; these lists contain all the block numbers within those phases
             #print('\tkeyidx : ' + str(keyidx1))
@@ -155,13 +156,15 @@ class master_dict:
             #print('\t\t\t--> ' + blockName)
             first_word = blockName.split()[0]
             #print('\t\t\t--> ' + first_word)
+
             #self.md['participantID'][participantID]['date'][date][first_word] = {blockName : {}}
             if not first_word in self.md['participantID'][participantID]['date'][date].keys():
                 #print('\t\t' + str(first_word) + ' not yet added! ')
                 #self.md['participantID'][participantID]['date'][date][first_word] = {first_word : []}
                 self.md['participantID'][participantID]['date'][date][first_word] = []
+
                 if len(self.md['participantID'][participantID]['date'][date][first_word]) == 0:
-                    self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})
+                    self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})                    
                 elif not blockName in self.md['participantID'][participantID]['date'][date][first_word][0].keys():
                     #self.md['participantID'][participantID]['date'][date][first_word].append({blockName : {}})# = {blockName : {}}
                     # if len(self.current_data['Stimuli'][keyidx1]['Answer'].items()) == 2: # ---------------------------------------------------------------------------------- added [6/13]
@@ -228,6 +231,7 @@ class master_dict:
 
                 if not 'response' in self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number].keys():
                     self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response'] = { 'start' : {}, 'end': {}, 'keypresses' : []}
+                    #self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response'] = { 'start' : {}, 'end': {}, 'trial_type':{}, 'keypresses' : []} # TODO: optional (?) [7/6/2021]
 
                 self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['start'] = self.current_data['Stimuli'][keyidx1]['Answer']['start']
                 self.md['participantID'][participantID]['date'][date][first_word][0][blockName][trial_number]['response']['end'] = self.current_data['Stimuli'][keyidx1]['Answer']['end']

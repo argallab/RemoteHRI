@@ -17,6 +17,9 @@ from scipy.spatial import ConvexHull, convex_hull_plot_2d
 from scipy import ndimage
 from decimal import Decimal
 import pandas as pd
+import time
+
+################################################################################################################################################### [ CLASS & INITIALIZATION DEFINITIONS ]   
 
 class visualizer:
     def __init__(self):
@@ -124,7 +127,7 @@ class visualizer:
         return questionnaire
 
     def initialize_cho_metric_array(self, pid_array, train_or_test, mp_list):
-        print(mp_list)
+        # print(mp_list)
         for pid in pid_array:
             self.cho_metric_array[pid] = {}
             for phase in train_or_test:
@@ -132,7 +135,7 @@ class visualizer:
 
                 for mp in mp_list:
                     self.cho_metric_array[pid][phase][mp] = {}
-                    print(str(pid) + ' ' + str(phase) + ' ' + str(mp))
+                    # print(str(pid) + ' ' + str(phase) + ' ' + str(mp))
         return
 
 
@@ -976,7 +979,10 @@ class visualizer:
                         mp_control_array = np.append(mp_control_array, [arr_to_append], axis=0)
                     
                 except:
-                    print('\t\t[WARNING]: no timesteps found for trial: ' + str(trial_key))
+                    if trial_key != 0:
+                        print('\t\t[WARNING]: no timesteps found for trial: ' + str(trial_key))
+                    else:
+                        pass
                     pass
             
             # remove the initial row of zeros (included for initializing the numpy array)
@@ -988,16 +994,17 @@ class visualizer:
             plt.plot([-0.05, 0.05], [0, 0], '--k', markersize=0.05) # 35 (maxangvel) / 60 (fps)
             plt.plot([0, 0], [-0.05, 0.05], '--k', markersize=0.05) # 95 (maxlinvel) / 50 (fps)
         
-
+            
             # compute convex hull (CHO) for motion primitive timeseries
-            print('\n[1] beginning to compute convex hull for PID: ' + str(pid) + ', MP: ' + str(mp) + '...')
+            # print('\n[1] beginning to compute convex hull for PID: ' + str(pid) + ', MP: ' + str(mp) + '...')
+            print('\t\t- ' + str(pid) + ', ' + str(mp) + ' (' + str(train_or_test) + ')...')
             hull = ConvexHull(mp_control_array)
-            print('\t...hull computed!')
+            #print('\t...hull computed!')
 
             # plot control points for visualization purposes
-            print('[2] beginning to plot control points...')
+            #print('[2] beginning to plot control points...')
             plt.plot(mp_control_array[:,0], mp_control_array[:,1], 'o', markersize=0.75, alpha=0.6)
-            print('\t...control points plotted!')
+            #print('\t...control points plotted!')
 
             # compute the standard deviation of control signals across motion primitive timeseries
             stdev = np.std(mp_control_array, axis=0)
@@ -1024,15 +1031,15 @@ class visualizer:
 
             # plot simplices from CHO
             simplex_plot_counter = 0
-            print('[3] beginning to plot simplices...')
+            #print('[3] beginning to plot simplices...')
             for simplex in hull.simplices:
-                print('\t...plotting simplex #' + str(simplex_plot_counter) + ' ...')
+                #print('\t...plotting simplex #' + str(simplex_plot_counter) + ' ...')
                 plt.plot(mp_control_array[simplex, 0], mp_control_array[simplex,1], 'k-')
                 simplex_plot_counter += 1
-            print('\t...all simplices plotted!')
+            #print('\t...all simplices plotted!')
             
             # plot vertices from CHO
-            print('[4] beginning to plot vertices...')
+            #print('[4] beginning to plot vertices...')
             plt.plot(mp_control_array[hull.vertices[:],0], mp_control_array[hull.vertices[:],1], 'ro', markersize=0.6) # plot outermost points (used as vertices)
             plt.title('Convex Hull for ' + str(train_or_test) + ' Phase' + '\nParticipant: ' + str(pid2) + '; Motion Primitive: ' + str(mp) + '\nArea: ' + str(hull_area_reduced) + '; Centroid: ' + str(hull_centroid_reduced) + '\nLinear st.dev.: ' + str(stdev_lv) + '; Angular st.dev.: ' + str(stdev_tv), fontsize=6)
             plt.xlabel('angular velocity (m/s)')
@@ -1044,7 +1051,7 @@ class visualizer:
             #plt.show()
 
             # save plots according to provided file path & formatting
-            print('\t...vertices plotted! Preparing to save plot...')
+            #print('\t...vertices plotted! Preparing to save plot...')
             if not os.path.exists('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/controls/' + str(mp) + '/'):
                 os.makedirs('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/controls/' + str(mp) + '/')
             plt.savefig('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_figures/single_participant_data/' + str(pid2) + '/controls/' + str(mp) + '/' + str(pid2) + '_' + str(mp) + '_CHO_' + str(train_or_test) + '_phase_control_data_' + '.png', dpi=800, facecolor='w', transparent=True)
@@ -1083,7 +1090,10 @@ class visualizer:
                     # NOTE: at present, the 'except' will trigger (at least) once for each block because of an empty trial sub-dict in the json files
                     # TODO: fix this (non-intrusive but annoying) formatting issue in parse_results.py (!)
                     except:
-                        print('\t\t[WARNING]: no timesteps found for trial: ' + str(trial_key))
+                        if trial_key != 0:
+                            print('\t\t[WARNING]: no timesteps found for trial: ' + str(trial_key))
+                        else:
+                            pass
                         pass
                 
                 # remove the initial row of zeros (included for initializing the numpy array)
@@ -1096,14 +1106,15 @@ class visualizer:
                 axs.plot([0, 0], [-0.05, 0.05], '--k', markersize=0.2) # 95 (maxlinvel) / 50 (fps)
             
                 # compute convex hull (CHO) for motion primitive timeseries
-                print('\n[1] beginning to compute convex hull for PID: ' + str(pid) + ', MP: ' + str(mp) + '...')
+                #print('\n[1] beginning to compute convex hull for PID: ' + str(pid) + ', MP: ' + str(mp) + '...')
+                print('\n\t\t- PID: ' + str(pid) + ', MP: ' + str(mp) + ' (' + str(phase) + ')...')
                 hull = ConvexHull(mp_control_array)
-                print('\t...hull computed!')
+                #print('\t...hull computed!')
 
                 # plot control points for visualization purposes
-                print('[2] beginning to plot ' + str(phase) + ' data control points...')
+                #print('[2] beginning to plot ' + str(phase) + ' data control points...')
                 axs.plot(mp_control_array[:,0], mp_control_array[:,1], 'o', markersize=0.75, alpha=0.6)
-                print('\t...control points plotted!')
+                #print('\t...control points plotted!')
 
                 # compute the standard deviation of control signals across motion primitive timeseries
                 stdev = np.std(mp_control_array, axis=0)
@@ -1137,17 +1148,17 @@ class visualizer:
 
                 # plot simplices from CHO
                 simplex_plot_counter = 0
-                print('[3] beginning to plot simplices...')
+                #print('[3] beginning to plot simplices...')
                 for simplex in hull.simplices:
-                    print('\t...plotting simplex #' + str(simplex_plot_counter) + ' ...')
+                    #print('\t...plotting simplex #' + str(simplex_plot_counter) + ' ...')
                     axs.plot(mp_control_array[simplex, 0], mp_control_array[simplex,1], 'k-')
                     simplex_plot_counter += 1
-                print('\t...all simplices plotted!')
+                #print('\t...all simplices plotted!')
                 
                 # plot vertices from CHO
-                print('beginning to plot vertices...')
+                #print('beginning to plot vertices...')
                 axs.plot(mp_control_array[hull.vertices[:],0], mp_control_array[hull.vertices[:],1], 'ro') # plot outermost points (used as vertices)
-                print('\t...vertices plotted!')
+                #print('\t...vertices plotted!')
                 axs.set_box_aspect(1)
                 axs.tick_params(direction='in', length=3, labelsize=5)
                 axs.set_title(str(phase) + ' Phase\nArea: ' + str(hull_area_reduced) + '; Centroid: ' + str(hull_centroid_reduced) + '\nLinear st.dev.: ' + str(stdev_lv) + '; Angular st.dev.: ' + str(stdev_tv))#, size=3)#, fontdict['fontsize']=10)#, fontsize=10)
@@ -1195,100 +1206,132 @@ class visualizer:
     # NOTE: population=0 refers to visualizing results from the entire population
     def visualize_cho_data(self, pid_list, phase_array, mp_list, plot_choice, population=0, test_or_train='na', moprim='na'):
 
+        cmap = ['lightcoral', 'forestgreen', 'deepskyblue', 'saddlebrown', 'khaki', 'turquoise', 'orchid', 'peru', 'gold', 'cyan', 'slategrey', 'crimson', 'blueviolet', 'darkorange', 'lawngreen', 'dimgrey', 'lime', 'darkslategray', 'rebeccapurple', 'indigo']
+
+        global interface_time
+        print('\n[NOTE] visualizing CHO data...')
+
         ## NOTE: 
-        ## [0] = stdev_tv
-        ## [1] = stdev_lv
+        ## [0] = stdev_tv < TODO: double-check which is which
+        ## [1] = stdev_lv < TODO: double-check which is which
         ## [2] = hull_area_reduced
-        ## [3] = hull_centroid_lv
-        ## [4] = hull_centroid_tv
+        ## [3] = hull_centroid_lv < TODO: double-check which is which
+        ## [4] = hull_centroid_tv < TODO: double-check which is which
+
+        ################ TODO: plot (x,y) = ([0],[1]) w/ biaxial error bars [3], [4] 
 
         #array = np.array([0, 0, 0, 0, 0, 0, 0])
 
         # flag for plotting individual distributions
 
-
         # flag for plotting all distributions
 
         # plot objects
         labels = mp_list
-
+        #
         x = np.arange(len(labels))
         width = 0.2
+        #
+        #fig, ax = plt.subplots()
+        #
 
-        fig, ax = plt.subplots()
-
+        label_list = []
         ave_list = np.array([[0, 0, 0, 0, 0, 0, 0]])
+        mp_ave_list = np.array([[0, 0, 0, 0, 0, 0, 0]])
 
+        sum_time_multiple_plots = 0
+
+        # TODO: remove this, used for testing function
+        mp_list = ['fwr']
+        pid_list = ['P11', 'P8', 'P10']
+
+        cmap_counter = 0
 
         # [plot choice 1] plot CHO distribution across all participants, per motion primitive
         for pid in pid_list:
 
+            cmap_counter = cmap_counter + 1
+
             for phase in phase_array:
 
-
                 for mp in mp_list:
+                    print('\n\t\t' + str(mp) + ', ' +  str(phase) + ', ' + str(pid))
                     try:
-                        
-
-                        #print(pid)
-                        #print(phase)
-                        #print(mp)
+                        print('(check!)')
                         #cho_metric = self.get_cho_params_from_log(pid, phase, mp)
                         cho_metric = self.cho_metric_array[pid][phase][mp]
                         # flattern out cho_metrics into large array
                         #ave_list = np.append(ave_list, [cho_metric[0]])
 
-
-                        print('\n\ncho_metric below:\n')
+                        #print('\n\t\tcho_metric below:\n')
                         print(cho_metric)
+                        if cho_metric != {}:
+                            ave_list = np.append(ave_list, np.array([[pid, mp, cho_metric[0], cho_metric[1], cho_metric[2], cho_metric[3], cho_metric[4]]]), axis=0) 
+                            #print('\t\t\t> ave_list successfully appended')
+                        else:
+                            #print('\t\t\t[WARNING] ave_list not appended')
+                            pass
+
+                        print('mp_ave incoming')
+                        label_to_add = str(pid) + ', ' + str(mp)
+                        #label_list = label_list + label_to_add
+                        #print(str(label_list))
                         
-                        #index = mp_list.index(mp)
-                        #bar_space = 
+                        # TODO: make a case for elif phase == 0
+                        if phase == 'Training':
+                            color_option_centroid = str(cmap[cmap_counter])
+                            color_option_errorbars = str(cmap[cmap_counter])
+                            marker_option_centroid = '*'
+                            marker_option_errorbars = '--'
+                            alpha_option = 0.2
+                            
+                        elif phase == 'Testing':
+                            color_option_centroid = str(cmap[cmap_counter])
+                            color_option_errorbars = str(cmap[cmap_counter])
+                            marker_option_centroid = '*'
+                            marker_option_errorbars = '--'
+                            alpha_option = 0.9
 
 
-                        #ax.bar(x, cho_metric[0], width)
+                        #print(str(ave_list))
+                        #print(str(ave_list[1:,2:]))
+                        ave_list_temp = ave_list[1:,2:].astype(float)
+                        #print(ave_list_temp)
+                        mp_ave = np.mean(ave_list_temp, axis=0)
+                        #print('mean computed')
+                        print(mp_ave)
+                        mp_ave_list = np.append(mp_ave_list, np.array([mp_ave]))
+                        #print('mean computed and appened')
+                        plt.errorbar(mp_ave[4], mp_ave[3], mp_ave[3], mp_ave[4], color=color_option_errorbars, linestyle=marker_option_errorbars, alpha=alpha_option)
+                        plt.plot(mp_ave[4], mp_ave[3], color=color_option_centroid, marker=marker_option_centroid, alpha=alpha_option)
+                        #print('passed mp_ave')
 
-                        # rects1 = ax.bar(x - 2*(width/len(labels)), cho_metric[0], width, label='stdev_tv')
-                        # rects2 = ax.bar(x - width/len(labels), cho_metric[1], width, label='stdev_lv')
-                        # rects3 = ax.bar(x, cho_metric[2], width, label='hull_area')
-                        # rects4 = ax.bar(x + width/len(labels), cho_metric[3], width, label='centroid_lv')
-                        # rects5 = ax.bar(x + 2*(width/len(labels)), cho_metric[4], width, label='centroid_tv')
-
-
-
-                        #print(cho_metric)
-
-                        ave_list = np.append(ave_list, np.array([[pid, mp, cho_metric[0], cho_metric[1], cho_metric[2], cho_metric[3], cho_metric[4]]]), axis=0)
-                        print('\t\t\tave_list successfully appended')
-
-
-                        #df = pd.DataFrame(cho_metric, columns=cho_metric.keys())
-                        #print(df.to_string)
                     except:
+                        print('(!)')
                         pass
-                        # rects1 = ax.bar(x - 2*(width/len(labels)), 0.0, width, label='stdev_tv')
-                        # rects2 = ax.bar(x - width/len(labels), 0.0, width, label='stdev_lv')
-                        # rects3 = ax.bar(x, 0.0, width, label='hull_area')
-                        # rects4 = ax.bar(x + width/len(labels), 0.0, width, label='centroid_lv')
-                        # rects5 = ax.bar(x + 2*(width/len(labels)), 0.0, width, label='centroid_tv')
 
-            ax.set_ylabel('#')
-            ax.set_title('Scores by motion primitive for: ' + str(pid))
-            ax.set_xticks(x)
-            ax.set_xticklabels(labels)
-            #ax.legend()
+            
 
-            #ax.bar_label(rects1, padding=3)
-            #ax.bar_label(rects2, padding=3)
-            #ax.bar_label(rects3, padding=3)
-            #ax.bar_label(rects4, padding=3)
-            #ax.bar_label(rects5, padding=3)
+            #ax.set_ylabel('#')
+            #ax.set_title('Scores by motion primitive for: ' + str(pid))
+            #ax.set_xticks(x)
+            #ax.set_xticklabels(labels)
 
-            fig.tight_layout()
-            #plt.show()
+            #fig.tight_layout()
+        plt.title('convex hull data across users')
+        plt.legend(label_list)
+        start_time = time.time()
+        plt.show()
+        plots_open_duration = time.time() - start_time
+        sum_time_multiple_plots = sum_time_multiple_plots + plots_open_duration
+            
 
-        print('\n[NOTE:] printing ave_list below: ')
-        print(ave_list)
+        # compute elapsed time spent w/ plots open (program paused)
+        interface_time = sum_time_multiple_plots
+        print('\n\t- plots open for %.2f seconds' % (interface_time))
+        
+        print('\n[NOTE] printing mp ave_list below: ')
+        print('\n' + str(mp_ave_list[1:]))
 
         return
 
@@ -1305,65 +1348,164 @@ class visualizer:
         with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/cho_metrics.json', "w") as write_json:
             json.dump(self.cho_metric_array, write_json)
 
+    def import_logs(self):
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/questionnaire_responses.json', "r") as read_json:
+            self.questionnaire_array = json.load(read_json)
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/cho_metrics.json', "r") as read_json:
+            self.cho_metric_array = json.load(read_json)
+
 
 ####################### MAIN FUNCTION #######################################################################################
 
 def main():
+    # global initialization & flag to either (1) generate dictionaries from user data, or (2) to load previously generated dictionaries
+    global generate_dict
+    generate_dict = False
+    # initialization of visualizer
     vmd = visualizer()
-    vmd.load_dict()
+    
     
     ############ MOPRIM INFORMATION #########################################################################################
 
-    # get the distribution of motion primitives across all participants
-    moprim_dict_all_pid, moprim_location_all_pid, moprim_list = vmd.get_moprim_dist()
-    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_dict_all_pid_test.json', "w") as write_json:
-        json.dump(moprim_dict_all_pid, write_json)
-    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_location_all_pid_test.json', "w") as write_json:
-        json.dump(moprim_location_all_pid, write_json)
-    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_list.json', "w") as write_json:
-        json.dump(moprim_list, write_json)
+    if generate_dict == True:
 
-    # get all instances of a single motion primitive from all participants
-    single_moprim_all_pid_array = vmd.get_single_moprim_all_pid(moprim_location_all_pid, 'fwr')
-    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/single_moprim_all_pid_test.json', "w") as write_json:
-        json.dump(single_moprim_all_pid_array, write_json)
+        vmd.load_dict()
 
-     # get all instances of all motion primitives during the TRAINING phase from all participants
-    vmd.training_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Training')
-    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/training_all_moprim_all_pid_test.json', "w") as write_json:
-        json.dump(vmd.training_all_moprim_all_pid_array, write_json)
+        # get the distribution of motion primitives across all participants
+        moprim_dict_all_pid, moprim_location_all_pid, moprim_list = vmd.get_moprim_dist()
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_dict_all_pid_test.json', "w") as write_json:
+            json.dump(moprim_dict_all_pid, write_json)
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_location_all_pid_test.json', "w") as write_json:
+            json.dump(moprim_location_all_pid, write_json)
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_list.json', "w") as write_json:
+            json.dump(moprim_list, write_json)
 
-    # get all instances of all motion primitives during the TRAINING phase from all participants
-    vmd.testing_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Testing')
-    with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/testing_all_moprim_all_pid_test.json', "w") as write_json:
-        json.dump(vmd.testing_all_moprim_all_pid_array, write_json)
+        # get all instances of a single motion primitive from all participants
+        single_moprim_all_pid_array = vmd.get_single_moprim_all_pid(moprim_location_all_pid, 'fwr')
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/single_moprim_all_pid_test.json', "w") as write_json:
+            json.dump(single_moprim_all_pid_array, write_json)
 
-    # generate a list of all participant IDs
-    pid_list = ['P11', 'P28'] #vmd.get_participantID_list()
-    # generate an array for storing current phase
-    #phase_array = [0, 'Training', 'Testing']
-    phase_array = ['Training', 'Testing']
+        # get all instances of all motion primitives during the TRAINING phase from all participants
+        vmd.training_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Training')
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/training_all_moprim_all_pid_test.json', "w") as write_json:
+            json.dump(vmd.training_all_moprim_all_pid_array, write_json)
 
-    # initalize cho_metric_array class object
-    vmd.initialize_cho_metric_array(pid_list, phase_array, moprim_list['P11'])
+        # get all instances of all motion primitives during the TRAINING phase from all participants
+        vmd.testing_all_moprim_all_pid_array = vmd.get_all_moprim_all_pid(moprim_location_all_pid, moprim_list, 'Testing')
+        with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/testing_all_moprim_all_pid_test.json', "w") as write_json:
+            json.dump(vmd.testing_all_moprim_all_pid_array, write_json)
+        
+        # generate a list of all participant IDs
+        pid_list = vmd.get_participantID_list() # ['P11', 'P28'] # vmd.get_participantID_list()
 
-    #vmd.export_logs()
+        # generate an array for storing current phase
+        #phase_array = [0, 'Training', 'Testing']
+        phase_array = ['Training', 'Testing']
 
-    #return
+        print('\n[NOTE] computing convex hull')
+        # initalize cho_metric_array class object
+        vmd.initialize_cho_metric_array(pid_list, phase_array, moprim_list['P11'])
 
-    # iterate through all participants
-    for pid in pid_list:
-        # iterate through all motion primitives
-        for mp_idx in moprim_list['P11']:
-            # iterate through all phases (NOTE: different behavior for phase_array[0] = 0)
-            for phase in phase_array:
-                try:
-                    vmd.compute_convex_hull(moprim_list, mp_idx, phase, pid)
-                except:
-                    print('encountered issue with convex hull computation for: ' + str(pid) + '; ' + str(mp_idx) + '; PHASE: ' + str(phase))
- 
-    # export additional information as .json files, organized by PID
-    vmd.export_logs()
+        #vmd.export_logs()
+
+        #return
+
+        # iterate through all participants
+        for pid in pid_list:
+            print('\n')
+            # iterate through all motion primitives
+            for mp_idx in moprim_list['P11']:
+                # iterate through all phases (NOTE: different behavior for phase_array[0] = 0)
+                for phase in phase_array:
+                    try:
+                        vmd.compute_convex_hull(moprim_list, mp_idx, phase, pid)
+                    except:
+                        print('\t\t  > ' + str(pid) + ', ' + str(mp_idx) + ', (' + str(phase) + ') [WARNING]')
+    
+        # export additional information as .json files, organized by PID
+        vmd.export_logs()
+
+    else:
+        print('\n[NOTE] loading .json files...')
+        # load the distribution of motion primitives across all participants
+        try:
+            with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_dict_all_pid_test.json', "r") as load_json:
+                moprim_dict_all_pid = json.load(load_json)
+            print('\t- loaded moprim_dict_all_pid_test.json')
+        except:
+            print('\t- [!] could not load moprim_dict_all_pid_test.json [!]')
+        
+        try:
+            with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_location_all_pid_test.json', "r") as load_json:
+                moprim_location_all_pid = json.load(load_json)
+            print('\t- loaded moprim_dict_all_pid_test.json')
+        except:
+            print('\t- [!] could not load moprim_dict_all_pid_test.json [!]')
+
+        try:
+            with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_list.json', "r") as load_json:
+                moprim_list = json.load(load_json)
+            print('\t- loaded moprim_dict_all_pid_test.json')
+        except:
+            print('\t- [!] could not load moprim_dict_all_pid_test.json [!]')
+
+        # load all instances of a single motion primitive from all participants
+        try:
+            with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/single_moprim_all_pid_test.json', "r") as load_json:
+                single_moprim_all_pid_array = json.load(load_json)
+            print('\t- loaded single_moprim_all_pid_test.json')
+        except:
+            print('\t- [!] could not load moprim_dict_all_pid_test.json [!]')
+
+        # load all instances of all motion primitives during the TRAINING phase from all participants
+        try:
+            with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/training_all_moprim_all_pid_test.json', "r") as load_json:
+                vmd.training_all_moprim_all_pid_array = json.load(load_json)
+            print('\t- loaded training_all_moprim_all_pid_test.json')
+        except:
+            print('\t- [!] could not load moprim_dict_all_pid_test.json [!]')
+
+        # load all instances of all motion primitives during the TRAINING phase from all participants
+        try:
+            with open('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/testing_all_moprim_all_pid_test.json', "r") as load_json:
+                vmd.testing_all_moprim_all_pid_array = json.load(load_json)
+            print('\t- loaded testing_all_moprim_all_pid_test.json')
+        except:
+            print('\t- [!] could not load moprim_dict_all_pid_test.json [!]')
+
+        # generate a list of all participant IDs
+        pid_list = ["P11", "P8", "P23", "P3", "P13", "P21", "P2", "P10",
+                         "P19", "P24", "P6", "P20", "P5", "P4", "P7", "P22", "P9", "P14"]
+        #pid_list = ['P11', 'P28'] #vmd.get_participantID_list()
+        
+        # generate an array for storing current phase
+        #phase_array = [0, 'Training', 'Testing']
+        phase_array = ['Training', 'Testing']
+
+        vmd.import_logs()
+
+        # # initalize cho_metric_array class object
+        # vmd.initialize_cho_metric_array(pid_list, phase_array, moprim_list['P11'])
+
+        # #vmd.export_logs()
+
+        # #return
+
+        # # iterate through all participants
+        # for pid in pid_list:
+        #     # iterate through all motion primitives
+        #     for mp_idx in moprim_list['P11']:
+        #         # iterate through all phases (NOTE: different behavior for phase_array[0] = 0)
+        #         for phase in phase_array:
+        #             try:
+        #                 vmd.compute_convex_hull(moprim_list, mp_idx, phase, pid)
+        #             except:
+        #                 print('\t\t> ' + str(pid) + '; ' + str(mp_idx) + '; PHASE: ' + str(phase) + ') [WARNING]')
+    
+        # # export additional information as .json files, organized by PID
+        # vmd.export_logs()
+
+    ##### NOTE: EXPERIMENTAL CODE BELOW THIS LINE #####
 
     # NOTE: testing using dataframes (pandas) w/ json
     #df = pd.read_json('/home/mossti/Documents/argallab/RemoteHRI_support/rhri_data/test/moprim_list.json')
@@ -1571,6 +1713,16 @@ def main():
 
     return
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
+    global interface_time
+    start_time = time.time()
     main()
+    # display time in console using modified code from https://stackoverflow.com/questions/1557571/how-do-i-get-time-of-a-python-programs-execution
+    runtime = time.time() - (start_time + interface_time)
+    if runtime <= 60.0:
+        print("\n\n\t--- runtime: %.2f seconds ---" % (runtime))
+    else:
+        runtime_min = runtime%60
+        runtime_sec = runtime - (runtime_min*60) 
+        print("\n\n\t--- runtime: %.2f minutes & %.2f seconds ---" % (runtime_min, runtime_sec))
 
