@@ -1335,6 +1335,7 @@ class visualizer:
 
         return
 
+####################### DATA FORMATTING #####################################################################################
 
     # adapted from user 'eumiro' @ url: https://stackoverflow.com/questions/6913532/display-a-decimal-in-scientific-notation
     def format_e(n):

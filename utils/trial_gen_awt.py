@@ -618,9 +618,9 @@ if __name__ == "__main__":
     # parser.add_argument('--num_train_trials', action='store', type=int, default=1, help="number of trials per training block")
     # parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks")
     # parser.add_argument('--num_test_trials', action='store', type=int, default=1, help="number of trials per testing block")
-    parser.add_argument('--num_train_blocks', action='store', type=int, default=2, help="number of training blocks")
+    parser.add_argument('--num_train_blocks', action='store', type=int, default=1, help="number of training blocks") # default = 2 [7/11/2021]
     parser.add_argument('--num_train_trials', action='store', type=int, default=12, help="number of trials per training block")
-    parser.add_argument('--num_test_blocks', action='store', type=int, default=6, help="number of testing blocks")
+    parser.add_argument('--num_test_blocks', action='store', type=int, default=1, help="number of testing blocks") # default = 6 [7/11/2021]
     parser.add_argument('--num_test_trials', action='store', type=int, default=12, help="number of trials per testing block")
     parser.add_argument('--experiment_name', action='store', type=str, default="Grid World Experiment (Continuous)", help="name of the experiment")
     parser.add_argument('--experiment_json_name', action='store', type=str, default="Experiment_ContDyn_awt.json", help="name of .json file which defines the experiment")
