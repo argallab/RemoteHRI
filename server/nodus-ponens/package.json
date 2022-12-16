@@ -35,7 +35,7 @@
     "fast-csv": "^2.3.0",
     "json2csv": "^3.7.2",
     "save": "^2.3.0",
-    "shelljs": "^0.7.5"
+    "shelljs": "^0.8.5"
   },
   "deprecated": false,
   "description": "A light, full-stack framework for running high-level reasoning and cognitive science experiments in Node.js.",
